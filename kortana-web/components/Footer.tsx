@@ -65,7 +65,7 @@ export default function Footer() {
                         <ul className="space-y-4">
                             <FooterLink href="/developers">Dev Portal</FooterLink>
                             <FooterLink href="https://explorer.mainnet.kortana.xyz" target="_blank">Mainnet Explorer</FooterLink>
-                            <FooterLink href="https://explorer.kortana.worchsester.xyz" target="_blank">Testnet Explorer</FooterLink>
+                            <FooterLink href="https://explorer.testnet.kortana.xyz" target="_blank">Testnet Explorer</FooterLink>
                             <FooterLink href="/faucets">Testnet Faucet</FooterLink>
                             <FooterLink href="/community">Join Community</FooterLink>
                         </ul>

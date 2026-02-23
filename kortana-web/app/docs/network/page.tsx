@@ -45,10 +45,10 @@ export default function NetworkPage() {
                                 </thead>
                                 <tbody>
                                     <ConfigRow label="Network Name" value="Kortana Testnet" />
-                                    <ConfigRow label="RPC Endpoint" value="https://poseidon-rpc.kortana.worchsester.xyz" isCopy />
+                                    <ConfigRow label="RPC Endpoint" value="https://poseidon-rpc.testnet.kortana.xyz/" isCopy />
                                     <ConfigRow label="Chain ID" value="72511" />
                                     <ConfigRow label="Currency" value="DNR" />
-                                    <ConfigRow label="Block Explorer" value="https://explorer.kortana.worchsester.xyz" isCopy />
+                                    <ConfigRow label="Block Explorer" value="https://explorer.testnet.kortana.xyz" isCopy />
                                 </tbody>
                             </table>
                         </div>
