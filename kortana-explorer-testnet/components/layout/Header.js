@@ -64,8 +64,8 @@ const Header = () => {
                                         symbol: 'DNR',
                                         decimals: 18,
                                     },
-                                    rpcUrls: ['https://poseidon-rpc.kortana.worchsester.xyz'],
-                                    blockExplorerUrls: ['https://explorer.kortana.worchsester.xyz'],
+                                    rpcUrls: ['https://poseidon-rpc.testnet.kortana.xyz'],
+                                    blockExplorerUrls: ['https://explorer.testnet.kortana.xyz'],
                                 },
                             ],
                         });
@@ -98,6 +98,18 @@ const Header = () => {
                         WebkitTextFillColor: 'transparent'
                     }}>
                         KORTANA
+                    </span>
+                    <span style={{
+                        fontSize: '0.65rem',
+                        padding: '2px 6px',
+                        background: 'rgba(255,255,255,0.1)',
+                        borderRadius: '4px',
+                        color: '#64dfdf', // Cyan for testnet
+                        border: '1px solid rgba(100, 223, 223, 0.3)',
+                        fontWeight: 'bold',
+                        letterSpacing: '0.1em'
+                    }}>
+                        TESTNET
                     </span>
                 </Link>
 
@@ -163,7 +175,7 @@ const Header = () => {
                         </button> */}
                     </div>
                 </nav>
-                
+
                 <button
                     className="show-mobile btn"
                     style={{ padding: '0.5rem', background: 'transparent' }}

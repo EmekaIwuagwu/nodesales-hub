@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 
-const RPC_URL = 'https://poseidon-rpc.kortana.worchsester.xyz';
+const RPC_URL = 'https://zeus-rpc.mainnet.kortana.xyz';
 
 export const provider = new ethers.JsonRpcProvider(RPC_URL);
 
