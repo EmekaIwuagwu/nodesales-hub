@@ -373,9 +373,15 @@ async fn main() {
                         let mut receipts = Vec::new();
 
                         for tx in &txs {
-                            if let Ok(receipt) = processor.process_transaction(tx.clone(), &header) {
-                                receipts.push(receipt);
-                                mempool.remove_transaction(&tx.hash());
+                            match processor.process_transaction(tx.clone(), &header) {
+                                Ok(receipt) => {
+                                    receipts.push(receipt);
+                                    mempool.remove_transaction(&tx.hash());
+                                }
+                                Err(e) => {
+                                    println!("{}[PROCESSOR]{} Transaction 0x{} failed: {}. Removing from mempool.", CLR_CYAN, CLR_RESET, hex::encode(tx.hash()), e);
+                                    mempool.remove_transaction(&tx.hash());
+                                }
                             }
                         }
 

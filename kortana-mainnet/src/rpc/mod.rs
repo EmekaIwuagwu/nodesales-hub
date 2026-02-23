@@ -273,6 +273,27 @@ impl RpcHandler {
                                 match crate::types::transaction::Transaction::decode_ethereum(&bytes) {
                                     Ok(mut tx) => {
                                         tx.cached_hash = Some(tx_hash_bytes);
+                                        
+                                        // Strict pre-mempool validation
+                                        if tx.chain_id != self.chain_id {
+                                            return Some(serde_json::to_value(JsonRpcResponse::new_error(req_id.clone(), -32000, &format!("Invalid chain ID: expected {}, got {}", self.chain_id, tx.chain_id))).unwrap());
+                                        }
+
+                                        if tx.gas_price < crate::parameters::MIN_GAS_PRICE {
+                                            return Some(serde_json::to_value(JsonRpcResponse::new_error(req_id.clone(), -32000, &format!("Gas price too low: min {}", crate::parameters::MIN_GAS_PRICE))).unwrap());
+                                        }
+
+                                        {
+                                            let state = self.state.lock().unwrap();
+                                            let sender = state.get_account(&tx.from);
+                                            if tx.nonce < sender.nonce {
+                                                return Some(serde_json::to_value(JsonRpcResponse::new_error(req_id.clone(), -32000, &format!("Nonce too low: address current nonce {}, tx nonce {}", sender.nonce, tx.nonce))).unwrap());
+                                            }
+                                            if sender.balance < tx.total_cost() {
+                                                 return Some(serde_json::to_value(JsonRpcResponse::new_error(req_id.clone(), -32000, "Insufficient funds for transaction")).unwrap());
+                                            }
+                                        }
+
                                         {
                                             let mut mempool = self.mempool.lock().unwrap();
                                             let added = mempool.add(tx.clone());
