@@ -170,6 +170,28 @@ async fn main() {
         }
     }
 
+    // 5. Ensure Genesis Block exists (Crucial for Explorer)
+    if storage.get_block(0).unwrap_or(None).is_none() {
+        println!("{}Generating missing Genesis Block...{}", CLR_YELLOW, CLR_RESET);
+        let genesis_state = if h_init == 0 { state.clone() } else { kortana_blockchain_rust::core::genesis::create_genesis_state() };
+        let genesis_root = genesis_state.calculate_root();
+        let genesis_block = kortana_blockchain_rust::core::genesis::create_genesis_block(genesis_root);
+        let genesis_hash = genesis_block.header.hash();
+        let _ = storage.put_state(0, &genesis_state);
+        let _ = storage.put_block(&genesis_block);
+        let _ = storage.put_state_root(0, genesis_root);
+        
+        // If we are at height 0, the "finalized hash" for the next block must be the genesis hash
+        if h_init == 0 {
+            consensus.finalized_hash = genesis_hash;
+        }
+    } else if h_init == 0 {
+        // Even if block 0 exists, if we are starting at 0, sync the finalized hash
+        if let Ok(Some(block)) = storage.get_block(0) {
+            consensus.finalized_hash = block.header.hash();
+        }
+    }
+
     let node = Arc::new(KortanaNode {
         consensus: Arc::new(Mutex::new(consensus)),
         state: Arc::new(Mutex::new(state)),

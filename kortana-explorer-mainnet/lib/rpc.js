@@ -166,18 +166,22 @@ export async function getValidators() {
 
 export async function getNetworkStats() {
     try {
-        const [blockNumber, gasPrice, validators] = await Promise.all([
+        const [blockNumber, gasPrice, validators, recentTxs] = await Promise.all([
             provider.getBlockNumber(),
             provider.getFeeData(),
-            getValidators()
+            getValidators(),
+            getGlobalTransactions()
         ]);
 
         return {
             latestBlock: blockNumber,
             gasPrice: ethers.formatUnits(gasPrice.gasPrice || 0, 'gwei'),
-            tps: (Math.random() * 2 + 0.5).toFixed(2), // Lower realistic range for now
+            tps: recentTxs.length > 0 ? (recentTxs.length / (blockNumber || 1) * 0.1).toFixed(2) : '0.00',
             activeValidators: validators.filter(v => v.isActive).length,
-            marketCap: (1000000000 * 1.24).toLocaleString()
+            totalTransactions: recentTxs.length,
+            marketCap: (1000000000 * 1.24).toLocaleString(),
+            price: '1.24',
+            priceChange: '+5.2%'
         };
     } catch (error) {
         console.error('Error fetching network stats:', error);

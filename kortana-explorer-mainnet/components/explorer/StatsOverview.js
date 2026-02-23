@@ -39,13 +39,13 @@ const StatsOverview = ({ stats }) => {
         <div className="stats-grid">
             <StatCard
                 title="DNR PRICE"
-                value="$1.24"
+                value={`$${stats?.price || '1.24'}`}
                 icon={Zap}
-                change="+5.2%"
+                change={stats?.priceChange || '+5.2%'}
             />
             <StatCard
                 title="TRANSACTIONS"
-                value="45.2M"
+                value={stats?.totalTransactions !== undefined ? stats.totalTransactions.toLocaleString() : '0'}
                 icon={Activity}
                 suffix="TXNS"
             />
@@ -56,9 +56,9 @@ const StatsOverview = ({ stats }) => {
             />
             <StatCard
                 title="ACTIVE VALIDATORS"
-                value="50"
+                value={stats?.activeValidators ?? '0'}
                 icon={Users}
-                suffix="/ 50"
+                suffix="/ 3"
             />
         </div>
     );
