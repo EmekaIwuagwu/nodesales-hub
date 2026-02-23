@@ -270,13 +270,13 @@ async fn main() {
                 let req_body_str = String::from_utf8_lossy(&buffer);
                 
                 let (http_res, _method_name) = if req_body_str.starts_with("OPTIONS") {
-                    ("HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: POST, GET, OPTIONS\r\nAccess-Control-Allow-Headers: Content-Type, Authorization\r\nContent-Length: 0\r\n\r\n".to_string(), "OPTIONS".to_string())
+                    ("HTTP/1.1 200 OK\r\nAccess-Control-Allow-Methods: POST, GET, OPTIONS\r\nAccess-Control-Allow-Headers: Content-Type, Authorization\r\nContent-Length: 0\r\n\r\n".to_string(), "OPTIONS".to_string())
                 } else if req_body_str.starts_with("GET") {
                     let status_json = serde_json::json!({
                         "status": "online", "node": "Kortana Mainnet", "version": "1.1.0",
                         "chain_id": CHAIN_ID, "height": _task_node.height.load(Ordering::Relaxed)
                     }).to_string();
-                    (format!("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nContent-Length: {}\r\n\r\n{}", status_json.len(), status_json), "HTTP_GET".to_string())
+                    (format!("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{}", status_json.len(), status_json), "HTTP_GET".to_string())
                 } else if let Some(header_end) = req_body_str.find("\r\n\r\n") {
                     let body_start = header_end + 4;
                     let mut cl_val = 0;
@@ -296,7 +296,7 @@ async fn main() {
                     };
 
                     if body.is_empty() {
-                        ("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nAccess-Control-Allow-Origin: *\r\nContent-Length: 20\r\n\r\nKortana RPC is Live!".to_string(), "EMPTY_POST".to_string())
+                        ("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 20\r\n\r\nKortana RPC is Live!".to_string(), "EMPTY_POST".to_string())
                     } else {
                         let res_json = if body.starts_with('[') {
                             match serde_json::from_str::<Vec<kortana_blockchain_rust::rpc::JsonRpcRequest>>(&body) {
@@ -313,7 +313,7 @@ async fn main() {
                                 Err(e) => serde_json::json!({ "jsonrpc": "2.0", "error": { "code": -32700, "message": format!("Parse error: {}", e) }, "id": null }).to_string()
                             }
                         };
-                        (format!("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nContent-Length: {}\r\n\r\n{}", res_json.len(), res_json), "JSON_RPC".to_string())
+                        (format!("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{}", res_json.len(), res_json), "JSON_RPC".to_string())
                     }
                 } else {
                     ("HTTP/1.1 400 Bad Request\r\n\r\n".to_string(), "BAD_REQUEST".to_string())
