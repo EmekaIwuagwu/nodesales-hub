@@ -276,21 +276,21 @@ impl RpcHandler {
                                         
                                         // Strict pre-mempool validation
                                         if tx.chain_id != self.chain_id {
-                                            return Some(serde_json::to_value(JsonRpcResponse::new_error(req_id.clone(), -32000, &format!("Invalid chain ID: expected {}, got {}", self.chain_id, tx.chain_id))).unwrap());
+                                            return JsonRpcResponse::new_error(req_id.clone(), -32000, &format!("Invalid chain ID: expected {}, got {}", self.chain_id, tx.chain_id));
                                         }
 
                                         if tx.gas_price < crate::parameters::MIN_GAS_PRICE {
-                                            return Some(serde_json::to_value(JsonRpcResponse::new_error(req_id.clone(), -32000, &format!("Gas price too low: min {}", crate::parameters::MIN_GAS_PRICE))).unwrap());
+                                            return JsonRpcResponse::new_error(req_id.clone(), -32000, &format!("Gas price too low: min {}", crate::parameters::MIN_GAS_PRICE));
                                         }
 
                                         {
                                             let state = self.state.lock().unwrap();
                                             let sender = state.get_account(&tx.from);
                                             if tx.nonce < sender.nonce {
-                                                return Some(serde_json::to_value(JsonRpcResponse::new_error(req_id.clone(), -32000, &format!("Nonce too low: address current nonce {}, tx nonce {}", sender.nonce, tx.nonce))).unwrap());
+                                                return JsonRpcResponse::new_error(req_id.clone(), -32000, &format!("Nonce too low: address current nonce {}, tx nonce {}", sender.nonce, tx.nonce));
                                             }
                                             if sender.balance < tx.total_cost() {
-                                                 return Some(serde_json::to_value(JsonRpcResponse::new_error(req_id.clone(), -32000, "Insufficient funds for transaction")).unwrap());
+                                                 return JsonRpcResponse::new_error(req_id.clone(), -32000, "Insufficient funds for transaction");
                                             }
                                         }
 
