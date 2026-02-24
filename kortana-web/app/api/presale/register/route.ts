@@ -79,7 +79,10 @@ export async function POST(req: NextRequest) {
             remindersSent: [{ type: 'registration', sentAt: new Date() }]
         };
 
-        const result = await users.insertOne(newUser);
+        const result = await Promise.race([
+            users.insertOne(newUser),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Database Timeout')), 10000))
+        ]) as any;
 
         // 7. Update Stats (Non-blocking or with strict timeout)
         const stats = db.collection('presale_stats');
