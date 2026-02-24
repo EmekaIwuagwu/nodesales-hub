@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Users, Mail, Globe, Wallet, Calendar, Search, Download, Trash2, Shield, ExternalLink } from 'lucide-react';
 
@@ -8,10 +9,20 @@ export default function AdminDashboard() {
     const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const router = useRouter();
 
     useEffect(() => {
+        checkAuth();
         fetchUsers();
     }, []);
+
+    const checkAuth = () => {
+        const cookies = document.cookie.split('; ');
+        const authCookie = cookies.find(row => row.startsWith('presale_admin_auth='));
+        if (!authCookie) {
+            router.push('/presale/admin/login');
+        }
+    };
 
     const fetchUsers = async () => {
         try {
@@ -174,8 +185,36 @@ export default function AdminDashboard() {
                                     </td>
                                     <td className="px-6 py-6">
                                         <div className="flex gap-2">
-                                            <button className="px-3 py-1.5 bg-green-500/10 text-green-500 text-[10px] font-bold rounded-lg hover:bg-green-500/20 transition uppercase">Confirm</button>
-                                            <button className="p-2 hover:bg-red-500/20 text-red-500 rounded-lg transition">
+                                            <button
+                                                onClick={async () => {
+                                                    if (confirm('Confirm payment for this investor?')) {
+                                                        await fetch('/api/presale/admin/users', {
+                                                            method: 'PATCH',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({ userId: user._id, status: 'confirmed' }),
+                                                        });
+                                                        fetchUsers();
+                                                    }
+                                                }}
+                                                disabled={user.paymentStatus === 'confirmed'}
+                                                className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition uppercase ${user.paymentStatus === 'confirmed' ? 'bg-gray-500/10 text-gray-500' : 'bg-green-500/10 text-green-500 hover:bg-green-500/20'
+                                                    }`}
+                                            >
+                                                {user.paymentStatus === 'confirmed' ? 'Verified' : 'Confirm'}
+                                            </button>
+                                            <button
+                                                onClick={async () => {
+                                                    if (confirm('Are you sure you want to delete this registration?')) {
+                                                        await fetch('/api/presale/admin/users', {
+                                                            method: 'DELETE',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({ userId: user._id }),
+                                                        });
+                                                        fetchUsers();
+                                                    }
+                                                }}
+                                                className="p-2 hover:bg-red-500/20 text-red-500 rounded-lg transition"
+                                            >
                                                 <Trash2 size={16} />
                                             </button>
                                         </div>

@@ -18,9 +18,10 @@ const KORTANA_MAINNET_INFO = {
 };
 
 const PAYMENT_PLATFORMS = [
-    { id: 'eth', name: 'Ethereum', symbol: 'ETH', icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png', address: '0x7a5E98C721A0F2d5856B73E366127394E2bDa789' },
-    { id: 'polygon', name: 'Polygon', symbol: 'MATIC', icon: 'https://cryptologos.cc/logos/polygon-matic-logo.png', address: '0x7a5E98C721A0F2d5856B73E366127394E2bDa789' },
-    { id: 'trc20', name: 'USDT (TRC-20)', symbol: 'USDT', icon: 'https://cryptologos.cc/logos/tether-usdt-logo.png', address: 'TX5tekNYLZXaVtje6QUMKjEsx9RxteSzC4' },
+    { id: 'eth', name: 'Ethereum (ERC-20)', symbol: 'USDT', icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png', address: '0x7a5E98C721A0F2d5856B73E366127394E2bDa789' },
+    { id: 'bnb', name: 'BSC (BEP-20)', symbol: 'USDT', icon: 'https://cryptologos.cc/logos/binance-coin-bnb-logo.png', address: '0x7a5E98C721A0F2d5856B73E366127394E2bDa789' },
+    { id: 'polygon', name: 'Polygon', symbol: 'USDT', icon: 'https://cryptologos.cc/logos/polygon-matic-logo.png', address: '0x7a5E98C721A0F2d5856B73E366127394E2bDa789' },
+    { id: 'trc20', name: 'TRON (TRC-20)', symbol: 'USDT', icon: 'https://cryptologos.cc/logos/tether-usdt-logo.png', address: 'TX5tekNYLZXaVtje6QUMKjEsx9RxteSzC4' },
 ];
 
 export default function RegistrationForm({ selectedTier: initialTier, onSuccess }: RegistrationFormProps) {

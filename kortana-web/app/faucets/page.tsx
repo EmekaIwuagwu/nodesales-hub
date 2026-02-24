@@ -16,14 +16,22 @@ export default function FaucetsPage() {
 
         setStatus('loading');
 
-        // Simulate API call
-        setTimeout(() => {
-            if (address.length < 10) {
-                setStatus('error');
-            } else {
+        try {
+            const res = await fetch('/api/faucet/request', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ address, network }),
+            });
+            const data = await res.json();
+            if (data.success) {
                 setStatus('success');
+            } else {
+                setStatus('error');
+                alert(data.message);
             }
-        }, 2000);
+        } catch (err) {
+            setStatus('error');
+        }
     };
 
     return (
