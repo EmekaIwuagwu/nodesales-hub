@@ -128,6 +128,7 @@ export default function AdminDashboard() {
                         <thead>
                             <tr className="bg-white/10 text-[10px] uppercase tracking-widest font-bold text-gray-400">
                                 <th className="px-6 py-5">Investor Info</th>
+                                <th className="px-6 py-5">Requested Tokens</th>
                                 <th className="px-6 py-5">Tier & Payment</th>
                                 <th className="px-6 py-5">On-Chain Receipt</th>
                                 <th className="px-6 py-5">Registered Wallet</th>
@@ -141,6 +142,12 @@ export default function AdminDashboard() {
                                         <p className="font-bold text-white">{user.fullName}</p>
                                         <p className="text-xs text-gray-500">{user.email}</p>
                                         <p className="text-[10px] text-indigo-400 mt-1">{user.country}</p>
+                                    </td>
+                                    <td className="px-6 py-6">
+                                        <div className="flex flex-col">
+                                            <p className="font-black text-white text-base">{(user.tokenAmount || 0).toLocaleString()} <span className="text-[10px] text-gray-500">DNR</span></p>
+                                            <p className="text-xs font-bold text-green-500">${(user.usdCost || 0).toLocaleString()}</p>
+                                        </div>
                                     </td>
                                     <td className="px-6 py-6">
                                         <div className="flex flex-col gap-2">

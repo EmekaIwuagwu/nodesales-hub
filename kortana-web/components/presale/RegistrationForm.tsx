@@ -18,10 +18,11 @@ const KORTANA_MAINNET_INFO = {
 };
 
 const PAYMENT_PLATFORMS = [
-    { id: 'eth', name: 'Ethereum (ERC-20)', symbol: 'USDT', icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png', address: '0x7a5E98C721A0F2d5856B73E366127394E2bDa789' },
-    { id: 'bnb', name: 'BSC (BEP-20)', symbol: 'USDT', icon: 'https://cryptologos.cc/logos/binance-coin-bnb-logo.png', address: '0x7a5E98C721A0F2d5856B73E366127394E2bDa789' },
-    { id: 'polygon', name: 'Polygon', symbol: 'USDT', icon: 'https://cryptologos.cc/logos/polygon-matic-logo.png', address: '0x7a5E98C721A0F2d5856B73E366127394E2bDa789' },
-    { id: 'trc20', name: 'TRON (TRC-20)', symbol: 'USDT', icon: 'https://cryptologos.cc/logos/tether-usdt-logo.png', address: 'TX5tekNYLZXaVtje6QUMKjEsx9RxteSzC4' },
+    { id: 'eth', name: 'Ethereum (ERC-20)', symbol: 'ETH', token: 'USDT', icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png', address: '0x7a5E98C721A0F2d5856B73E366127394E2bDa789' },
+    { id: 'bnb', name: 'BSC (BEP-20)', symbol: 'BNB', token: 'USDT', icon: 'https://cryptologos.cc/logos/binance-coin-bnb-logo.png', address: '0x7a5E98C721A0F2d5856B73E366127394E2bDa789' },
+    { id: 'sol', name: 'Solana Network', symbol: 'SOL', token: 'USDC', icon: 'https://cryptologos.cc/logos/solana-sol-logo.png', address: 'BfXm7S7c... (Awaiting Your SOL Address)' },
+    { id: 'polygon', name: 'Polygon', symbol: 'MATIC', token: 'USDT', icon: 'https://cryptologos.cc/logos/polygon-matic-logo.png', address: '0x7a5E98C721A0F2d5856B73E366127394E2bDa789' },
+    { id: 'trc20', name: 'TRON (TRC-20)', symbol: 'TRX', token: 'USDT', icon: 'https://cryptologos.cc/logos/tether-usdt-logo.png', address: 'TX5tekNYLZXaVtje6QUMKjEsx9RxteSzC4' },
 ];
 
 export default function RegistrationForm({ selectedTier: initialTier, onSuccess }: RegistrationFormProps) {
@@ -29,6 +30,51 @@ export default function RegistrationForm({ selectedTier: initialTier, onSuccess 
     const [selectedPlatform, setSelectedPlatform] = useState<typeof PAYMENT_PLATFORMS[0] | null>(null);
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const [error, setError] = useState('');
+    const [tokenAmount, setTokenAmount] = useState<number>(20000);
+    const [cryptoPrices, setCryptoPrices] = useState<Record<string, number>>({
+        eth: 2800,
+        bnb: 380,
+        sol: 110,
+        polygon: 0.8,
+        trc20: 0.12
+    });
+
+    // Fetch live prices
+    useEffect(() => {
+        const fetchPrices = async () => {
+            try {
+                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum,binancecoin,solana,matic-network,tron&vs_currencies=usd');
+                const data = await res.json();
+                setCryptoPrices({
+                    eth: data.ethereum.usd,
+                    bnb: data.binancecoin.usd,
+                    sol: data.solana.usd,
+                    polygon: data['matic-network'].usd,
+                    trc20: data.tron.usd
+                });
+            } catch (err) {
+                console.error("Price fetch error:", err);
+            }
+        };
+        fetchPrices();
+    }, []);
+
+    const getPricePerToken = () => {
+        if (formData.tier?.toLowerCase() === 'enterprise') return 0.03;
+        if (formData.tier?.toLowerCase() === 'professional') return 0.04;
+        return 0.05;
+    };
+
+    const calculateCost = () => {
+        const usdTotal = tokenAmount * getPricePerToken();
+        if (!selectedPlatform) return { usd: usdTotal, crypto: 0 };
+
+        const price = cryptoPrices[selectedPlatform.id] || 1;
+        return {
+            usd: usdTotal,
+            crypto: usdTotal / price
+        };
+    };
 
     const [formData, setFormData] = useState({
         fullName: '',
@@ -80,6 +126,8 @@ export default function RegistrationForm({ selectedTier: initialTier, onSuccess 
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     ...formData,
+                    tokenAmount,
+                    usdCost: calculateCost().usd,
                     referralCode,
                     transactionHash: formData.txReceipt,
                     paymentMethod: selectedPlatform?.name
@@ -247,31 +295,62 @@ export default function RegistrationForm({ selectedTier: initialTier, onSuccess 
                     >
                         <div className="flex justify-between items-end">
                             <div>
-                                <h2 className="text-3xl font-black text-white font-space mb-2">Step 2: Send Contribution</h2>
-                                <p className="text-gray-400">Select your preferred network to send funds.</p>
+                                <h2 className="text-3xl font-black text-white font-space mb-2">Step 2: Configure & Pay</h2>
+                                <p className="text-gray-400">Total tokens and preferred payment network.</p>
                             </div>
                             <button onClick={prevStep} className="text-xs font-bold text-gray-500 hover:text-white flex items-center gap-2 pb-2">
                                 <ArrowLeft size={14} /> Change Tier
                             </button>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {PAYMENT_PLATFORMS.map((platform) => (
-                                <button
-                                    key={platform.id}
-                                    onClick={() => setSelectedPlatform(platform)}
-                                    className={`p-6 rounded-3xl border text-center transition-all flex flex-col items-center gap-4 ${selectedPlatform?.id === platform.id
-                                        ? 'bg-indigo-600/20 border-indigo-500'
-                                        : 'bg-white/5 border-white/10 hover:border-white/20'
-                                        }`}
-                                >
-                                    <img src={platform.icon} alt={platform.name} className="w-12 h-12 rounded-full" />
-                                    <div className="space-y-1">
-                                        <p className="text-sm font-bold text-white">{platform.name}</p>
-                                        <p className="text-[10px] text-gray-500 uppercase font-black">{platform.symbol}</p>
-                                    </div>
-                                </button>
-                            ))}
+                        {/* Token Calculator */}
+                        <div className="bg-indigo-600/5 border border-indigo-600/20 p-8 rounded-[32px] space-y-8">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.3em] flex justify-between">
+                                    <span>Purchase Amount (DNR)</span>
+                                    <span className="text-indigo-400">Yield Price: ${getPricePerToken()}</span>
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="number"
+                                        value={tokenAmount}
+                                        onChange={(e) => setTokenAmount(Number(e.target.value))}
+                                        className="w-full bg-white/5 border border-white/10 p-6 rounded-2xl outline-none focus:border-indigo-500 text-3xl font-black text-white transition font-space"
+                                        placeholder="Enter Amount"
+                                    />
+                                    <div className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-600 font-bold uppercase tracking-widest">DNR</div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="p-5 bg-white/5 rounded-2xl border border-white/5">
+                                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Total Valuation (USD)</p>
+                                    <p className="text-2xl font-black text-white font-space">${calculateCost().usd.toLocaleString()}</p>
+                                </div>
+                                <div className="p-5 bg-indigo-600/10 rounded-2xl border border-indigo-600/20">
+                                    <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-1">Investor Status</p>
+                                    <p className="text-2xl font-black text-indigo-400 font-space uppercase italic">{formData.tier}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Choose Payment Network</label>
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                                {PAYMENT_PLATFORMS.map((platform) => (
+                                    <button
+                                        key={platform.id}
+                                        onClick={() => setSelectedPlatform(platform)}
+                                        className={`p-4 rounded-2xl border transition-all flex flex-col items-center gap-3 text-center ${selectedPlatform?.id === platform.id
+                                            ? 'bg-indigo-600/20 border-indigo-500 shadow-lg shadow-indigo-500/5'
+                                            : 'bg-white/5 border-white/10 hover:border-white/20'
+                                            }`}
+                                    >
+                                        <img src={platform.icon} alt={platform.name} className="w-8 h-8 rounded-full shadow-lg" />
+                                        <p className="text-[10px] font-bold text-white uppercase tracking-tighter">{platform.symbol}</p>
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
                         {selectedPlatform && (
@@ -280,26 +359,37 @@ export default function RegistrationForm({ selectedTier: initialTier, onSuccess 
                                 animate={{ opacity: 1, y: 0 }}
                                 className="bg-deep-space p-8 rounded-[32px] border border-white/5 space-y-6"
                             >
-                                <div className="flex items-start gap-4">
-                                    <div className="p-3 bg-indigo-500/20 text-indigo-400 rounded-xl">
-                                        <Info size={24} />
+                                <div className="flex justify-between items-center pb-4 border-b border-white/5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                                            <img src={selectedPlatform.icon} className="w-6 h-6 rounded-full" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Amount to Send</p>
+                                            <p className="text-2xl font-black text-indigo-400 font-space">
+                                                {calculateCost().crypto.toFixed(selectedPlatform.id === 'eth' || selectedPlatform.id === 'sol' ? 4 : 2)} {selectedPlatform.symbol}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 className="text-lg font-bold text-white uppercase tracking-wider">Deposit Address</h3>
-                                        <p className="text-sm text-gray-500">Send only <strong>{selectedPlatform.symbol}</strong> via <strong>{selectedPlatform.name}</strong> network to this address:</p>
+                                    <div className="text-right">
+                                        <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Market Price</p>
+                                        <p className="text-xs font-bold text-white font-mono">${cryptoPrices[selectedPlatform.id]?.toLocaleString()}</p>
                                     </div>
                                 </div>
 
-                                <div className="flex gap-3">
-                                    <div className="flex-1 bg-white/5 border border-white/10 p-5 rounded-2xl text-indigo-400 font-mono text-sm break-all leading-relaxed">
-                                        {selectedPlatform.address}
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Deposit Address</label>
+                                    <div className="flex gap-3">
+                                        <div className="flex-1 bg-white/5 border border-white/10 p-5 rounded-2xl text-indigo-400 font-mono text-sm break-all leading-relaxed">
+                                            {selectedPlatform.address}
+                                        </div>
+                                        <button
+                                            onClick={() => navigator.clipboard.writeText(selectedPlatform.address)}
+                                            className="bg-indigo-600 px-6 rounded-2xl hover:bg-indigo-700 transition"
+                                        >
+                                            <Copy size={20} />
+                                        </button>
                                     </div>
-                                    <button
-                                        onClick={() => navigator.clipboard.writeText(selectedPlatform.address)}
-                                        className="bg-indigo-600 px-6 rounded-2xl hover:bg-indigo-700 transition"
-                                    >
-                                        <Copy size={20} />
-                                    </button>
                                 </div>
 
                                 <div className="p-6 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center gap-4 animate-pulse">

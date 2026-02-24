@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { email, fullName, phone, country, walletAddress, tier, referralCode: incomingRefCode, transactionHash, paymentMethod } = body;
+        const { email, fullName, phone, country, walletAddress, tier, referralCode: incomingRefCode, transactionHash, paymentMethod, tokenAmount, usdCost } = body;
 
         // 1. Basic Validation
         if (!email || !fullName || !walletAddress || !tier) {
@@ -67,6 +67,8 @@ export async function POST(req: NextRequest) {
             referrerId,
             transactionHash: transactionHash || null,
             paymentMethod: paymentMethod || null,
+            tokenAmount: tokenAmount || 0,
+            usdCost: usdCost || 0,
             paymentStatus: transactionHash ? 'pending' : 'awaiting_payment',
             status: 'confirmed',
             createdAt: new Date(),
