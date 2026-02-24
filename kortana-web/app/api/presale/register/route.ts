@@ -15,7 +15,10 @@ export async function POST(req: NextRequest) {
         }
 
         if (!validateWalletAddress(walletAddress)) {
-            return NextResponse.json({ success: false, message: 'Invalid ERC-20 wallet address' }, { status: 400 });
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid DNR Receiver Wallet address. Please ensure it is a valid 42-character ERC-20 address.'
+            }, { status: 400 });
         }
 
         // 2. Connect to DB
@@ -57,18 +60,18 @@ export async function POST(req: NextRequest) {
 
         // 6. Create User Record
         const newUser = {
-            email,
+            email: email.toLowerCase(),
             fullName,
-            phone,
+            phone: phone || null,
             country,
-            walletAddress,
+            walletAddress: walletAddress.toLowerCase(),
             tier,
+            tokenAmount: Number(tokenAmount) || 0,
+            usdCost: Number(usdCost) || 0,
             referralCode: newUserRefCode,
             referrerId,
             transactionHash: transactionHash || null,
             paymentMethod: paymentMethod || null,
-            tokenAmount: tokenAmount || 0,
-            usdCost: usdCost || 0,
             paymentStatus: transactionHash ? 'pending' : 'awaiting_payment',
             status: 'confirmed',
             createdAt: new Date(),
@@ -92,10 +95,14 @@ export async function POST(req: NextRequest) {
             { upsert: true }
         );
 
-        // 8. Send Welcome Email
+        // 8. Send Welcome Email (Non-blocking for faster response)
         const referralLink = `https://www.kortana.network/presale?ref=${newUserRefCode}`;
         const emailHtml = getWelcomeEmailTemplate(fullName, tier, walletAddress, referralLink);
-        await sendEmail(email, 'Welcome to Kortana Presale! 🚀', emailHtml);
+
+        // We don't await the email so the API responds instantly
+        sendEmail(email, 'Welcome to Kortana Presale! 🚀', emailHtml).catch(err => {
+            console.error('Deferred welcome email error:', err);
+        });
 
         return NextResponse.json({
             success: true,
@@ -103,7 +110,7 @@ export async function POST(req: NextRequest) {
             referralLink,
             referralCode: newUserRefCode,
             tier,
-            message: 'Registration successful. Check your email for confirmation.'
+            message: 'Registration successful! You are now whitelisted.'
         });
 
     } catch (error: any) {

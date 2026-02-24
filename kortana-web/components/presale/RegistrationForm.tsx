@@ -115,13 +115,17 @@ export default function RegistrationForm({ selectedTier: initialTier, onSuccess 
         setStatus('loading');
         setError('');
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
         try {
-            const urlParams = new URLSearchParams(window.location.search);
+            const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
             const referralCode = urlParams.get('ref');
 
             const response = await fetch('/api/presale/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                signal: controller.signal,
                 body: JSON.stringify({
                     ...formData,
                     tokenAmount,
@@ -132,6 +136,7 @@ export default function RegistrationForm({ selectedTier: initialTier, onSuccess 
                 }),
             });
 
+            clearTimeout(timeoutId);
             const data = await response.json();
 
             if (data.success) {
@@ -142,9 +147,15 @@ export default function RegistrationForm({ selectedTier: initialTier, onSuccess 
                 setStatus('error');
                 setError(data.message || 'Registration failed. Please try again.');
             }
-        } catch (err) {
+        } catch (err: any) {
+            clearTimeout(timeoutId);
             setStatus('error');
-            setError('A network error occurred. Please check your connection.');
+            if (err.name === 'AbortError') {
+                setError('Registration timed out. Please check your internet and try again.');
+            } else {
+                console.error("Submission error:", err);
+                setError('A network error occurred. Please check your connection.');
+            }
         }
     };
 
