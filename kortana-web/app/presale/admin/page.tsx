@@ -20,7 +20,8 @@ import {
     Smartphone,
     Database,
     ArrowUpRight,
-    TrendingUp
+    TrendingUp,
+    Wallet
 } from 'lucide-react';
 import AdminSidebar from '@/components/admin/Sidebar';
 
@@ -151,7 +152,7 @@ export default function AdminDashboard() {
                         <div className="space-y-2">
                             <div className="flex items-center gap-3">
                                 <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-2 ${dbStatus === 'connected' ? 'bg-emerald-500/10 text-emerald-500' :
-                                        dbStatus === 'error' ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500 animate-pulse'
+                                    dbStatus === 'error' ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500 animate-pulse'
                                     }`}>
                                     <Database size={10} />
                                     {dbStatus === 'connected' ? 'Live Database Connected' : dbStatus === 'error' ? 'Connection Offline' : 'Syncing...'}
@@ -252,8 +253,8 @@ export default function AdminDashboard() {
                                                 </td>
                                                 <td className="px-8 py-6 text-center">
                                                     <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest inline-block skew-x-[-12deg] ${user.tier === 'enterprise' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' :
-                                                            user.tier === 'professional' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' :
-                                                                'bg-gray-500/10 text-gray-400 border border-gray-500/20'
+                                                        user.tier === 'professional' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' :
+                                                            'bg-gray-500/10 text-gray-400 border border-gray-500/20'
                                                         }`}>
                                                         {user.tier}
                                                     </span>
@@ -274,7 +275,7 @@ export default function AdminDashboard() {
                                                 <td className="px-8 py-6 text-right">
                                                     <div className="flex items-center justify-end gap-3">
                                                         <div className={`w-2 h-2 rounded-full ${user.paymentStatus === 'confirmed' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' :
-                                                                user.paymentStatus === 'pending' ? 'bg-amber-500 animate-pulse' : 'bg-gray-700'
+                                                            user.paymentStatus === 'pending' ? 'bg-amber-500 animate-pulse' : 'bg-gray-700'
                                                             }`} />
                                                         <span className={`text-[10px] font-black uppercase tracking-widest ${user.paymentStatus === 'confirmed' ? 'text-emerald-500' : 'text-gray-500'
                                                             }`}>
@@ -401,8 +402,8 @@ export default function AdminDashboard() {
                                         onClick={() => approveUser(selectedUser._id)}
                                         disabled={selectedUser.paymentStatus === 'confirmed'}
                                         className={`flex-1 flex items-center justify-center gap-3 py-5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${selectedUser.paymentStatus === 'confirmed'
-                                                ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
-                                                : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl shadow-emerald-600/20 active:scale-95'
+                                            ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                                            : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl shadow-emerald-600/20 active:scale-95'
                                             }`}
                                     >
                                         {selectedUser.paymentStatus === 'confirmed' ? (
