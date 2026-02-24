@@ -149,7 +149,7 @@ export default function RegistrationForm({ selectedTier: initialTier, onSuccess 
             }
         } catch (err: any) {
             clearTimeout(timeoutId);
-            setStatus('error');
+            setStatus('error'); // Set status to error to show the message
             if (err.name === 'AbortError') {
                 setError('Registration timed out. Please check your internet and try again.');
             } else {

@@ -81,19 +81,27 @@ export async function POST(req: NextRequest) {
 
         const result = await users.insertOne(newUser);
 
-        // 7. Update Stats (Optional: could be done via trigger or separate logic)
+        // 7. Update Stats (Non-blocking or with strict timeout)
         const stats = db.collection('presale_stats');
-        await stats.updateOne(
-            {},
-            {
-                $inc: {
-                    totalRegistrations: 1,
-                    [`tierBreakdown.${tier}.count`]: 1
-                },
-                $set: { lastUpdated: new Date() }
-            },
-            { upsert: true }
-        );
+        try {
+            await Promise.race([
+                stats.updateOne(
+                    { identifier: 'main_stats' }, // Use a concrete filter
+                    {
+                        $inc: {
+                            totalRegistrations: 1,
+                            totalAmountRaised: Number(usdCost) || 0,
+                            [`tierBreakdown.${tier}.count`]: 1
+                        },
+                        $set: { lastUpdated: new Date() }
+                    },
+                    { upsert: true }
+                ),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Stats timeout')), 5000))
+            ]);
+        } catch (e) {
+            console.error("Stats update failed (non-critical):", e);
+        }
 
         // 8. Send Welcome Email (Non-blocking for faster response)
         const referralLink = `https://www.kortana.network/presale?ref=${newUserRefCode}`;

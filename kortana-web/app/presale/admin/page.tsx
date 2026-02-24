@@ -112,9 +112,14 @@ export default function AdminDashboard() {
                     <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                         <div className="space-y-2">
                             <div className="flex items-center gap-3">
-                                <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-2 ${dbStatus === 'connected' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500 animate-pulse'
+                                <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-2 ${dbStatus === 'connected' ? 'bg-emerald-500/10 text-emerald-500' :
+                                    dbStatus === 'error' ? 'bg-red-500/10 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]' :
+                                        'bg-amber-500/10 text-amber-500 animate-pulse'
                                     }`}>
-                                    <Database size={10} /> {dbStatus === 'connected' ? 'Live Database Connected' : 'Synchronizing...'}
+                                    <Database size={10} />
+                                    {dbStatus === 'connected' ? 'Live Database Connected' :
+                                        dbStatus === 'error' ? 'Database Connection Failure' :
+                                            'Synchronizing Ledger...'}
                                 </div>
                             </div>
                             <h1 className="text-4xl md:text-5xl font-black font-space tracking-tight">Kortana Terminal</h1>
@@ -220,8 +225,8 @@ export default function AdminDashboard() {
                                                 </td>
                                                 <td className="px-8 py-6 text-center">
                                                     <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest inline-block skew-x-[-12deg] ${user.tier === 'enterprise' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' :
-                                                            user.tier === 'professional' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' :
-                                                                'bg-gray-500/10 text-gray-400 border border-gray-500/20'
+                                                        user.tier === 'professional' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' :
+                                                            'bg-gray-500/10 text-gray-400 border border-gray-500/20'
                                                         }`}>
                                                         {user.tier}
                                                     </span>
@@ -253,7 +258,7 @@ export default function AdminDashboard() {
                                                     <div className="flex items-center justify-end gap-3">
                                                         <div className="text-right mr-2 hidden sm:block">
                                                             <p className={`text-[9px] font-bold uppercase tracking-widest ${user.paymentStatus === 'confirmed' ? 'text-emerald-500' :
-                                                                    user.paymentStatus === 'pending' ? 'text-amber-500' : 'text-gray-600'
+                                                                user.paymentStatus === 'pending' ? 'text-amber-500' : 'text-gray-600'
                                                                 }`}>
                                                                 {user.paymentStatus || 'Awaiting'}
                                                             </p>
@@ -274,8 +279,8 @@ export default function AdminDashboard() {
                                                                 }}
                                                                 disabled={user.paymentStatus === 'confirmed'}
                                                                 className={`p-2.5 rounded-xl transition-all ${user.paymentStatus === 'confirmed'
-                                                                        ? 'bg-emerald-500/5 text-emerald-500 border border-emerald-500/20 opacity-50'
-                                                                        : 'bg-white/5 text-white hover:bg-emerald-500 hover:text-white border border-white/10'
+                                                                    ? 'bg-emerald-500/5 text-emerald-500 border border-emerald-500/20 opacity-50'
+                                                                    : 'bg-white/5 text-white hover:bg-emerald-500 hover:text-white border border-white/10'
                                                                     }`}
                                                             >
                                                                 <Shield size={16} />
@@ -312,7 +317,24 @@ export default function AdminDashboard() {
                             </div>
                         )}
 
-                        {!loading && filteredUsers.length === 0 && (
+                        {!loading && dbStatus === 'error' && (
+                            <div className="p-32 text-center flex flex-col items-center gap-6">
+                                <div className="p-4 bg-red-500/10 rounded-full text-red-500 border border-red-500/20">
+                                    <Shield size={40} />
+                                </div>
+                                <div className="space-y-2 max-w-md">
+                                    <p className="text-xl font-black text-white font-space uppercase tracking-tighter">Audit Connection Failed</p>
+                                    <p className="text-sm text-gray-500 leading-relaxed">
+                                        The terminal cannot reach the secure database cluster. This is likely due to an <strong>IP Whitelist</strong> restriction on MongoDB Atlas for the production environment.
+                                    </p>
+                                </div>
+                                <button onClick={fetchUsers} className="px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition">
+                                    Try Re-establishing Secure Tunnel
+                                </button>
+                            </div>
+                        )}
+
+                        {!loading && dbStatus !== 'error' && filteredUsers.length === 0 && (
                             <div className="p-32 text-center text-gray-600 flex flex-col items-center gap-4">
                                 <Database size={40} className="opacity-20" />
                                 <p className="font-bold text-sm">No transaction records match your search query.</p>

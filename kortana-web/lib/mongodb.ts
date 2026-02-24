@@ -1,7 +1,11 @@
 import { MongoClient } from 'mongodb';
 
 const uri = process.env.MONGODB_URI;
-const options = {};
+const options = {
+    connectTimeoutMS: 10000, // 10 seconds
+    socketTimeoutMS: 45000,  // 45 seconds
+    serverSelectionTimeoutMS: 10000,
+};
 
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
@@ -22,11 +26,13 @@ if (!uri) {
         };
 
         if (!globalWithMongo._mongoClientPromise) {
+            console.log('Connecting to MongoDB (Dev)...');
             client = new MongoClient(uri, options);
             globalWithMongo._mongoClientPromise = client.connect();
         }
         clientPromise = globalWithMongo._mongoClientPromise;
     } else {
+        console.log('Connecting to MongoDB (Prod)...');
         client = new MongoClient(uri, options);
         clientPromise = client.connect();
     }
