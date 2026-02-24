@@ -12,10 +12,15 @@ import {
     Shield,
     ExternalLink,
     RefreshCw,
-    Calendar,
+    X,
+    CheckCircle2,
+    CreditCard,
+    MapPin,
+    Mail,
+    Smartphone,
+    Database,
     ArrowUpRight,
-    TrendingUp,
-    Database
+    TrendingUp
 } from 'lucide-react';
 import AdminSidebar from '@/components/admin/Sidebar';
 
@@ -24,6 +29,7 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [dbStatus, setDbStatus] = useState<'connected' | 'syncing' | 'error'>('syncing');
+    const [selectedUser, setSelectedUser] = useState<any | null>(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -67,6 +73,41 @@ export default function AdminDashboard() {
         }
     };
 
+    const approveUser = async (userId: string) => {
+        try {
+            const res = await fetch('/api/presale/admin/users', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, status: 'confirmed' }),
+            });
+            if (res.ok) {
+                fetchUsers();
+                if (selectedUser?._id === userId) {
+                    setSelectedUser({ ...selectedUser, paymentStatus: 'confirmed' });
+                }
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const deleteUser = async (userId: string) => {
+        if (!confirm('Permanently redact this investor record?')) return;
+        try {
+            const res = await fetch('/api/presale/admin/users', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId }),
+            });
+            if (res.ok) {
+                fetchUsers();
+                setSelectedUser(null);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     const filteredUsers = users.filter(user =>
         user.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -101,25 +142,19 @@ export default function AdminDashboard() {
 
     return (
         <div className="bg-[#020410] min-h-screen text-white flex">
-            {/* Navigation Sidebar */}
             <AdminSidebar />
 
-            {/* Main Content Area */}
             <main className="flex-1 lg:ml-[280px] p-8 md:p-12">
                 <div className="max-w-7xl mx-auto space-y-12">
-
                     {/* Header Section */}
                     <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                         <div className="space-y-2">
                             <div className="flex items-center gap-3">
                                 <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-2 ${dbStatus === 'connected' ? 'bg-emerald-500/10 text-emerald-500' :
-                                    dbStatus === 'error' ? 'bg-red-500/10 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]' :
-                                        'bg-amber-500/10 text-amber-500 animate-pulse'
+                                        dbStatus === 'error' ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500 animate-pulse'
                                     }`}>
                                     <Database size={10} />
-                                    {dbStatus === 'connected' ? 'Live Database Connected' :
-                                        dbStatus === 'error' ? 'Database Connection Failure' :
-                                            'Synchronizing Ledger...'}
+                                    {dbStatus === 'connected' ? 'Live Database Connected' : dbStatus === 'error' ? 'Connection Offline' : 'Syncing...'}
                                 </div>
                             </div>
                             <h1 className="text-4xl md:text-5xl font-black font-space tracking-tight">Kortana Terminal</h1>
@@ -184,10 +219,10 @@ export default function AdminDashboard() {
                             <table className="w-full text-left border-collapse min-w-[1000px]">
                                 <thead>
                                     <tr className="bg-white/5 text-[9px] uppercase tracking-[0.2em] font-black text-gray-500">
-                                        <th className="px-8 py-6">ID & Investor</th>
+                                        <th className="px-8 py-6">Investor</th>
                                         <th className="px-8 py-6 text-center">Commitment</th>
-                                        <th className="px-8 py-6 text-center">Tier Status</th>
-                                        <th className="px-8 py-6">Audit Trail (Receipt)</th>
+                                        <th className="px-8 py-6 text-center">Tier</th>
+                                        <th className="px-8 py-6">Proof of Payment</th>
                                         <th className="px-8 py-6">Wallet Identity</th>
                                         <th className="px-8 py-6 text-right">Verification</th>
                                     </tr>
@@ -200,21 +235,13 @@ export default function AdminDashboard() {
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: idx * 0.05 }}
-                                                className="hover:bg-white/5 transition-all group border-none"
+                                                onClick={() => setSelectedUser(user)}
+                                                className="hover:bg-indigo-500/5 transition-all group border-none cursor-pointer"
                                             >
                                                 <td className="px-8 py-6">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center font-black text-xs text-gray-500">
-                                                            {idx + 1}
-                                                        </div>
-                                                        <div>
-                                                            <p className="font-black text-white uppercase tracking-tight">{user.fullName}</p>
-                                                            <div className="flex items-center gap-2 text-[10px] text-gray-600 font-bold">
-                                                                <span>{user.email}</span>
-                                                                <span className="w-1 h-1 rounded-full bg-gray-700" />
-                                                                <span className="text-indigo-400">{user.country}</span>
-                                                            </div>
-                                                        </div>
+                                                    <div>
+                                                        <p className="font-black text-white uppercase tracking-tight group-hover:text-indigo-400 transition-colors">{user.fullName}</p>
+                                                        <p className="text-[10px] text-gray-600 font-bold">{user.email}</p>
                                                     </div>
                                                 </td>
                                                 <td className="px-8 py-6 text-center">
@@ -225,30 +252,20 @@ export default function AdminDashboard() {
                                                 </td>
                                                 <td className="px-8 py-6 text-center">
                                                     <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest inline-block skew-x-[-12deg] ${user.tier === 'enterprise' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' :
-                                                        user.tier === 'professional' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' :
-                                                            'bg-gray-500/10 text-gray-400 border border-gray-500/20'
+                                                            user.tier === 'professional' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' :
+                                                                'bg-gray-500/10 text-gray-400 border border-gray-500/20'
                                                         }`}>
                                                         {user.tier}
                                                     </span>
                                                 </td>
                                                 <td className="px-8 py-6">
                                                     {user.transactionHash ? (
-                                                        <a
-                                                            href={
-                                                                user.transactionHash.startsWith('http') ? user.transactionHash :
-                                                                    user.paymentMethod?.toLowerCase().includes('trc') ? `https://tronscan.org/#/transaction/${user.transactionHash}` :
-                                                                        user.paymentMethod?.toLowerCase().includes('polygon') ? `https://polygonscan.com/tx/${user.transactionHash}` :
-                                                                            `https://etherscan.io/tx/${user.transactionHash}`
-                                                            }
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition group/link"
-                                                        >
-                                                            <span className="font-mono text-[11px] font-bold truncate max-w-[120px]">{user.transactionHash}</span>
-                                                            <ExternalLink size={12} className="group-hover/link:translate-x-1 transition-transform" />
-                                                        </a>
+                                                        <div className="flex items-center gap-2 text-indigo-400 text-[11px] font-bold">
+                                                            <span className="truncate max-w-[100px] font-mono">{user.transactionHash}</span>
+                                                            <ExternalLink size={12} />
+                                                        </div>
                                                     ) : (
-                                                        <span className="text-[10px] text-gray-700 font-black uppercase tracking-widest italic">Wait-list Only</span>
+                                                        <span className="text-[10px] text-gray-700 font-black uppercase italic tracking-widest">Wait-list</span>
                                                     )}
                                                 </td>
                                                 <td className="px-8 py-6 font-mono text-[11px] text-gray-500 font-bold">
@@ -256,51 +273,13 @@ export default function AdminDashboard() {
                                                 </td>
                                                 <td className="px-8 py-6 text-right">
                                                     <div className="flex items-center justify-end gap-3">
-                                                        <div className="text-right mr-2 hidden sm:block">
-                                                            <p className={`text-[9px] font-bold uppercase tracking-widest ${user.paymentStatus === 'confirmed' ? 'text-emerald-500' :
-                                                                user.paymentStatus === 'pending' ? 'text-amber-500' : 'text-gray-600'
-                                                                }`}>
-                                                                {user.paymentStatus || 'Awaiting'}
-                                                            </p>
-                                                            <p className="text-[8px] text-gray-700 font-bold uppercase">System Auth</p>
-                                                        </div>
-                                                        <div className="flex gap-2">
-                                                            <button
-                                                                onClick={async () => {
-                                                                    if (confirm('Verify this capital injection?')) {
-                                                                        await fetch('/api/presale/admin/users', {
-                                                                            method: 'PATCH',
-                                                                            signal: null,
-                                                                            headers: { 'Content-Type': 'application/json' },
-                                                                            body: JSON.stringify({ userId: user._id, status: 'confirmed' }),
-                                                                        });
-                                                                        fetchUsers();
-                                                                    }
-                                                                }}
-                                                                disabled={user.paymentStatus === 'confirmed'}
-                                                                className={`p-2.5 rounded-xl transition-all ${user.paymentStatus === 'confirmed'
-                                                                    ? 'bg-emerald-500/5 text-emerald-500 border border-emerald-500/20 opacity-50'
-                                                                    : 'bg-white/5 text-white hover:bg-emerald-500 hover:text-white border border-white/10'
-                                                                    }`}
-                                                            >
-                                                                <Shield size={16} />
-                                                            </button>
-                                                            <button
-                                                                onClick={async () => {
-                                                                    if (confirm('Delete this investor record permanently?')) {
-                                                                        await fetch('/api/presale/admin/users', {
-                                                                            method: 'DELETE',
-                                                                            headers: { 'Content-Type': 'application/json' },
-                                                                            body: JSON.stringify({ userId: user._id }),
-                                                                        });
-                                                                        fetchUsers();
-                                                                    }
-                                                                }}
-                                                                className="p-2.5 bg-white/5 text-gray-500 hover:bg-red-500 hover:text-white border border-white/10 rounded-xl transition-all"
-                                                            >
-                                                                <Trash2 size={16} />
-                                                            </button>
-                                                        </div>
+                                                        <div className={`w-2 h-2 rounded-full ${user.paymentStatus === 'confirmed' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' :
+                                                                user.paymentStatus === 'pending' ? 'bg-amber-500 animate-pulse' : 'bg-gray-700'
+                                                            }`} />
+                                                        <span className={`text-[10px] font-black uppercase tracking-widest ${user.paymentStatus === 'confirmed' ? 'text-emerald-500' : 'text-gray-500'
+                                                            }`}>
+                                                            {user.paymentStatus || 'Awaiting'}
+                                                        </span>
                                                     </div>
                                                 </td>
                                             </motion.tr>
@@ -313,36 +292,148 @@ export default function AdminDashboard() {
                         {loading && (
                             <div className="p-32 flex flex-col items-center justify-center space-y-4">
                                 <RefreshCw className="text-indigo-500 animate-spin" size={40} />
-                                <p className="font-black uppercase tracking-[0.3em] text-[10px] text-gray-600">Decrypting Blockchain Ledger...</p>
-                            </div>
-                        )}
-
-                        {!loading && dbStatus === 'error' && (
-                            <div className="p-32 text-center flex flex-col items-center gap-6">
-                                <div className="p-4 bg-red-500/10 rounded-full text-red-500 border border-red-500/20">
-                                    <Shield size={40} />
-                                </div>
-                                <div className="space-y-2 max-w-md">
-                                    <p className="text-xl font-black text-white font-space uppercase tracking-tighter">Audit Connection Failed</p>
-                                    <p className="text-sm text-gray-500 leading-relaxed">
-                                        The terminal cannot reach the secure database cluster. This is likely due to an <strong>IP Whitelist</strong> restriction on MongoDB Atlas for the production environment.
-                                    </p>
-                                </div>
-                                <button onClick={fetchUsers} className="px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition">
-                                    Try Re-establishing Secure Tunnel
-                                </button>
-                            </div>
-                        )}
-
-                        {!loading && dbStatus !== 'error' && filteredUsers.length === 0 && (
-                            <div className="p-32 text-center text-gray-600 flex flex-col items-center gap-4">
-                                <Database size={40} className="opacity-20" />
-                                <p className="font-bold text-sm">No transaction records match your search query.</p>
+                                <p className="font-black uppercase tracking-[0.3em] text-[10px] text-gray-600">Synchronizing Ledger...</p>
                             </div>
                         )}
                     </div>
                 </div>
             </main>
+
+            {/* Investor Detailed Modal */}
+            <AnimatePresence>
+                {selectedUser && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 md:p-12">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setSelectedUser(null)}
+                            className="absolute inset-0 bg-[#020410]/95 backdrop-blur-xl"
+                        />
+
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            className="relative w-full max-w-4xl bg-white/[0.02] border border-white/5 rounded-[48px] overflow-hidden shadow-[0_0_100px_rgba(99,102,241,0.1)] flex flex-col md:flex-row"
+                        >
+                            {/* Modal Sidebar (Profile Summary) */}
+                            <div className="w-full md:w-80 bg-white/5 p-10 border-r border-white/5 space-y-8">
+                                <div className="flex flex-col items-center text-center space-y-4">
+                                    <div className="w-24 h-24 rounded-full bg-indigo-600/20 border-2 border-indigo-500/30 flex items-center justify-center text-3xl font-black text-indigo-400">
+                                        {selectedUser.fullName?.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-black uppercase tracking-tight">{selectedUser.fullName}</h3>
+                                        <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-[0.2em]">{selectedUser.tier} Investor</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4 pt-8 border-t border-white/5">
+                                    <DetailItem icon={Mail} label="Email Address" value={selectedUser.email} />
+                                    <DetailItem icon={Smartphone} label="Contact" value={selectedUser.phone || 'Unspecified'} />
+                                    <DetailItem icon={MapPin} label="Jurisdiction" value={selectedUser.country} />
+                                </div>
+
+                                <button
+                                    onClick={() => deleteUser(selectedUser._id)}
+                                    className="w-full py-4 bg-red-500/5 hover:bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all flex items-center justify-center gap-2 mt-auto"
+                                >
+                                    <Trash2 size={14} /> Redact Investor
+                                </button>
+                            </div>
+
+                            {/* Modal Main Content */}
+                            <div className="flex-1 p-10 md:p-16 space-y-12 overflow-y-auto max-h-[90vh]">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">Capital Audit Portal</p>
+                                        <h2 className="text-3xl font-black font-space mt-2">DNR Commitment</h2>
+                                    </div>
+                                    <button
+                                        onClick={() => setSelectedUser(null)}
+                                        className="p-3 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                                    >
+                                        <X size={20} />
+                                    </button>
+                                </div>
+
+                                {/* Financial Card */}
+                                <div className="grid grid-cols-2 gap-8 p-10 bg-indigo-600/10 border border-indigo-500/20 rounded-[32px] relative overflow-hidden">
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Token Allocation</p>
+                                        <p className="text-4xl font-black font-space">{(selectedUser.tokenAmount || 0).toLocaleString()} <span className="text-sm font-bold opacity-50">DNR</span></p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Settlement Value</p>
+                                        <p className="text-4xl font-black font-space">${(selectedUser.usdCost || 0).toLocaleString()} <span className="text-sm font-bold opacity-50">USD</span></p>
+                                    </div>
+                                    <ArrowUpRight className="absolute -right-4 -bottom-4 text-indigo-500/10" size={120} />
+                                </div>
+
+                                {/* Audit Trail */}
+                                <div className="space-y-6">
+                                    <div className="flex items-center gap-3">
+                                        <Shield size={20} className="text-emerald-500" />
+                                        <h4 className="text-sm font-black uppercase tracking-widest">Audit Trail</h4>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="p-6 bg-white/5 border border-white/5 rounded-2xl space-y-2">
+                                            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                                                <Wallet size={12} /> Destination Wallet
+                                            </p>
+                                            <p className="text-xs font-mono font-bold text-white break-all">{selectedUser.walletAddress}</p>
+                                        </div>
+                                        <div className="group p-6 bg-white/5 border border-white/5 rounded-2xl space-y-2 hover:border-indigo-500/30 transition-all cursor-pointer">
+                                            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center justify-between">
+                                                <span className="flex items-center gap-2"><CreditCard size={12} /> Payment Hash</span>
+                                                <ExternalLink size={12} />
+                                            </p>
+                                            <p className="text-xs font-mono font-bold text-indigo-400 break-all">{selectedUser.transactionHash || 'Waiting for submission...'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Actions */}
+                                <div className="pt-8 border-t border-white/5 flex gap-4">
+                                    <button
+                                        onClick={() => approveUser(selectedUser._id)}
+                                        disabled={selectedUser.paymentStatus === 'confirmed'}
+                                        className={`flex-1 flex items-center justify-center gap-3 py-5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${selectedUser.paymentStatus === 'confirmed'
+                                                ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                                                : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl shadow-emerald-600/20 active:scale-95'
+                                            }`}
+                                    >
+                                        {selectedUser.paymentStatus === 'confirmed' ? (
+                                            <>
+                                                <CheckCircle2 size={18} />
+                                                Audit Verified
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Shield size={18} />
+                                                Confirm Payment
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+}
+
+function DetailItem({ icon: Icon, label, value }: any) {
+    return (
+        <div className="space-y-1">
+            <p className="text-[9px] font-black text-gray-600 uppercase tracking-widest flex items-center gap-2">
+                <Icon size={12} /> {label}
+            </p>
+            <p className="text-xs font-bold text-white truncate">{value}</p>
         </div>
     );
 }

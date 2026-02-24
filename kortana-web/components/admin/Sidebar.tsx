@@ -29,8 +29,8 @@ export default function AdminSidebar() {
 
     const menuItems = [
         { id: 'dashboard', label: 'Investors', icon: Users, href: '/presale/admin' },
-        { id: 'analytics', label: 'Analytics', icon: BarChart3, href: '#', badge: 'Soon' },
-        { id: 'settings', label: 'Settings', icon: Settings, href: '#', badge: 'Soon' },
+        { id: 'analytics', label: 'Analytics', icon: BarChart3, href: '/presale/admin/analytics' },
+        { id: 'settings', label: 'Settings', icon: Settings, href: '/presale/admin/settings' },
     ];
 
     return (
@@ -74,17 +74,14 @@ export default function AdminSidebar() {
                                 key={item.id}
                                 href={item.href}
                                 className={`flex items-center justify-between p-4 rounded-2xl transition-all group ${isActive
-                                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
-                                        : 'text-gray-500 hover:text-white hover:bg-white/5'
+                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                                    : 'text-gray-500 hover:text-white hover:bg-white/5'
                                     }`}
                             >
                                 <div className="flex items-center gap-4">
                                     <Icon size={20} className={isActive ? 'text-white' : 'group-hover:text-indigo-400 transition-colors'} />
                                     <span className="font-bold text-sm tracking-tight">{item.label}</span>
                                 </div>
-                                {item.badge && (
-                                    <span className="px-2 py-0.5 bg-white/5 text-[9px] font-black rounded uppercase text-gray-500">{item.badge}</span>
-                                )}
                             </Link>
                         );
                     })}

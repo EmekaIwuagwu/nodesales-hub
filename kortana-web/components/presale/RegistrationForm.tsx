@@ -11,10 +11,10 @@ interface RegistrationFormProps {
 
 const KORTANA_MAINNET_INFO = {
     name: 'Kortana Mainnet',
-    rpc: 'https://mainnet.kortana.network',
+    rpc: 'https://zeus-rpc.mainnet.kortana.xyz',
     chainId: '9002',
     symbol: 'DNR',
-    explorer: 'https://explorer.kortana.network'
+    explorer: 'https://explorer.mainnet.kortana.xyz'
 };
 
 const PAYMENT_PLATFORMS = [
