@@ -1,18 +1,49 @@
 {
     "manifest_version": 3,
     "name": "Kortana Wallet",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "description": "Premium EVM Blockchain Wallet",
     "action": {
         "default_popup": "index.html"
     },
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    },
     "permissions": [
         "storage",
-        "activeTab"
+        "activeTab",
+        "unlimitedStorage",
+        "notifications"
+    ],
+    "host_permissions": [
+        "<all_urls>"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "contentScript.js"
+            ],
+            "run_at": "document_start",
+            "all_frames": true
+        }
     ],
     "icons": {
         "16": "favicon.ico",
         "48": "favicon.ico",
         "128": "favicon.ico"
-    }
+    },
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "inpage.js"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
+    ]
 }

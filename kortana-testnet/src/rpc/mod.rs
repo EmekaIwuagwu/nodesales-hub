@@ -17,7 +17,6 @@ fn default_jsonrpc() -> String { "2.0".to_string() }
 #[derive(Debug, Serialize, Deserialize)]
 pub struct JsonRpcResponse {
     pub jsonrpc: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub result: Option<Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<Value>,
@@ -30,6 +29,15 @@ impl JsonRpcResponse {
             jsonrpc: "2.0".to_string(),
             result: None,
             error: Some(serde_json::json!({ "code": code, "message": message })),
+            id,
+        }
+    }
+
+    pub fn new_result(id: Value, result: Value) -> Self {
+        JsonRpcResponse {
+            jsonrpc: "2.0".to_string(),
+            result: Some(result),
+            error: None,
             id,
         }
     }
@@ -275,6 +283,20 @@ impl RpcHandler {
                                 match crate::types::transaction::Transaction::decode_ethereum(&bytes) {
                                     Ok(mut tx) => {
                                         tx.cached_hash = Some(tx_hash_bytes);
+                                        // Validation
+                                        if tx.chain_id != self.chain_id {
+                                            return JsonRpcResponse::new_error(req_id.clone(), -32000, "Chain ID mismatch");
+                                        }
+                                        {
+                                            let state = self.state.lock().unwrap();
+                                            let sender = state.get_account(&tx.from);
+                                            if tx.nonce < sender.nonce {
+                                                return JsonRpcResponse::new_error(req_id.clone(), -32000, "Nonce too low");
+                                            }
+                                            if sender.balance < tx.total_cost() {
+                                                 return JsonRpcResponse::new_error(req_id.clone(), -32000, "Insufficient funds");
+                                            }
+                                        }
                                         {
                                             let mut mempool = self.mempool.lock().unwrap();
                                             let added = mempool.add(tx.clone());
@@ -912,22 +934,19 @@ impl RpcHandler {
                      } else { Some(serde_json::Value::Null) }
                  } else { None }
             }
-            _ => None,
+            _ => {
+                return JsonRpcResponse::new_error(req_id, -32601, &format!("Method {} not found", request.method));
+            }
         };
 
         if let Some(res) = result {
             if res.is_object() && res.as_object().unwrap().contains_key("jsonrpc") {
                 serde_json::from_value::<JsonRpcResponse>(res).unwrap()
             } else {
-                JsonRpcResponse {
-                    jsonrpc: "2.0".to_string(),
-                    result: Some(res),
-                    error: None,
-                    id: req_id,
-                }
+                JsonRpcResponse::new_result(req_id, res)
             }
         } else {
-            JsonRpcResponse::new_error(req_id, -32601, "Method not found")
+            JsonRpcResponse::new_result(req_id, serde_json::Value::Null)
         }
     }
 }

@@ -1,75 +1,224 @@
-# 🌟 KORTANA BLOCKCHAIN - Production-Grade Layer 1 Blockchain
+# 🌟 KORTANA BLOCKCHAIN — Production-Grade Layer 1 Protocol
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-1.0.0--testnet-blue)
-![Rust](https://img.shields.io/badge/rust-1.91%2B-orange)
+![Version](https://img.shields.io/badge/version-2.0.0-blue)
+![Rust](https://img.shields.io/badge/rust-1.70%2B-orange)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Tests](https://img.shields.io/badge/tests-17%2F17%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
 ![Security](https://img.shields.io/badge/security-A--grade-success)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
-![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
+![Testnet](https://img.shields.io/badge/testnet-LIVE-brightgreen)
+![Mainnet](https://img.shields.io/badge/mainnet-LIVE-brightgreen)
 
-**High-Performance Blockchain with Dual VM Support (EVM + Quorlin)**
+**High-Performance Layer 1 Blockchain with Dual VM Support (EVM + Quorlin)**  
+**Powering the Kortana Smart City & Special Economic Zone**
 
-[🚀 Quick Start](#-quick-start) • [📖 Documentation](#-documentation) • [🔧 Build](#-build--test) • [🌐 API](#-rpc-api) • [🦊 MetaMask](#-metamask-integration)
+[🚀 Quick Start](#-quick-start) • [🌐 Networks](#-network-information) • [🦊 MetaMask](#-metamask-integration) • [🏗 Architecture](#-architecture-overview) • [🌆 Ecosystem Vision](#-kortana-ecosystem-vision)
 
 </div>
 
 ---
 
-## 📊 Quick Stats
+## 📊 Protocol Specifications
 
 | Feature | Specification |
 |---------|--------------|
-| **Chain ID** | 72511 (Mainnet) / 11155111 (Testnet) |
-| **Block Time** | 5 seconds |
-| **Finality** | < 2 seconds (Byzantine) |
+| **Mainnet Chain ID** | `9002` |
+| **Testnet Chain ID** | `72511` |
+| **Block Time** | 2 seconds |
+| **Finality** | < 2 seconds (Byzantine BFT) |
 | **Throughput** | 30M gas/block |
 | **Consensus** | Delegated Proof-of-History (DPoH) |
 | **Virtual Machines** | EVM + Quorlin (Dual VM) |
-| **Token** | DINAR (DNR) - 18 decimals |
-| **Total Supply** | 1 Billion DNR |
-| **Validators** | 50 active validators |
+| **Token** | DINAR (DNR) — 18 decimals |
+| **Total Supply** | 500,000,000,000 DNR (500 Billion) |
+| **Circulating at Launch** | 10,000,000,000 DNR (10 Billion) |
+| **Active Validators** | 50 |
+| **Language** | Rust (stable 1.70+) |
 
 ---
 
 ## ✨ Key Features
 
-### 🏆 Consensus: Delegated Proof-of-History (DPoH)
+### 🏆 Delegated Proof-of-History (DPoH) Consensus
 - ✅ Cryptographic transaction ordering via PoH hash chain
 - ✅ Byzantine fault tolerance (2/3 + 1 super-majority)
 - ✅ Sub-2-second irreversible finality
-- ✅ Stake-based validator election with slashing
-- ✅ 50 active validators with commission-based rewards
+- ✅ Stake-weighted validator election with automated slashing
+- ✅ 50 active validators with commission-based staking rewards
 
 ### 💎 Dual Virtual Machine Architecture
-**EVM (Ethereum Virtual Machine):**
-- ✅ 50+ opcodes fully implemented
-- ✅ Complete Solidity smart contract support
-- ✅ MetaMask compatible
-- ✅ Gas metering and optimization
 
-**Quorlin VM (Custom):**
-- ✅ 25+ custom opcodes
-- ✅ 256 local variable slots
-- ✅ Global key-value storage
+**EVM (Ethereum Virtual Machine):**
+- ✅ 50+ opcodes fully implemented — complete Solidity compatibility
+- ✅ EIP-1559 fee model with `baseFeePerGas`
+- ✅ MetaMask, Hardhat, Foundry, and Remix compatible
+- ✅ PUSH0, RETURNDATASIZE, and CREATE2 support
+
+**Quorlin VM (Native):**
+- ✅ 25+ custom opcodes for high-throughput on-chain logic
+- ✅ 256 local variable slots with global key-value state
 - ✅ Native event emission
+- ✅ JSON-encoded bytecode format for developer ergonomics
 
 ### 🔐 Enterprise-Grade Security
-- ✅ **Security Audit Grade:** A-
-- ✅ Zero critical vulnerabilities
-- ✅ Environment-based secret management
-- ✅ Comprehensive input validation
-- ✅ SHA3-256 cryptographic hashing
-- ✅ ECDSA signature verification (k256)
+- ✅ **Security Audit Grade:** A-  
+- ✅ Zero critical vulnerabilities  
+- ✅ Environment-based secret management  
+- ✅ Comprehensive input validation on all RPC endpoints  
+- ✅ SHA3-256 cryptographic hashing (Keccak256)  
+- ✅ ECDSA signature verification (k256)  
+- ✅ Replay protection via EIP-155 chain ID enforcement  
 
 ### ⚡ High Performance
-- ✅ 5-second block production
-- ✅ Priority-queue mempool (10K transactions)
+- ✅ 2-second block production
+- ✅ Priority-queue mempool (10,000 transactions)
 - ✅ Efficient Merkle-Patricia state trie
-- ✅ Optimized gas metering
-- ✅ libp2p P2P networking
+- ✅ Optimized gas metering and EVM loop bounds
+- ✅ libp2p gossipsub P2P networking
+
+---
+
+## 🌐 Network Information
+
+### 🔵 Kortana Testnet *(For Developers & dApp Testing)*
+
+| Field | Value |
+|-------|-------|
+| **Network Name** | Kortana Testnet |
+| **RPC URL** | `https://poseidon-rpc.kortana.worchsester.xyz` |
+| **Chain ID** | `72511` |
+| **Currency Symbol** | `DNR` |
+| **Block Explorer** | `https://explorer.kortana.worchsester.xyz` |
+| **Status** | 🟢 LIVE & SECURED (v1.0.0-Testnet) |
+
+### 🟣 Kortana Mainnet *(Production)*
+
+| Field | Value |
+|-------|-------|
+| **Network Name** | Kortana Mainnet |
+| **RPC URL** | `https://zeus-rpc.mainnet.kortana.xyz` |
+| **Chain ID** | `9002` |
+| **Currency Symbol** | `DNR` |
+| **Block Explorer** | `https://explorer.mainnet.kortana.xyz` |
+| **Status** | 🟢 LIVE & SECURED (v1.0.0-Mainnet) |
+| **Launch Date** | February 2026 |
+
+---
+
+## 🦊 MetaMask Integration
+
+### Connect to Kortana Testnet *(Developers)*
+
+1. Open MetaMask → Settings → Networks → **Add a Network**
+2. Select **Add a network manually**
+3. Enter the following:
+
+```
+Network Name:    Kortana Testnet
+RPC URL:         https://poseidon-rpc.kortana.worchsester.xyz
+Chain ID:        72511
+Symbol:          DNR
+Block Explorer:  https://explorer.kortana.worchsester.xyz
+```
+
+### Connect to Kortana Mainnet *(Production)*
+
+1. Open MetaMask → Settings → Networks → **Add a Network**
+2. Select **Add a network manually**
+3. Enter the following:
+
+```
+Network Name:    Kortana Mainnet
+RPC URL:         https://zeus-rpc.mainnet.kortana.xyz
+Chain ID:        9002
+Symbol:          DNR
+Block Explorer:  https://explorer.mainnet.kortana.xyz
+```
+
+### Request Testnet Tokens (Faucet)
+
+```bash
+curl -X POST https://poseidon-rpc.kortana.worchsester.xyz \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "eth_requestDNR",
+    "params": ["YOUR_WALLET_ADDRESS"],
+    "id": 1
+  }'
+```
+
+---
+
+## 🌆 Kortana Ecosystem Vision
+
+> Kortana Blockchain is not just a Layer-1 protocol — it is the **operational backbone of a real-world smart city and Special Economic Zone (SEZ)**.
+
+The Kortana ecosystem is designed to power:
+
+| Initiative | Description |
+|-----------|-------------|
+| 🏙 **Kortana SEZ** | A blockchain-native Special Economic Zone where businesses register, transact, and operate fully on-chain |
+| 🏛 **Smart City Infrastructure** | On-chain land registry, utility payments, governance, and e-residency identity |
+| 🤖 **Robotics Division** | Automation and robotics systems with on-chain coordination and payments |
+| ⚡ **Electric Vehicle (EV) Initiative** | EV infrastructure and charging payments powered by the DNR token |
+
+> **Treasury 2 (Reserve)** is the dedicated long-term fund for all of the above initiatives, ensuring capital allocation is tied directly to real-world development milestones. Spending from this reserve requires on-chain governance approval.
+
+---
+
+## 💰 Token Economics (DNR — DINAR)
+
+| Category | Amount | Notes |
+|----------|--------|-------|
+| **Total Supply** | 500,000,000,000 DNR | Fixed, never to be exceeded |
+| **Circulating at Launch** | 10,000,000,000 DNR | Initial public circulation |
+| **Foundation Reserve (Treasury 1)** | Portion of remaining 490B | Ecosystem growth, grants, operations |
+| **Strategic Reserve (Treasury 2)** | Majority of remaining 490B | Kortana SEZ, Smart City, Robotics, EV initiatives |
+| **Block Reward** | 5 DNR / block | Year 1 |
+| **Halving Schedule** | 10% reduction/year | ~15.8M blocks/year |
+| **Base Fee Distribution** | 50% burned / 50% proposer | EIP-1559 model |
+
+> ⚠️ Treasury 2 is locked for ecosystem & real-world development. **No tokens will be sent to any blockchain address upon mainnet deployment.** All distribution is governed by on-chain proposals.
+
+---
+
+## 🏗 Architecture Overview
+
+```
+┌──────────────────────────────────────────────┐
+│             APPLICATION LAYER                 │
+│  Wallets · dApps · Block Explorer · REST API │
+└───────────────────┬──────────────────────────┘
+                    │
+┌───────────────────┴──────────────────────────┐
+│           CONSENSUS & NETWORK LAYER           │
+│  · DPoH + Byzantine Finality (BFT)           │
+│  · libp2p Gossipsub P2P Networking           │
+│  · Priority Mempool (10K transactions)        │
+└───────────────────┬──────────────────────────┘
+                    │
+┌───────────────────┴──────────────────────────┐
+│         EXECUTION LAYER (DUAL VM)             │
+│  · EVM — Full Solidity Support               │
+│  · Quorlin VM — Native High-Throughput       │
+└───────────────────┬──────────────────────────┘
+                    │
+┌───────────────────┴──────────────────────────┐
+│               STATE LAYER                     │
+│  · Merkle-Patricia State Trie                │
+│  · Account & Contract State Management       │
+│  · EIP-1559 Dynamic Fee Market               │
+└───────────────────┬──────────────────────────┘
+                    │
+┌───────────────────┴──────────────────────────┐
+│          PERSISTENCE LAYER (Sled DB)          │
+│  · Block Store · State Snapshots             │
+│  · Receipt Storage · Transaction Index       │
+└──────────────────────────────────────────────┘
+```
 
 ---
 
@@ -77,28 +226,45 @@
 
 ### Prerequisites
 - **Rust:** 1.70+ (stable)
-- **Cargo:** Latest version
-- **OS:** Linux, Windows, or macOS
+- **OS:** Linux (Ubuntu 22.04+ recommended), macOS, or Windows
+- **RAM:** 4GB minimum (8GB recommended for validators)
+- **Open Ports:** `8545` (RPC), `30333` (P2P)
 
-### Installation
+### Clone and Build
 
 ```bash
 # Clone the repository
 git clone https://github.com/EmekaIwuagwu/kortanablockchain-devhub.git
-cd kortanablockchain-devhub/kortana-blockchain-rust
+
+# Navigate to the desired network directory
+cd kortanablockchain-devhub/kortana-testnet   # For Testnet
+# OR
+cd kortanablockchain-devhub/kortana-mainnet   # For Mainnet
 
 # Set up environment variables
 cp .env.example .env
-nano .env  # Set VALIDATOR_PRIVATE_KEY
+# Edit .env and set your VALIDATOR_PRIVATE_KEY
 
-# Build release version
+# Build the release binary (takes ~1–2 minutes)
 cargo build --release
+```
 
-# Run tests
-cargo test --all
+### Run the Node
 
-# Start the node
-cargo run --release
+```bash
+# Start node (Testnet)
+./target/release/kortana-blockchain-rust \
+  --rpc-addr 0.0.0.0:8545 \
+  --p2p-addr /ip4/0.0.0.0/tcp/30333
+
+# Start in background (recommended for production)
+nohup ./target/release/kortana-blockchain-rust \
+  --rpc-addr 0.0.0.0:8545 \
+  --p2p-addr /ip4/0.0.0.0/tcp/30333 \
+  > node.log 2>&1 &
+
+# Monitor logs
+tail -f node.log
 ```
 
 ### Docker Deployment
@@ -116,111 +282,73 @@ docker-compose down
 
 ---
 
-## 🔧 Build & Test
+## ⚙️ Configuration (.env)
 
-### Development Build
-```bash
-cargo build
-```
-
-### Production Build
-```bash
-cargo build --release
-```
-
-### Run All Tests
-```bash
-cargo test --all
-```
-
-**Test Results:**
-- ✅ Unit Tests: 13/13 passing
-- ✅ Integration Tests: 1/1 passing
-- ✅ Contract Tests: 2/2 passing
-- ✅ Overall: **100% pass rate**
-
-### Code Quality
-```bash
-# Check for warnings
-cargo clippy --all-targets --all-features
-
-# Format code
-cargo fmt
-
-# Generate documentation
-cargo doc --open
-```
+| Key | Description | Default |
+|-----|-------------|---------|
+| `VALIDATOR_PRIVATE_KEY` | 64-hex char validator secret key | (Generated) |
+| `RPC_ADDR` | Bind address for JSON-RPC API | `0.0.0.0:8545` |
+| `P2P_ADDR` | Bind address for P2P gossip | `/ip4/0.0.0.0/tcp/30333` |
+| `DB_PATH` | Storage path for the ledger | `./data/kortana.db` |
 
 ---
 
-## 🌐 RPC API
+## 🌐 RPC API Reference
 
-The Kortana node exposes a JSON-RPC 2.0 API on port **8545** (default).
+The node exposes a JSON-RPC 2.0 API compatible with the Ethereum tooling ecosystem.
 
 ### Standard Ethereum Methods
 
 | Method | Description |
 |--------|-------------|
-| `eth_chainId` | Returns the chain ID (0x11BAF) |
+| `eth_chainId` | Returns the network Chain ID |
 | `eth_blockNumber` | Current block height |
 | `eth_getBalance` | Get account balance |
 | `eth_getTransactionCount` | Get account nonce |
 | `eth_sendRawTransaction` | Submit signed transaction |
 | `eth_call` | Execute read-only contract call |
-| `eth_estimateGas` | Estimate gas for transaction |
-| `eth_getTransactionReceipt` | Get transaction receipt |
-| `eth_getBlockByNumber` | Get block details |
+| `eth_estimateGas` | Estimate gas for a transaction |
+| `eth_getTransactionReceipt` | Retrieve transaction receipt |
+| `eth_getBlockByNumber` | Retrieve block by height |
+| `eth_getBlockByHash` | Retrieve block by hash |
+| `eth_getLogs` | Query event logs with filter |
+| `eth_newBlockFilter` | Subscribe to new blocks |
+| `eth_getFilterChanges` | Poll filter for changes |
+| `eth_feeHistory` | EIP-1559 fee history |
 
 ### Kortana-Specific Methods
 
 | Method | Description |
 |--------|-------------|
-| `eth_requestDNR` | **Faucet:** Request testnet tokens |
-| `eth_getRecentTransactions` | Get recent transaction history |
+| `eth_requestDNR` | **Faucet** — Request testnet DNR tokens |
+| `eth_getRecentTransactions` | Get last 100 global transactions |
+| `eth_getAddressHistory` | Get full transaction history for an address |
+| `eth_getValidators` | List all active validators with stats |
 
-### Example Request
+### Example RPC Calls
 
+**Check block number (Testnet):**
 ```bash
-curl -X POST http://localhost:8545 \
+curl -X POST https://poseidon-rpc.kortana.worchsester.xyz \
   -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc":"2.0",
-    "method":"eth_blockNumber",
-    "params":[],
-    "id":1
-  }'
+  -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
 ```
 
----
-
-## 🦊 MetaMask Integration
-
-### Add Kortona Testnet to MetaMask
-
-1. Open MetaMask
-2. Click "Add Network" → "Add Network Manually"
-3. Enter the following details:
-
-```
-Network Name: Kortana Testnet
-RPC URL: http://localhost:8545 (or your server IP)
-Chain ID: 72511
-Currency Symbol: DNR
-Block Explorer URL: (Optional)
-```
-
-### Get Test Tokens
-
+**Check balance (Testnet):**
 ```bash
-curl -X POST http://localhost:8545 \
+curl -X POST https://poseidon-rpc.kortana.worchsester.xyz \
   -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc":"2.0",
-    "method":"eth_requestDNR",
-    "params":["YOUR_ADDRESS"],
-    "id":1
-  }'
+  -d '{"jsonrpc":"2.0","method":"eth_getBalance","params":["YOUR_ADDRESS","latest"],"id":1}'
 ```
+
+**List validators:**
+```bash
+curl -X POST https://poseidon-rpc.kortana.worchsester.xyz \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"eth_getValidators","params":[],"id":1}'
+```
+
+> For local development only, replace the URL with `http://localhost:8545`.
 
 ---
 
@@ -228,176 +356,69 @@ curl -X POST http://localhost:8545 \
 
 ```
 kortanablockchain-devhub/
-├── kortana-blockchain-rust/          # Main Rust implementation
+├── kortana-testnet/               # Testnet node (Chain ID: 72511)
 │   ├── src/
-│   │   ├── address.rs                # Address format & validation
-│   │   ├── config.rs                 # 🔐 Secure configuration
-│   │   ├── consensus/                # DPoH consensus
-│   │   │   ├── mod.rs                # Validator management
-│   │   │   ├── bft.rs                # Byzantine finality
-│   │   │   └── sync.rs               # Network sync
-│   │   ├── core/                     # Core blockchain logic
-│   │   │   ├── genesis.rs            # Genesis state
-│   │   │   ├── processor.rs          # Transaction processor
-│   │   │   └── fees.rs               # Dynamic fee market
-│   │   ├── crypto/                   # Cryptography
-│   │   ├── mempool/                  # Transaction pool
-│   │   ├── network/                  # P2P networking
-│   │   │   ├── p2p.rs                # libp2p handler
-│   │   │   ├── peer.rs               # Peer management
-│   │   │   └── ibc.rs                # Cross-chain (IBC)
-│   │   ├── rpc/                      # JSON-RPC server
-│   │   ├── staking/                  # Staking module
-│   │   ├── state/                    # State management
-│   │   │   ├── account.rs            # Account model
-│   │   │   └── trie.rs               # Merkle-Patricia trie
-│   │   ├── storage/                  # Database layer (sled)
-│   │   ├── types/                    # Core types
-│   │   │   ├── block.rs              # Block structure
-│   │   │   └── transaction.rs        # Transaction model
-│   │   ├── vm/                       # Virtual machines
-│   │   │   ├── evm.rs                # EVM implementation
-│   │   │   └── quorlin.rs            # Quorlin VM
-│   │   ├── parameters.rs             # Chain parameters
-│   │   └── main.rs                   # Node entry point
-│   ├── tests/                        # Integration tests
-│   ├── examples/                     # Usage examples
-│   ├── .env.example                  # 🔐 Config template
-│   ├── Cargo.toml                    # Dependencies
-│   └── Dockerfile                    # Docker image
-├── kortana-explorer/                 # Block explorer (Next.js)
-├── scripts/                          # Deployment scripts
-│   ├── deploy_tokens.py              # Token deployment
-│   └── send_faucet_tokens.py         # Faucet script
-├── SECURITY_AUDIT.md                 # 🔐 Security audit report
-├── FINAL_STATUS_REPORT.md            # Comprehensive status
-└── README.md                         # This file
+│   │   ├── address.rs             # Address format & validation
+│   │   ├── consensus/             # DPoH consensus engine
+│   │   ├── core/
+│   │   │   ├── genesis.rs         # Genesis state (800B DNR distribution)
+│   │   │   ├── processor.rs       # Dual-VM transaction processor
+│   │   │   └── fees.rs            # EIP-1559 dynamic fee market
+│   │   ├── mempool/               # Priority-queue transaction pool
+│   │   ├── network/               # libp2p P2P networking
+│   │   ├── rpc/                   # JSON-RPC 2.0 server
+│   │   ├── state/                 # Merkle-Patricia trie & accounts
+│   │   ├── storage/               # Sled embedded database
+│   │   ├── types/                 # Block, Transaction, Receipt types
+│   │   ├── vm/
+│   │   │   ├── evm.rs             # Full EVM implementation
+│   │   │   ├── quorlin.rs         # Quorlin native VM
+│   │   │   └── precompiles.rs     # ecrecover & standard precompiles
+│   │   ├── parameters.rs          # Chain constants & economics
+│   │   └── main.rs                # Node entry point
+│   └── tests/                     # Integration & contract tests
+│
+├── kortana-mainnet/               # Mainnet node (Chain ID: 7251)
+│   └── src/                       # (mirrors testnet, production-hardened)
+│
+├── kortana-explorer/              # Block Explorer (Next.js)
+│   ├── app/                       # Next.js App Router pages
+│   └── components/                # Reusable UI components
+│
+├── scripts/                       # Deployment & utility scripts
+├── examples/                      # Code examples & deploy scripts
+└── README.md                      # This file
 ```
 
 ---
 
-## 🔐 Security
+## 🔧 Build & Test
 
-### Security Audit Results
-
-**Overall Grade:** A- (Excellent)
-
-✅ **Critical Vulnerabilities:** 0  
-✅ **High Priority Issues:** Fixed  
-✅ **Code Quality:** A grade  
-✅ **Test Coverage:** 95%+  
-
-### Security Features
-
-- **Environment-Based Secrets:** Private keys loaded from `VALIDATOR_PRIVATE_KEY` env var
-- **Input Validation:** Comprehensive parameter validation on all RPC endpoints
-- **Cryptographic Standards:** SHA3-256, ECDSA (k256)
-- **Error Handling:** No `.unwrap()` in production paths
-- **Secure by Default:** Development mode has explicit warnings
-
-### Configuration
-
-**Production:**
 ```bash
-export VALIDATOR_PRIVATE_KEY="your_64_hex_character_private_key"
-./kortana-blockchain-rust
-```
+# Development build
+cargo build
 
-**Development:**
-```bash
-# Creates .env file
-cp .env.example .env
-nano .env  # Set variables
-cargo run
-```
+# Production optimized build
+cargo build --release
 
-For full security audit details, see [`SECURITY_AUDIT.md`](SECURITY_AUDIT.md).
+# Run all tests
+cargo test --all
 
----
+# Code quality check
+cargo clippy --all-targets --all-features
 
-## 📖 Documentation
+# Format code
+cargo fmt
 
-### Core Documentation
-- **[SECURITY_AUDIT.md](SECURITY_AUDIT.md)** - Complete security audit report
-- **[FINAL_STATUS_REPORT.md](FINAL_STATUS_REPORT.md)** - Project status and metrics
-- **[SPECIFICATION.md](KORTANA_BLOCKCHAIN_COMPLETE_UNIFIED_SPECIFICATION.md)** - Technical specification
-
-### API Reference
-```bash
-# Generate Rust documentation
+# Generate API documentation
 cargo doc --no-deps --open
 ```
 
-### Architecture
-
-```
-┌─────────────────────────────────────┐
-│      APPLICATION LAYER               │
-│ (Wallets, RPC, Explorers)           │
-└────────────────┬────────────────────┘
-                 │
-┌────────────────┴────────────────────┐
-│    CONSENSUS & NETWORK LAYER         │
-│ • DPoH + Byzantine Finality         │
-│ • libp2p P2P networking             │
-│ • Mempool (10K transactions)        │
-└────────────────┬────────────────────┘
-                 │
-┌────────────────┴────────────────────┐
-│      EXECUTION LAYER (DUAL VM)       │
-│ • EVM (Solidity)  • Quorlin        │
-└────────────────┬────────────────────┘
-                 │
-┌────────────────┴────────────────────┐
-│         STATE LAYER                  │
-│ • Merkle-Patricia Trie              │
-│ • Account state management          │
-└────────────────┬────────────────────┘
-                 │
-┌────────────────┴────────────────────┐
-│    PERSISTENCE LAYER (Sled DB)       │
-│ • Block store                        │
-│ • State snapshots                    │
-│ • Receipt storage                    │
-└─────────────────────────────────────┘
-```
-
----
-
-## 🛠️ Development
-
-### Code Quality Standards
-
-- ✅ **100% Test Coverage** for critical paths
-- ✅ **Zero Clippy Warnings** (reduced from 71 to 10)
-- ✅ **Formatted Code** (rustfmt)
-- ✅ **Comprehensive Documentation**
-- ✅ **Semantic Versioning**
-
-### Contributing
-
-We welcome contributions! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Write tests for new features
-4. Ensure all tests pass
-5. Submit a pull request
-
-### Testing Strategy
-
-```bash
-# Unit tests
-cargo test --lib
-
-# Integration tests
-cargo test --test '*'
-
-# Contract deployment tests
-cargo test --test contract_test
-
-# Performance tests
-cargo test --release
-```
+**Test Suite Results:**
+- ✅ Unit Tests: All passing
+- ✅ Integration Tests: All passing
+- ✅ Contract Tests (EVM + Quorlin): All passing
+- ✅ Overall: **100% pass rate**
 
 ---
 
@@ -405,48 +426,89 @@ cargo test --release
 
 | Metric | Value |
 |--------|-------|
-| Block Production | 5 seconds |
+| Block Production | 2 seconds |
 | Finality Time | < 2 seconds |
-| Gas Limit/Block | 30,000,000 |
-| Min Gas/TX | 21,000 |
-| Mempool Size | 10,000 transactions |
-| TPS (theoretical) | ~6,000+ |
+| Gas Limit / Block | 30,000,000 |
+| Min Gas / TX | 21,000 |
+| Mempool Capacity | 10,000 transactions |
+| Theoretical TPS | ~6,000+ |
 
 ---
 
-## 🌍 Network Information
+## 🔐 Security
 
-### Testnet
-- **Chain ID:** 72511 (0x11BAF)
-- **RPC:** http://localhost:8545
-- **P2P:** /ip4/0.0.0.0/tcp/30333
-- **Currency:** DNR (DINAR)
-- **Decimals:** 18
+**Overall Grade:** A- (Excellent)
 
-### Block Rewards
-- **Initial:** 5 DNR/block
-- **Halving:** 10% every year
-- **Distribution:** 50% burn / 50% proposer
+| Category | Status |
+|----------|--------|
+| Critical Vulnerabilities | ✅ Zero |
+| High Priority Issues | ✅ All Resolved |
+| Input Validation | ✅ All RPC endpoints validated |
+| Private Key Management | ✅ Environment-based only |
+| Replay Protection | ✅ EIP-155 enforced |
+| Cryptographic Standards | ✅ SHA3-256 / ECDSA k256 |
 
----
-
-## 📜 License
-
-This project is licensed under the **MIT License** - see the LICENSE file for details.
+**Security Recommendations:**
+1. **Firewall:** Ensure ports `30333` (P2P) and `8545` (RPC) are only exposed as intended
+2. **Private Key:** Your `VALIDATOR_PRIVATE_KEY` is your node identity — **NEVER** share it or commit `.env` to Git
+3. **Updates:** `git pull` → `cargo build --release` → restart service
 
 ---
 
-## 🙏 Acknowledgments
+## 📊 Monitoring & Maintenance
 
-Built with:
-- **Rust** - Systems programming language
-- **libp2p** - P2P networking
-- **sled** - Embedded database
-- **tokio** - Async runtime
-- **k256** - ECDSA cryptography
-- **sha3** - SHA3-256 hashing
+When deployed as a system service:
 
-Special thanks to the blockchain research community and all contributors.
+```bash
+# Check service status
+sudo systemctl status kortanad
+
+# Live log streaming
+journalctl -u kortanad -f
+
+# Restart service
+sudo systemctl restart kortanad
+
+# Stop service
+sudo systemctl stop kortanad
+```
+
+Log color codes:
+- 👑 **Block Production** — Node is elected leader
+- ✅ **Finality** — Block confirmed by BFT quorum
+- 🔵 **RPC** — Incoming API request handled
+- 🟣 **Mempool** — Transaction received or evicted
+- 🔴 **Error / Slashing** — Critical event requiring attention
+
+---
+
+## 📖 Documentation
+
+| Document | Description |
+|----------|-------------|
+| `SECURITY_AUDIT.md` | Full security audit report |
+| `FINAL_STATUS_REPORT.md` | Comprehensive project status |
+| `CLI_HELP.md` | CLI flags & staking guide |
+| `DEPLOY.md` | Production deployment guide |
+| `CROSS_PLATFORM_GUIDE.md` | Multi-OS build instructions |
+| `CONTRACT_DEPLOYMENT_FIXED.md` | Smart contract deployment guide |
+
+---
+
+## 🧑‍💻 Development & Contributing
+
+We welcome contributions from the community!
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Write tests for your changes
+4. Ensure all tests pass: `cargo test --all`
+5. Submit a Pull Request
+
+**Code Standards:**
+- Zero clippy warnings (enforced in CI)
+- All public functions must be documented
+- New features must include integration tests
 
 ---
 
@@ -454,48 +516,43 @@ Special thanks to the blockchain research community and all contributors.
 
 - **Issues:** [GitHub Issues](https://github.com/EmekaIwuagwu/kortanablockchain-devhub/issues)
 - **Discussions:** [GitHub Discussions](https://github.com/EmekaIwuagwu/kortanablockchain-devhub/discussions)
-- **Documentation:** [Wiki](https://github.com/EmekaIwuagwu/kortanablockchain-devhub/wiki)
 
 ---
 
-## 🚀 Status
+## 📜 License
 
-**Current Version:** 1.0.0-testnet  
-**Build Status:** ✅ Passing  
-**Test Coverage:** ✅ 95%+  
-**Security Audit:** ✅ A- Grade  
-**Production Ready:** ✅ Yes (Testnet)  
+This project is licensed under the **MIT License**. See the `LICENSE` file for details.
 
-**Last Updated:** February 3, 2026
+---
+
+## 🔖 Version Information
+
+| Field | Value |
+|-------|-------|
+| **Specification Version** | 2.0.0 |
+| **Language** | Rust (stable 1.70+) |
+| **Mainnet Chain ID** | 9002 |
+| **Testnet Chain ID** | 72511 |
+| **Target Standard** | Polkadot / Cosmos / Solana Tier |
+| **Testnet Status** | 🟢 LIVE |
+| **Mainnet Status** | 🟢 LIVE |
+| **Mainnet Launch Date** | February 2026 |
+| **Developed by** | Kortana Core Team |
+| **Built with** | Rust (stable 1.70+) |
 
 ---
 
 <div align="center">
 
-**Built with ❤️ for the decentralized future**
+**Status: MAINNET LIVE — READY FOR DAPP INTEGRATION & ECOSYSTEM DEVELOPMENT**
 
 [![Rust](https://img.shields.io/badge/Made%20with-Rust-orange?logo=rust)](https://www.rust-lang.org/)
 [![Security](https://img.shields.io/badge/Security-Audited-success)](./SECURITY_AUDIT.md)
-[![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen)](./FINAL_STATUS_REPORT.md)
+[![Testnet](https://img.shields.io/badge/Testnet-LIVE-brightgreen)](https://explorer.kortana.worchsester.xyz)
+[![Mainnet](https://img.shields.io/badge/Mainnet-LIVE-brightgreen)](https://explorer.mainnet.kortana.xyz)
 
-[⬆ Back to Top](#-kortana-blockchain---production-grade-layer-1-blockchain)
+**Built with ❤️ for the decentralized future and the Kortana Smart City Initiative**
+
+[⬆ Back to Top](#-kortana-blockchain--production-grade-layer-1-protocol)
 
 </div>
-
----
-
-## 🎲 Random Facts
-
-Did you know? The first blockchain transaction was made by Satoshi Nakamoto on January 3, 2009. The Genesis block contained the message: "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks."
-
-**Fun Blockchain Trivia:**
-- 🔗 The word "blockchain" was first used in the Bitcoin whitepaper by Satoshi Nakamoto
-- 💎 A single Bitcoin transaction can use as much energy as a US household uses in a month
-- 🌍 There are over 10,000 different cryptocurrencies in existence today
-- ⚡ Lightning Network can theoretically handle millions of transactions per second
-- 🔐 The SHA-256 algorithm used in Bitcoin has 2^256 possible outputs (that's 115,792,089,237,316,195,423,570,985,008,687,907,853,269,984,665,640,564,039,457,584,007,913,129,639,936 possibilities!)
-
-**Random Development Tip of the Day:**
-> "Always test your smart contracts thoroughly before deploying to mainnet. A small bug can lead to millions of dollars in losses!" 🚀
-
-*This section was randomly added on February 8, 2026* ✨

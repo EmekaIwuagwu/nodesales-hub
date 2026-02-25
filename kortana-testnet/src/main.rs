@@ -138,6 +138,14 @@ async fn main() {
         _ => {
             println!("{}GENESIS{}", CLR_CYAN, CLR_RESET);
             let initial_state = kortana_blockchain_rust::core::genesis::create_genesis_state();
+            let genesis_root = initial_state.calculate_root();
+            
+            // Persist GENESIS state and block 0 immediately so RPC/Explorer can see it
+            let genesis_block = kortana_blockchain_rust::core::genesis::create_genesis_block(genesis_root);
+            let _ = storage.put_state(0, &initial_state);
+            let _ = storage.put_block(&genesis_block);
+            let _ = storage.put_state_root(0, genesis_root);
+            
             (0, initial_state)
         }
     };
@@ -158,6 +166,28 @@ async fn main() {
     let mut consensus = ConsensusEngine::new(vec![genesis_validator.clone()]);
     if h_init > 0 {
         if let Ok(Some(block)) = storage.get_block(h_init) {
+            consensus.finalized_hash = block.header.hash();
+        }
+    }
+
+    // 5. Ensure Genesis Block exists (Crucial for Explorer)
+    if storage.get_block(0).unwrap_or(None).is_none() {
+        println!("{}Generating missing Genesis Block...{}", CLR_YELLOW, CLR_RESET);
+        let genesis_state = if h_init == 0 { state.clone() } else { kortana_blockchain_rust::core::genesis::create_genesis_state() };
+        let genesis_root = genesis_state.calculate_root();
+        let genesis_block = kortana_blockchain_rust::core::genesis::create_genesis_block(genesis_root);
+        let genesis_hash = genesis_block.header.hash();
+        let _ = storage.put_state(0, &genesis_state);
+        let _ = storage.put_block(&genesis_block);
+        let _ = storage.put_state_root(0, genesis_root);
+        
+        // If we are at height 0, the "finalized hash" for the next block must be the genesis hash
+        if h_init == 0 {
+            consensus.finalized_hash = genesis_hash;
+        }
+    } else if h_init == 0 {
+        // Even if block 0 exists, if we are starting at 0, sync the finalized hash
+        if let Ok(Some(block)) = storage.get_block(0) {
             consensus.finalized_hash = block.header.hash();
         }
     }
@@ -383,14 +413,15 @@ async fn main() {
                             let tx_hash = tx.hash();
                             match processor.process_transaction(tx.clone(), &header) {
                                 Ok(receipt) => {
-                                    receipts.push(receipt);
-                                    // Index transaction
+                                    receipts.push(receipt.clone());
+                                    
+                                    // Senior Architect Fix: Explicitly index metadata for Testnet
                                     let _ = node.storage.put_transaction(tx);
+                                    let _ = node.storage.put_receipt(&receipt);
                                     let _ = node.storage.put_index(&tx.from, tx_hash);
                                     let _ = node.storage.put_index(&tx.to, tx_hash);
                                     let _ = node.storage.put_global_transaction(tx_hash);
                                     
-                                    // Remove from mempool
                                     mempool.remove_transaction(&tx_hash);
                                 }
                                 Err(e) => {
@@ -531,18 +562,23 @@ async fn main() {
                                 let mut success = false;
                                 {
                                     let mut processor = kortana_blockchain_rust::core::processor::BlockProcessor::new(&mut state, fees.clone());
-                                    if processor.validate_block(&block).is_ok() {
+                                    if let Ok(receipts) = processor.validate_block(&block) {
                                         println!("  {}✅ Sync Block {} verified.{}", CLR_GREEN, block.header.height, CLR_RESET);
                                         *fees = processor.fee_market.clone();
                                         success = true;
                                         // Index transactions
                                         let block_hash = block.header.hash();
                                         for (tx_index, tx) in block.transactions.iter().enumerate() {
-                                            let _ = node.storage.put_transaction(tx);
-                                            let _ = node.storage.put_index(&tx.from, tx.hash());
-                                            let _ = node.storage.put_index(&tx.to, tx.hash());
                                             let tx_hash = tx.hash();
+                                            let _ = node.storage.put_transaction(tx);
+                                            let _ = node.storage.put_index(&tx.from, tx_hash);
+                                            let _ = node.storage.put_index(&tx.to, tx_hash);
                                             let _ = node.storage.put_transaction_location(&tx_hash, block.header.height, &block_hash, tx_index);
+                                            
+                                            // Ensure receipts are stored for synced blocks
+                                            if let Some(receipt) = receipts.get(tx_index) {
+                                                let _ = node.storage.put_receipt(receipt);
+                                            }
                                         }
                                     }
                                 }

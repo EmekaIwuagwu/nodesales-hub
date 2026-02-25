@@ -24,8 +24,8 @@ export default function Footer() {
             {/* Ambient Background Glow */}
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1000px] h-[300px] bg-cyan-500/5 blur-[120px] rounded-full pointer-events-none"></div>
 
-            <div className="max-w-7xl mx-auto py-20 px-4 sm:px-6 lg:px-8 relative">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 text-center md:text-left">
+            <div className="max-w-7xl mx-auto py-20 px-4 sm:px-6 lg:px-8 relative text-center md:text-left">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16">
 
                     {/* Brand Column */}
                     <div className="space-y-8 flex flex-col items-center md:items-start">
@@ -42,15 +42,15 @@ export default function Footer() {
                             High-fidelity execution. Sovereign security.
                         </p>
                         <div className="flex space-x-3">
-                            <SocialLink href="#" icon={<Twitter size={18} />} />
-                            <SocialLink href="#" icon={<Github size={18} />} />
-                            <SocialLink href="#" icon={<Discord size={18} />} />
+                            <SocialLink href="https://x.com/kortanablockchain" icon={<Twitter size={18} />} />
+                            <SocialLink href="https://github.com/kortanablockchain" icon={<Github size={18} />} />
+                            <SocialLink href="https://discord.gg/kortana" icon={<Discord size={18} />} />
                         </div>
                     </div>
 
                     {/* Resources Column */}
                     <div>
-                        <h3 className="text-[10px] font-black text-white uppercase tracking-[0.3em] mb-8">Technical Resourses</h3>
+                        <h3 className="text-[10px] font-black text-white uppercase tracking-[0.3em] mb-8">Technical Resources</h3>
                         <ul className="space-y-4">
                             <FooterLink href="/docs">Docs Hub</FooterLink>
                             <FooterLink href="/technology">Core Tech</FooterLink>
@@ -64,13 +64,15 @@ export default function Footer() {
                         <h3 className="text-[10px] font-black text-white uppercase tracking-[0.3em] mb-8">Network Ecosystem</h3>
                         <ul className="space-y-4">
                             <FooterLink href="/developers">Dev Portal</FooterLink>
-                            <FooterLink href="https://explorer-testnet.kortana.worchsester.xyz/" target="_blank">Network Explorer</FooterLink>
+                            <FooterLink href="https://explorer.kortana.network" target="_blank">Ecosystem Explorer</FooterLink>
+                            <FooterLink href="/presale">Presale Portal</FooterLink>
+                            <FooterLink href="/faucets">Testnet Faucet</FooterLink>
                             <FooterLink href="/community">Join Community</FooterLink>
                         </ul>
                     </div>
 
                     {/* Network Status Widget */}
-                    <div className="glass-panel p-8 rounded-3xl border-white/5 bg-white/2] backdrop-blur-xl group relative overflow-hidden">
+                    <div className="glass-panel p-8 rounded-3xl border-white/5 bg-white/5 backdrop-blur-xl group relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-20 transition-opacity">
                             <Activity size={40} />
                         </div>
@@ -84,9 +86,21 @@ export default function Footer() {
 
                         <div className="space-y-5">
                             <StatusItem label="Block Height" value={blockHeight} />
-                            <StatusItem label="Block Time" value="5.0s" color="cyan" />
-                            <StatusItem label="Validator Nodes" value="50 / 50" color="green" />
+                            <StatusItem label="Block Time" value="2.0s" color="cyan" />
+                            <StatusItem label="Chain ID" value="9002" color="green" />
+                            <StatusItem label="Total Supply" value="500B DNR" />
+                            <StatusItem label="Symbol" value="DNR" color="cyan" />
+                            <StatusItem label="Finality" value="< 2s BFT" color="green" />
                         </div>
+                        <button
+                            onClick={async () => {
+                                const { addKortanaNetwork } = await import('@/lib/wallet');
+                                await addKortanaNetwork();
+                            }}
+                            className="mt-6 w-full text-[9px] font-black uppercase tracking-widest py-2 px-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 hover:bg-cyan-500/20 transition-all font-sans"
+                        >
+                            + Add to MetaMask
+                        </button>
                     </div>
                 </div>
 
@@ -128,9 +142,8 @@ function FooterLink({ href, children, target }: { href: string; children: React.
 
 function SocialLink({ href, icon }: { href: string; icon: React.ReactNode }) {
     return (
-        <a href={href} className="text-gray-400 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-all border border-transparent hover:border-white/10">
+        <a href={href} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-all border border-transparent hover:border-white/10">
             {icon}
         </a>
     );
 }
-

@@ -39,7 +39,7 @@ export const ComplianceModal: React.FC<ComplianceModalProps> = ({ isOpen, onClos
                             </div>
 
                             <div className="space-y-2">
-                                <h2 className="text-2xl font-bold italic">ZK Compliance</h2>
+                                <h2 className="text-2xl font-bold">ZK Compliance</h2>
                                 <p className="text-white/60">
                                     {status === 'idle' && "Verify your identity using Zero-Knowledge proofs for regulated financial interactions."}
                                     {status === 'verifying' && "Generating ZK-Proof and verifying identity on-chain..."}

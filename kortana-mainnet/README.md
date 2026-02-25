@@ -1,122 +1,222 @@
-# ⚔️# Kortana Mainnet Protocol Node
+# ⚔️ Kortana Blockchain — Mainnet Node (Rust)
 
-Welcome to the production-grade Kortana Mainnet node implementation. This version is optimized for high-performance EVM compatibility with a 2-second block time and a decentralized 3-validator consensus set.
+> **Status: 🟢 LIVE & SECURED (v1.0.0-Mainnet)**  
+> **Launch Date: February 2026**
 
-## 🚀 Mainnet Specifications
-- **Network Name**: Kortana Mainnet
-- **Chain ID**: `9002`
-- **Currency**: `DNR` (Dinari)
-- **Consensus**: BFT with PoH Anchor
-- **Block Time**: 2 Seconds
-- **Validators**: 3 Initial Production Nodes
-
-## 🛠️ Production Deployment
-
-### 1. Requirements
-- Rust (Latest Stable)
-- 4 vCPUs / 8GB RAM minimum
-- Port `8545` (RPC) and `30333` (P2P) open
-
-### 2. Setup
-```bash
-# Clone and navigate to mainnet folder
-cd kortana-mainnet
-
-# Copy env example
-cp .env.example .env
-
-# Generate a new validator wallet if needed
-cargo run -- --wallet
-```
-
-### 3. Running the Node
-To run in production mode (requires `VALIDATOR_PRIVATE_KEY` in `.env` or as environment variable):
-```bash
-cargo run --release -- --prod
-```
-
-For development/local testing:
-```bash
-cargo run --release
-```
-
-## 📊 Monitoring
-Logs are color-coded for clarity:
-- 👑 **Yellow**: Block Production (Leader)
-- ✅ **Green**: Successful Finality/Verification
-- 🟦 **Blue**: RPC Handshake
-- 🟪 **Magenta**: Mempool Activity
-- 🟥 **Red**: Critical Errors/Slashing
+Welcome to the Kortana Mainnet Node — the production-grade, optimized implementation of the Kortana Layer 1 blockchain, featuring dual VM support (EVM + Quorlin), 2-second block times, and BFT finality.
 
 ---
 
-## 🛠️ Manual Installation
+## 🌐 Mainnet Network Details
 
-If you prefer to set things up manually, follow these steps:
+| Field | Value |
+|-------|-------|
+| **Network Name** | Kortana Mainnet |
+| **RPC URL** | `https://zeus-rpc.mainnet.kortana.xyz` |
+| **Chain ID** | `9002` |
+| **Currency Symbol** | `DNR` |
+| **Block Explorer** | `https://explorer.mainnet.kortana.xyz` |
+| **Consensus** | Delegated Proof-of-History (DPoH) + BFT |
+| **Block Time** | 2 Seconds |
+| **Initial Validators** | 3 Production Nodes |
 
-### 1. Prerequisites
-- **Ubuntu 22.04+** or **CentOS 8+**
-- **Rust Toolchain** (Latest Stable)
-- **C++ Compiler** (build-essential)
-- **OpenSSL** (libssl-dev)
+---
 
-### 2. Build from Source
+## 💰 Token Economics
+
+| Field | Value |
+|-------|-------|
+| **Token Name** | DINAR (DNR) |
+| **Total Supply** | 500,000,000,000 DNR (500 Billion) |
+| **Circulating at Launch** | 10,000,000,000 DNR (10 Billion) |
+| **Treasury 1 (Foundation)** | Portion of remaining 490B — ecosystem, grants, ops |
+| **Treasury 2 (Reserve)** | Majority of remaining 490B — Kortana SEZ, Smart City, Robotics, EV |
+| **Initial Block Reward** | 5 DNR / block |
+| **Halving** | 10% reduction per year |
+
+> ⚠️ **No tokens will be sent to any blockchain address upon mainnet deployment.** Treasury disbursements are governed by on-chain proposals only.
+
+---
+
+## 🚀 Production Deployment
+
+### 1. Requirements
+
+- Rust (Latest Stable 1.70+)
+- Ubuntu 22.04+ or CentOS 8+
+- 4 vCPUs / 8GB RAM (minimum)
+- Ports `8545` (RPC) and `30333` (P2P) open
+
+### 2. Setup
+
 ```bash
+cd kortanablockchain-devhub/kortana-mainnet
+
+# Copy and configure environment
+cp .env.example .env
+# Set VALIDATOR_PRIVATE_KEY in .env
+
+# (Optional) Generate a new validator keypair
+cargo run --release -- --wallet
+
+# Build the production binary
 cargo build --release
 ```
 
 ### 3. Run the Node
-```bash
-# Basic run
-./target/release/kortana-blockchain-rust
 
-# Run as a Validator
-./target/release/kortana-blockchain-rust --validator
+```bash
+# Start as production node
+nohup ./target/release/kortana-blockchain-rust \
+  --rpc-addr 0.0.0.0:8545 \
+  --p2p-addr /ip4/0.0.0.0/tcp/30333 \
+  > node.log 2>&1 &
+
+# Monitor
+tail -f node.log
+```
+
+### 4. Docker Deployment
+
+```bash
+docker-compose up -d --build
+docker-compose logs -f
 ```
 
 ---
 
-## ⚙️ Configuration (.env)
+## ⚙️ CLI Flags
 
-The node uses an environment file for sensitive settings. A secure validator key is generated automatically by `install.sh`, but you can customize it in `.env`:
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--rpc-addr` | JSON-RPC server bind address | `0.0.0.0:8545` |
+| `--p2p-addr` | P2P listening Multiaddr | `/ip4/0.0.0.0/tcp/30333` |
+| `--bootnodes` | Comma-separated bootnode list | (none) |
+| `--wallet` | Generate a new validator keypair | (disabled) |
+
+---
+
+## ⚙️ Environment Configuration (.env)
 
 | Key | Description | Default |
 |-----|-------------|---------|
-| `VALIDATOR_PRIVATE_KEY` | Your 64-hex char secret key | (Generated) |
-| `RPC_ADDR` | Bind address for API calls | `0.0.0.0:8545` |
-| `P2P_ADDR` | Bind address for node gossip | `/ip4/0.0.0.0/tcp/30333` |
-| `DB_PATH` | Storage location for the ledger | `./data/kortana.db` |
+| `VALIDATOR_PRIVATE_KEY` | 64-hex char validator secret key | (Required in production) |
+| `RPC_ADDR` | Bind address for JSON-RPC | `0.0.0.0:8545` |
+| `P2P_ADDR` | Bind address for P2P | `/ip4/0.0.0.0/tcp/30333` |
+| `DB_PATH` | Ledger database path | `./data/kortana.db` |
+
+> ⚠️ **Never commit your `.env` file to Git. The `VALIDATOR_PRIVATE_KEY` is your node's on-chain identity.**
 
 ---
 
-## 📊 Monitoring & Maintenance
+## 🦊 Add Mainnet to MetaMask
 
-Once installed via the script, the node runs as a background service called `kortanad`.
-
-- **Check Node Status**: `sudo systemctl status kortanad`
-- **View Live Logs**: `journalctl -u kortanad -f`
-- **Restart Node**: `sudo systemctl restart kortanad`
-- **Stop Node**: `sudo systemctl stop kortanad`
-
----
-
-## 🔒 Security Recommendations
-
-1. **Firewall**: Ensure ports `30333` (P2P) and `8545` (RPC) are open in your Cloud Provider's dashboard.
-2. **Private Keys**: Your `VALIDATOR_PRIVATE_KEY` is your identity. **NEVER** share it or commit your `.env` file to GitHub.
-3. **Updates**: To update your node, simply `git pull` the latest changes and run `cargo build --release` again, then restart the service.
+```
+Network Name:    Kortana Mainnet
+RPC URL:         https://zeus-rpc.mainnet.kortana.xyz
+Chain ID:        9002
+Symbol:          DNR
+Block Explorer:  https://explorer.mainnet.kortana.xyz
+```
 
 ---
 
-## 🧪 Testing the RPC
-
-You can verify your node is responding by running this command from any terminal:
+## 🧪 Verify the Node
 
 ```bash
+# Remote verification
+curl -X POST https://zeus-rpc.mainnet.kortana.xyz \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
+
+# Local verification (development only)
 curl -X POST http://localhost:8545 \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
 ```
 
 ---
-**Build with ❤️ for the Kortana Community.**
+
+## 📊 Monitoring & Maintenance
+
+```bash
+# Service management (if installed as systemd service)
+sudo systemctl status kortanad
+journalctl -u kortanad -f
+sudo systemctl restart kortanad
+sudo systemctl stop kortanad
+```
+
+**Log color codes:**
+- 👑 Block Production — Node elected as leader
+- ✅ Finality — Block confirmed by BFT quorum
+- 🔵 RPC — API request handled
+- 🟣 Mempool — Transaction activity
+- 🔴 Error / Slashing — Critical event
+
+---
+
+## 🔒 Security
+
+1. **Firewall:** Restrict access to ports `8545` and `30333` to trusted IPs where possible
+2. **Private Keys:** `VALIDATOR_PRIVATE_KEY` is your node identity — keep it secret
+3. **Updates:** `git pull` → `cargo build --release` → `sudo systemctl restart kortanad`
+
+---
+
+## 🏗️ Architecture Overview
+
+```
+┌──────────────────────────────────────────────┐
+│             APPLICATION LAYER                │
+│  MetaMask · dApps · Block Explorer           │
+└───────────────────┬──────────────────────────┘
+                    │
+┌───────────────────┴──────────────────────────┐
+│           CONSENSUS & NETWORK LAYER          │
+│  DPoH + BFT · libp2p Gossipsub              │
+└───────────────────┬──────────────────────────┘
+                    │
+┌───────────────────┴──────────────────────────┐
+│          EXECUTION LAYER (DUAL VM)           │
+│  EVM (Solidity) · Quorlin (Native)          │
+└───────────────────┬──────────────────────────┘
+                    │
+┌───────────────────┴──────────────────────────┐
+│               STATE & STORAGE                │
+│  Merkle-Patricia Trie · Sled DB             │
+└──────────────────────────────────────────────┘
+```
+
+---
+
+## 📖 Related Documentation
+
+| Document | Description |
+|----------|-------------|
+| `DEPLOY.md` | Full production deployment guide |
+| `CLI_HELP.md` | CLI flags & staking integration |
+| `CONTRACT_DEPLOYMENT_FIXED.md` | Smart contract deployment guide |
+| `CROSS_PLATFORM_GUIDE.md` | Multi-OS build guide |
+| `../README.md` | Full repository overview |
+
+---
+
+## 🔖 Version Information
+
+| Field | Value |
+|-------|-------|
+| **Specification Version** | 2.0.0 |
+| **Language** | Rust (stable 1.70+) |
+| **Chain ID** | 9002 |
+| **Target Standard** | Polkadot / Cosmos / Solana Tier |
+| **Status** | 🟢 LIVE |
+| **Launch Date** | February 2026 |
+| **Developed by** | Kortana Core Team |
+| **Built with** | Rust (stable 1.70+) |
+
+---
+
+**Status: MAINNET LIVE — READY FOR DAPP INTEGRATION & ECOSYSTEM DEVELOPMENT**
+
+**Built with ❤️ by the Kortana Core Team**

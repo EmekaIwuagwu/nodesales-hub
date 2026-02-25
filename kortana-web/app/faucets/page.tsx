@@ -16,14 +16,22 @@ export default function FaucetsPage() {
 
         setStatus('loading');
 
-        // Simulate API call
-        setTimeout(() => {
-            if (address.length < 10) {
-                setStatus('error');
-            } else {
+        try {
+            const res = await fetch('/api/faucet/request', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ address, network }),
+            });
+            const data = await res.json();
+            if (data.success) {
                 setStatus('success');
+            } else {
+                setStatus('error');
+                alert(data.message);
             }
-        }, 2000);
+        } catch (err) {
+            setStatus('error');
+        }
     };
 
     return (
@@ -52,7 +60,7 @@ export default function FaucetsPage() {
                     <form onSubmit={handleRequest} className="space-y-6">
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-gray-300">Select Network</label>
-                            <div className="grid grid-cols-2 gap-4 p-1 bg-black/20 rounded-lg">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-1 bg-black/20 rounded-lg">
                                 <button
                                     type="button"
                                     onClick={() => setNetwork('testnet')}
