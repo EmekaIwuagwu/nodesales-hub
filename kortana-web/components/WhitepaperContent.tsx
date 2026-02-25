@@ -39,8 +39,8 @@ export default function WhitepaperContent() {
     return (
         <div className="max-w-400 mx-auto px-4 py-16 flex flex-col lg:flex-row gap-16 relative z-10">
             <a 
-                href="/kortana_whitepaper.pdf"
-                download="kortana_whitepaper.pdf"
+                href="/kortana_whitepaper_v2.00.pdf"
+                download="kortana_whitepaper_v2.00.pdf"
                 className="lg:hidden fixed bottom-6 right-6 z-50 p-4 bg-white text-deep-space rounded-full shadow-2xl shadow-white/20 hover:scale-110 transition-transform flex items-center justify-center group"
                 aria-label="Download PDF"
             >
@@ -63,8 +63,8 @@ export default function WhitepaperContent() {
                             <NavItem id="network" label="Network & Storage" icon={<Server size={14} />} active={activeSection === 'network'} onClick={() => scrollToSection('network')} />
                         </nav>
                     </div>
-                    <a href="/kortana_whitepaper.pdf"
-                        download="kortana_whitepaper.pdf"
+                    <a href="/kortana_whitepaper_v2.00.pdf"
+                        download="kortana_whitepaper_2.00.pdf"
                         className="w-full py-4 bg-white text-deep-space font-black uppercase tracking-widest text-[10px] rounded-xl flex items-center justify-center gap-3 hover:scale-[1.02] transition-transform shadow-xl shadow-white/5 group"
                     >
                         <Download size={14} /> Download PDF
