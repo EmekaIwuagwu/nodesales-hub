@@ -38,7 +38,6 @@ export default function WhitepaperContent() {
 
     return (
         <div className="max-w-400 mx-auto px-4 py-16 flex flex-col lg:flex-row gap-16 relative z-10">
-            {/* Mobile Download Button - FAB */}
             <a 
                 href="/kortana_whitepaper.pdf"
                 download="kortana_whitepaper.pdf"
