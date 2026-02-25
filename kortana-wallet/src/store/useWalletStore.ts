@@ -1,43 +1,97 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { NetworkType } from '../lib/constants';
+import { chromeStorage } from './chromeStorage';
 
 interface WalletState {
+    // Persistent State (Encrypted/Public)
     address: string | null;
-    balance: string;
-    isLocked: boolean;
-    mnemonic: string | null;
-    passwordHash: string | null;
+    encryptedMnemonic: string | null;
+    passwordHash: string | null; // SHA256 of password to verify on unlock
     accounts: string[];
-    network: 'mainnet' | 'testnet';
+    network: NetworkType;
+    tokens: any[]; // Custom registered tokens
+
+    // Memory-only State (Cleared on lock)
+    mnemonic: string | null;
+    privateKey: string | null;
+    isLocked: boolean;
+    balance: string;
+
+    // Actions
     setAddress: (address: string | null) => void;
-    setBalance: (balance: string) => void;
+    setEncryptedMnemonic: (encrypted: string | null) => void;
+    setPasswordHash: (hash: string | null) => void;
+    setNetwork: (network: NetworkType) => void;
     setLocked: (isLocked: boolean) => void;
+    setBalance: (balance: string) => void;
     setMnemonic: (mnemonic: string | null) => void;
-    setPasswordHash: (passwordHash: string | null) => void;
-    setNetwork: (network: 'mainnet' | 'testnet') => void;
+    setPrivateKey: (key: string | null) => void;
+
+    addAccount: (address: string) => void;
     reset: () => void;
 }
 
 export const useWalletStore = create<WalletState>()(
     persist(
         (set) => ({
+            // Default Values
             address: null,
-            balance: '0.00',
-            isLocked: true,
-            mnemonic: null,
+            encryptedMnemonic: null,
             passwordHash: null,
             accounts: [],
             network: 'mainnet',
+            tokens: [],
+
+            mnemonic: null,
+            privateKey: null,
+            isLocked: true,
+            balance: '0.00',
+
+            // Setters
             setAddress: (address) => set({ address }),
-            setBalance: (balance) => set({ balance }),
-            setLocked: (isLocked) => set({ isLocked }),
-            setMnemonic: (mnemonic) => set({ mnemonic }),
+            setEncryptedMnemonic: (encryptedMnemonic) => set({ encryptedMnemonic }),
             setPasswordHash: (passwordHash) => set({ passwordHash }),
             setNetwork: (network) => set({ network }),
-            reset: () => set({ address: null, balance: '0.00', isLocked: true, mnemonic: null, passwordHash: null, accounts: [], network: 'mainnet' }),
+            setLocked: (isLocked) => {
+                if (isLocked) {
+                    set({ isLocked, mnemonic: null, privateKey: null }); // Clear sensitive data on lock
+                } else {
+                    set({ isLocked });
+                }
+            },
+            setBalance: (balance) => set({ balance }),
+            setMnemonic: (mnemonic) => set({ mnemonic }),
+            setPrivateKey: (privateKey) => set({ privateKey }),
+
+            addAccount: (address) => set((state) => ({
+                accounts: state.accounts.includes(address) ? state.accounts : [...state.accounts, address]
+            })),
+
+            reset: () => set({
+                address: null,
+                encryptedMnemonic: null,
+                passwordHash: null,
+                accounts: [],
+                network: 'mainnet',
+                tokens: [],
+                mnemonic: null,
+                privateKey: null,
+                isLocked: true,
+                balance: '0.00'
+            }),
         }),
         {
-            name: 'kortana-wallet-storage',
+            name: 'kortana-wallet-secure-storage',
+            storage: createJSONStorage(() => chromeStorage),
+            partialize: (state) => ({ // Only persist these fields
+                address: state.address,
+                encryptedMnemonic: state.encryptedMnemonic,
+                passwordHash: state.passwordHash,
+                accounts: state.accounts,
+                network: state.network,
+                tokens: state.tokens,
+            }),
         }
     )
 );

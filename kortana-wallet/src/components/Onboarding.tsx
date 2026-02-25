@@ -9,11 +9,23 @@ import {
 } from 'lucide-react';
 import { generateMnemonic, createWalletFromMnemonic } from '@/lib/wallet';
 import { useWalletStore } from '@/store/useWalletStore';
+import { vaultService } from '@/lib/VaultService';
 
 type Step = 'login' | 'register' | 'start' | 'generate' | 'verify' | 'password' | 'success' | 'import';
 
 export const Onboarding: React.FC = () => {
-    const { mnemonic: storedMnemonic, passwordHash, setMnemonic, setAddress, setLocked, setPasswordHash, reset } = useWalletStore();
+    const {
+        encryptedMnemonic,
+        passwordHash,
+        setEncryptedMnemonic,
+        setAddress,
+        setLocked,
+        setPasswordHash,
+        reset,
+        setMnemonic: setMemoryMnemonic,
+        setPrivateKey: setMemoryPrivateKey
+    } = useWalletStore();
+
     const [step, setStep] = useState<Step>('start');
     const [mnemonic, setNewMnemonic] = useState<string>('');
     const [mnemonicInput, setMnemonicInput] = useState<string>('');
@@ -23,12 +35,12 @@ export const Onboarding: React.FC = () => {
     const [loginPassword, setLoginPassword] = useState('');
 
     useEffect(() => {
-        if (storedMnemonic && passwordHash) {
+        if (passwordHash && encryptedMnemonic) {
             setStep('login');
         } else {
             setStep('start');
         }
-    }, [storedMnemonic, passwordHash]);
+    }, [passwordHash, encryptedMnemonic]);
 
     const handleCreateWallet = () => {
         const mn = generateMnemonic();
@@ -53,28 +65,54 @@ export const Onboarding: React.FC = () => {
             alert('Passwords do not match.');
             return;
         }
-        setPasswordHash(password); // Simplified hash for simulation
+
+        const hash = vaultService.hashPassword(password);
+        setPasswordHash(hash);
+
+        // Encrypt the mnemonic using the password
+        const encrypted = vaultService.encrypt(mnemonic, password);
+        setEncryptedMnemonic(encrypted);
+
         setStep('success');
     };
 
     const handleLogin = () => {
-        if (loginPassword === passwordHash) {
-            setLocked(false);
+        const inputHash = vaultService.hashPassword(loginPassword);
+        if (inputHash === passwordHash && encryptedMnemonic) {
+            const dec = vaultService.decrypt(encryptedMnemonic, loginPassword);
+            if (dec) {
+                const wallet = createWalletFromMnemonic(dec);
+                setMemoryMnemonic(dec);
+                setMemoryPrivateKey(wallet.privateKey);
+                setAddress(wallet.address);
+                setLocked(false);
+            } else {
+                alert('Decryption failed. Data may be corrupted.');
+            }
         } else {
             alert('Incorrect password.');
         }
     };
 
     const completeSetup = () => {
-        setMnemonic(mnemonic);
-        const wallet = createWalletFromMnemonic(mnemonic);
-        setAddress(wallet.address);
-        setLocked(false);
+        // Redundant if we did it in handleSetPassword, but ensuring memory is set
+        const dec = vaultService.decrypt(encryptedMnemonic!, password);
+        if (dec) {
+            const wallet = createWalletFromMnemonic(dec);
+            setMemoryMnemonic(dec);
+            setMemoryPrivateKey(wallet.privateKey);
+            setAddress(wallet.address);
+            setLocked(false);
+        }
     };
 
     const handleImportMnemonic = () => {
-        if (!mnemonicInput.trim()) return;
-        setNewMnemonic(mnemonicInput);
+        const input = mnemonicInput.trim();
+        if (!input || input.split(' ').length !== 12) {
+            alert('Please enter a valid 12-word recovery phrase.');
+            return;
+        }
+        setNewMnemonic(input);
         setStep('password');
     };
 
