@@ -99,7 +99,7 @@ export default function KeyMetrics() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center relative z-10">
                     <SecondaryStat label="Total Supply" value="500B" icon={<Coins />} unit="DNR" />
                     <SecondaryStat label="Global Capacity" value="50,000+" icon={<Activity />} unit="TPS" color="cyan" />
-                    <SecondaryStat label="Unique Holders" value="12,450+" icon={<Users />} unit="WALLETS" />
+                    <SecondaryStat label="Staking APY" value="12.4%" icon={<Shield />} unit="ANNUAL" color="cyan" />
                     <SecondaryStat label="Gas Cost" value="< 0.001" icon={<Zap />} unit="DNR" color="green" />
                 </div>
             </motion.div>

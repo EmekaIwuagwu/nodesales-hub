@@ -114,18 +114,35 @@ async fn main() {
             println!("{}RESUMED at height {}{}", CLR_CYAN, h, CLR_RESET);
             (h, s)
         },
-        _ => {
-            println!("{}GENESIS{}", CLR_CYAN, CLR_RESET);
-            let initial_state = kortana_blockchain_rust::core::genesis::create_genesis_state();
-            let genesis_root = initial_state.calculate_root();
-            
-            // Persist GENESIS state and block 0 immediately so RPC/Explorer can see it
-            let genesis_block = kortana_blockchain_rust::core::genesis::create_genesis_block(genesis_root);
-            let _ = storage.put_state(0, &initial_state);
-            let _ = storage.put_block(&genesis_block);
-            let _ = storage.put_state_root(0, genesis_root);
-            
-            (0, initial_state)
+        Ok(None) => {
+            // Check fallback for any block indices
+            let max_h = storage.get_max_height_fallback();
+            if max_h > 0 {
+                if let Ok(Some(s)) = storage.get_state(max_h) {
+                    println!("{}RECOVERED FROM DB: HEIGHT {}{}", CLR_CYAN, max_h, CLR_RESET);
+                    (max_h, s)
+                } else {
+                    println!("{}ERROR: Traces of chain found (Height {}) but couldn't load state! Please check database health.{}", 
+                        CLR_RED, max_h, CLR_RESET);
+                    panic!("Critical database state mismatch at height {}", max_h);
+                }
+            } else {
+                println!("{}GENESIS: Starting new blockchain...{}", CLR_CYAN, CLR_RESET);
+                let initial_state = kortana_blockchain_rust::core::genesis::create_genesis_state();
+                let genesis_root = initial_state.calculate_root();
+                
+                // Persist GENESIS state and block 0
+                let genesis_block = kortana_blockchain_rust::core::genesis::create_genesis_block(genesis_root);
+                let _ = storage.put_state(0, &initial_state);
+                let _ = storage.put_block(&genesis_block);
+                let _ = storage.put_state_root(0, genesis_root);
+                
+                (0, initial_state)
+            }
+        },
+        Err(e) => {
+            println!("{}CRITICAL DATABASE ERROR: {} - Halting node for safety.{}", CLR_RED, e, CLR_RESET);
+            panic!("Database Error: {}", e);
         }
     };
     let genesis_root = state.calculate_root();
@@ -327,7 +344,9 @@ async fn main() {
 
     // 6. Main Execution Loop
     let mut interval = tokio::time::interval(Duration::from_secs(BLOCK_TIME_SECS));
-    let mut current_slot: u64 = 0;
+    let mut current_slot: u64 = if h_init > 0 {
+        node.storage.get_block(h_init).ok().flatten().map(|b| b.header.slot).unwrap_or(0)
+    } else { 0 };
     let mut max_seen_height = h_init;
 
     println!("\n{}--- NODE OPERATIONAL - HEIGHT {} ---{}\n", CLR_GREEN, h_init, CLR_RESET);
@@ -339,7 +358,7 @@ async fn main() {
                 let mut consensus = node.consensus.lock().unwrap();
                 consensus.current_slot = current_slot;
                 
-                if let Some(leader) = consensus.get_leader(current_slot) {
+                if let Some(leader) = consensus.get_leader(current_slot, consensus.finalized_hash) {
                     consensus.advance_era(current_slot);
                     
                     if leader == node_addr { 

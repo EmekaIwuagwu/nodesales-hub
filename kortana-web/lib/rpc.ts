@@ -97,3 +97,29 @@ export async function ethCall(
         return null;
     }
 }
+
+/**
+ * Fetch the exact total transaction count via the Kortana custom RPC endpoint.
+ * eth_getRecentTransactions returns all txs in one call — fast, no block scanning.
+ */
+export async function getTotalTransactions(network: NetworkKey = "mainnet"): Promise<string> {
+    const rpcUrl = NETWORK[network].rpcUrl;
+    try {
+        const resp = await fetch(rpcUrl, {
+            method: "POST",
+            cache: "no-store",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                jsonrpc: "2.0",
+                method: "eth_getRecentTransactions",
+                params: [{ page: 1, limit: 99999 }],
+                id: 1,
+            }),
+        });
+        const data = await resp.json();
+        const txs: unknown[] = Array.isArray(data?.result) ? data.result : [];
+        return txs.length.toLocaleString();
+    } catch {
+        return "N/A";
+    }
+}

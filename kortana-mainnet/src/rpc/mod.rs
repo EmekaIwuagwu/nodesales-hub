@@ -336,38 +336,58 @@ impl RpcHandler {
             "eth_getRecentTransactions" => {
                 match self.storage.get_global_transactions() {
                     Ok(tx_hashes) => {
-                        let mut result = Vec::new();
-                        let start = if tx_hashes.len() > 100 { tx_hashes.len() - 100 } else { 0 };
-                        for hash in tx_hashes[start..].iter().rev() {
-                            let hash_hex = format!("0x{}", hex::encode(hash));
-                            if let Ok(Some(tx)) = self.storage.get_transaction(hash_hex.strip_prefix("0x").unwrap()) {
-                                let (block_height, block_hash, tx_index) = self.storage.get_transaction_location(hash_hex.strip_prefix("0x").unwrap())
-                                    .ok()
-                                    .flatten()
-                                    .map(|(h, hash, idx)| (format!("0x{:x}", h), format!("0x{}", hash), format!("0x{:x}", idx)))
-                                    .unwrap_or((format!("0x{:x}", 0), "0x0000000000000000000000000000000000000000000000000000000000000000".to_string(), "0x0".to_string()));
+                        // K-HIGH-01 Remediation: Pagination logic
+                        let limit = if let Some(arr) = p {
+                            arr.get(0).and_then(|v| v.as_u64()).unwrap_or(20).min(100) as usize
+                        } else { 20 };
+                        let page = if let Some(arr) = p {
+                            arr.get(1).and_then(|v| v.as_u64()).unwrap_or(0) as usize
+                        } else { 0 };
 
-                                result.push(serde_json::json!({
-                                    "hash": hash_hex,
-                                    "from": format!("0x{}", hex::encode(tx.from.as_evm_address())),
-                                    "to": format!("0x{}", hex::encode(tx.to.as_evm_address())),
-                                    "value": format!("0x{:x}", tx.value),
-                                    "nonce": format!("0x{:x}", tx.nonce),
-                                    "blockNumber": block_height,
-                                    "blockHash": block_hash,
-                                    "transactionIndex": tx_index,
-                                    "gas": format!("0x{:x}", tx.gas_limit),
-                                    "gasPrice": format!("0x{:x}", tx.gas_price),
-                                    "input": format!("0x{}", hex::encode(&tx.data)),
-                                    "chainId": format!("0x{:x}", self.chain_id),
-                                    "v": "0x1b", "r": "0x0", "s": "0x0",
-                                    "type": "0x0"
-                                }));
+                        let total = tx_hashes.len();
+                        let start = total.saturating_sub((page + 1) * limit);
+                        let end = total.saturating_sub(page * limit);
+                        
+                        let mut result = Vec::new();
+                        if start < total {
+                            let actual_end = std::cmp::min(end, total);
+                            for hash in tx_hashes[start..actual_end].iter().rev() {
+                                let hash_hex = format!("0x{}", hex::encode(hash));
+                                if let Ok(Some(tx)) = self.storage.get_transaction(hash_hex.strip_prefix("0x").unwrap()) {
+                                    let (block_height, block_hash, tx_index) = self.storage.get_transaction_location(hash_hex.strip_prefix("0x").unwrap())
+                                        .ok()
+                                        .flatten()
+                                        .map(|(h, hash, idx)| (format!("0x{:x}", h), format!("0x{}", hash), format!("0x{:x}", idx)))
+                                        .unwrap_or((format!("0x{:x}", 0), "0x0000000000000000000000000000000000000000000000000000000000000000".to_string(), "0x0".to_string()));
+
+                                    result.push(serde_json::json!({
+                                        "hash": hash_hex,
+                                        "from": format!("0x{}", hex::encode(tx.from.as_evm_address())),
+                                        "to": format!("0x{}", hex::encode(tx.to.as_evm_address())),
+                                        "value": format!("0x{:x}", tx.value),
+                                        "nonce": format!("0x{:x}", tx.nonce),
+                                        "blockNumber": block_height,
+                                        "blockHash": block_hash,
+                                        "transactionIndex": tx_index,
+                                        "gas": format!("0x{:x}", tx.gas_limit),
+                                        "gasPrice": format!("0x{:x}", tx.gas_price),
+                                        "input": format!("0x{}", hex::encode(&tx.data)),
+                                        "chainId": format!("0x{:x}", self.chain_id),
+                                        "v": "0x1b", "r": "0x0", "s": "0x0",
+                                        "type": "0x0"
+                                    }));
+                                }
                             }
                         }
-                        Some(serde_json::Value::Array(result))
+                        
+                        Some(serde_json::json!({
+                            "transactions": result,
+                            "page": page,
+                            "limit": limit,
+                            "total": total
+                        }))
                     },
-                    _ => Some(serde_json::Value::Array(vec![]))
+                    _ => Some(serde_json::json!({ "transactions": [], "total": 0 }))
                 }
             }
             "eth_getBlockByNumber" => {
@@ -515,45 +535,6 @@ impl RpcHandler {
                     },
                     _ => Some(serde_json::Value::Null)
                 }
-            }
-            "eth_requestDNR" => {
-                if let Some(arr) = p {
-                    if let Some(addr_str) = arr.first().and_then(|v| v.as_str()) {
-                        if let Ok(addr) = crate::address::Address::from_hex(addr_str) {
-                            let amount_str = arr.get(1).and_then(|v| v.as_str()).unwrap_or("10");
-                            let amount_dnr: u128 = amount_str.parse().unwrap_or(10);
-                            let amount_wei = amount_dnr * 10u128.pow(18);
-                            
-                            let mut state = self.state.lock().unwrap();
-                            let mut acc = state.get_account(&addr);
-                            acc.balance += amount_wei;
-                            state.update_account(addr, acc);
-
-                            let faucet_addr = crate::address::Address::ZERO; 
-                            let faucet_tx = crate::types::transaction::Transaction {
-                                from: faucet_addr,
-                                to: addr,
-                                value: amount_wei,
-                                nonce: std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs() % 1000000,
-                                gas_limit: 21000,
-                                gas_price: 1,
-                                data: vec![],
-                                vm_type: crate::types::transaction::VmType::EVM,
-                                chain_id: self.chain_id,
-                                signature: Some(vec![0u8; 65]),
-                                cached_hash: None,
-                            };
-
-                            let _ = self.storage.put_transaction(&faucet_tx);
-                            let _ = self.storage.put_index(&addr, faucet_tx.hash());
-                            let _ = self.storage.put_index(&faucet_addr, faucet_tx.hash());
-                            let _ = self.storage.put_global_transaction(faucet_tx.hash());
-                            
-                            println!("[FAUCET] Distributed {} DNR to {} (Verified & Indexed)", amount_dnr, addr_str);
-                            Some(serde_json::to_value(true).unwrap())
-                        } else { None }
-                    } else { None }
-                } else { None }
             }
             "eth_getValidators" => {
                 let consensus = self.consensus.lock().unwrap();
@@ -751,7 +732,7 @@ impl RpcHandler {
                 } else { None }
             }
             "eth_newBlockFilter" => {
-                let filter_id = format!("0x{:x}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos() % 0xFFFFFFFF);
+                let filter_id = format!("0x{}", uuid::Uuid::new_v4());
                 let filter = RpcFilter {
                     filter_type: FilterType::Block,
                     last_poll_block: current_height,
@@ -760,7 +741,7 @@ impl RpcHandler {
                 Some(serde_json::to_value(filter_id).unwrap())
             }
             "eth_newFilter" => {
-                let filter_id = format!("0x{:x}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos() % 0xFFFFFFFF);
+                let filter_id = format!("0x{}", uuid::Uuid::new_v4());
                 
                 let (address, topics, from_block) = if let Some(arr) = p {
                     if let Some(obj) = arr.first().and_then(|v| v.as_object()) {
@@ -793,8 +774,15 @@ impl RpcHandler {
                     if let Some(filter_id) = arr.first().and_then(|v| v.as_str()) {
                         let mut filters = self.filters.lock().unwrap();
                         if let Some(filter) = filters.get_mut(filter_id) {
-                            let start_block = filter.last_poll_block + 1;
+                            let mut start_block = filter.last_poll_block + 1;
                             let end_block = current_height;
+                            
+                            // K-HIGH-DoS Remediation: Cap block range to prevent massive scans
+                            const MAX_FILTER_BLOCK_RANGE: u64 = 2000;
+                            if end_block > start_block + MAX_FILTER_BLOCK_RANGE {
+                                start_block = end_block - MAX_FILTER_BLOCK_RANGE;
+                            }
+                            
                             filter.last_poll_block = end_block;
 
                             match &filter.filter_type {

@@ -145,12 +145,12 @@ impl EvmExecutor {
                     self.consume_gas(5)?;
                     let a = self.stack.pop()?;
                     let b = self.stack.pop()?;
-                    let a_i = Self::u256_to_i256(a);
-                    let b_i = Self::u256_to_i256(b);
+                    let a_i = ethnum::i256::from_be_bytes(a);
+                    let b_i = ethnum::i256::from_be_bytes(b);
                     if b_i == 0 {
                         self.stack.push([0u8; 32])?;
                     } else {
-                        self.stack.push(Self::i256_to_u256(a_i / b_i))?;
+                        self.stack.push((a_i / b_i).to_be_bytes())?;
                     }
                 }
                 0x06 => { self.consume_gas(5)?; let (a, b) = (self.stack.pop()?, self.stack.pop()?); self.stack.push(Self::mod_u256(a, b))?; }
@@ -158,12 +158,12 @@ impl EvmExecutor {
                     self.consume_gas(5)?;
                     let a = self.stack.pop()?;
                     let b = self.stack.pop()?;
-                    let a_i = Self::u256_to_i256(a);
-                    let b_i = Self::u256_to_i256(b);
+                    let a_i = ethnum::i256::from_be_bytes(a);
+                    let b_i = ethnum::i256::from_be_bytes(b);
                     if b_i == 0 {
                         self.stack.push([0u8; 32])?;
                     } else {
-                        self.stack.push(Self::i256_to_u256(a_i % b_i))?;
+                        self.stack.push((a_i % b_i).to_be_bytes())?;
                     }
                 }
                 0x08 => { // ADDMOD
@@ -598,6 +598,7 @@ impl EvmExecutor {
                                 sub_executor.callvalue = value;
                                 
                                 // Execute the called contract
+                                let snapshot = state.snapshot();
                                 match sub_executor.execute(&code, state, header) {
                                     Ok(return_data) => {
                                         // Deduct gas used
@@ -619,7 +620,8 @@ impl EvmExecutor {
                                         self.stack.push(Self::u256_bool(true))?;
                                     }
                                     Err(_) => {
-                                        // Call failed, push 0
+                                        // Call failed, rollback state and push 0
+                                        state.rollback(snapshot);
                                         self.stack.push([0u8; 32])?;
                                     }
                                 }
@@ -797,30 +799,15 @@ impl EvmExecutor {
     }
 
     fn add_u256(a: [u8; 32], b: [u8; 32]) -> [u8; 32] {
-        let mut res = [0u8; 32];
-        let mut carry = 0u16;
-        for i in (0..32).rev() {
-            let sum = a[i] as u16 + b[i] as u16 + carry;
-            res[i] = (sum & 0xFF) as u8;
-            carry = sum >> 8;
-        }
-        res
+        let a_val = ethnum::u256::from_be_bytes(a);
+        let b_val = ethnum::u256::from_be_bytes(b);
+        a_val.wrapping_add(b_val).to_be_bytes()
     }
 
     fn sub_u256(a: [u8; 32], b: [u8; 32]) -> [u8; 32] {
-        let mut res = [0u8; 32];
-        let mut borrow = 0i16;
-        for i in (0..32).rev() {
-            let diff = a[i] as i16 - b[i] as i16 - borrow;
-            if diff < 0 {
-                res[i] = (diff + 256) as u8;
-                borrow = 1;
-            } else {
-                res[i] = diff as u8;
-                borrow = 0;
-            }
-        }
-        res
+        let a_val = ethnum::u256::from_be_bytes(a);
+        let b_val = ethnum::u256::from_be_bytes(b);
+        a_val.wrapping_sub(b_val).to_be_bytes()
     }
 
     fn u256_to_usize(val: [u8; 32]) -> Result<usize, EvmError> {
@@ -860,60 +847,30 @@ impl EvmExecutor {
     }
 
     fn mul_u256(a: [u8; 32], b: [u8; 32]) -> [u8; 32] {
-        // Full 256-bit multiplication using 4x 64-bit limb decomposition
-        let a0 = u64::from_be_bytes(a[24..32].try_into().unwrap_or([0u8; 8])) as u128;
-        let a1 = u64::from_be_bytes(a[16..24].try_into().unwrap_or([0u8; 8])) as u128;
-        let a2 = u64::from_be_bytes(a[8..16].try_into().unwrap_or([0u8; 8])) as u128;
-        let a3 = u64::from_be_bytes(a[0..8].try_into().unwrap_or([0u8; 8])) as u128;
-        let b0 = u64::from_be_bytes(b[24..32].try_into().unwrap_or([0u8; 8])) as u128;
-        let b1 = u64::from_be_bytes(b[16..24].try_into().unwrap_or([0u8; 8])) as u128;
-        let b2 = u64::from_be_bytes(b[8..16].try_into().unwrap_or([0u8; 8])) as u128;
-        let b3 = u64::from_be_bytes(b[0..8].try_into().unwrap_or([0u8; 8])) as u128;
-
-        // Only keep the lower 256 bits (mod 2^256), EVM spec
-        let r0 = a0.wrapping_mul(b0);
-        let r1 = a0.wrapping_mul(b1).wrapping_add(a1.wrapping_mul(b0));
-        let r2 = a0.wrapping_mul(b2).wrapping_add(a1.wrapping_mul(b1)).wrapping_add(a2.wrapping_mul(b0));
-        let r3 = a0.wrapping_mul(b3).wrapping_add(a1.wrapping_mul(b2))
-                 .wrapping_add(a2.wrapping_mul(b1)).wrapping_add(a3.wrapping_mul(b0));
-
-        let c0 = r0 & 0xFFFFFFFFFFFFFFFF;
-        let carry1 = r0 >> 64;
-        let sum1 = r1.wrapping_add(carry1);
-        let c1 = sum1 & 0xFFFFFFFFFFFFFFFF;
-        let carry2 = sum1 >> 64;
-        let sum2 = r2.wrapping_add(carry2);
-        let c2 = sum2 & 0xFFFFFFFFFFFFFFFF;
-        let carry3 = sum2 >> 64;
-        let c3 = r3.wrapping_add(carry3) & 0xFFFFFFFFFFFFFFFF;
-
-        let mut result = [0u8; 32];
-        result[0..8].copy_from_slice(&(c3 as u64).to_be_bytes());
-        result[8..16].copy_from_slice(&(c2 as u64).to_be_bytes());
-        result[16..24].copy_from_slice(&(c1 as u64).to_be_bytes());
-        result[24..32].copy_from_slice(&(c0 as u64).to_be_bytes());
-        result
+        let a_val = ethnum::u256::from_be_bytes(a);
+        let b_val = ethnum::u256::from_be_bytes(b);
+        a_val.wrapping_mul(b_val).to_be_bytes()
     }
 
     fn div_u256(a: [u8; 32], b: [u8; 32]) -> [u8; 32] {
-        let a_val = u128::from_be_bytes(a[16..32].try_into().unwrap());
-        let b_val = u128::from_be_bytes(b[16..32].try_into().unwrap());
+        let a_val = ethnum::u256::from_be_bytes(a);
+        let b_val = ethnum::u256::from_be_bytes(b);
         if b_val == 0 { return [0u8; 32]; }
-        Self::u128_to_u256(a_val / b_val)
+        (a_val / b_val).to_be_bytes()
     }
 
     fn mod_u256(a: [u8; 32], b: [u8; 32]) -> [u8; 32] {
-        let a_val = u128::from_be_bytes(a[16..32].try_into().unwrap());
-        let b_val = u128::from_be_bytes(b[16..32].try_into().unwrap());
+        let a_val = ethnum::u256::from_be_bytes(a);
+        let b_val = ethnum::u256::from_be_bytes(b);
         if b_val == 0 { return [0u8; 32]; }
-        Self::u128_to_u256(a_val % b_val)
+        (a_val % b_val).to_be_bytes()
     }
 
     fn exp_u256(a: [u8; 32], b: [u8; 32]) -> [u8; 32] {
-        let a_val = u128::from_be_bytes(a[16..32].try_into().unwrap());
-        let b_val = u128::from_be_bytes(b[16..32].try_into().unwrap());
-        // Simple exp (capped at u128 to match current state)
-        Self::u128_to_u256(a_val.overflowing_pow(b_val as u32).0)
+        let a_val = ethnum::u256::from_be_bytes(a);
+        let b_val = ethnum::u256::from_be_bytes(b);
+        // Full 256-bit exponentiation
+        a_val.pow(b_val.as_u32()).to_be_bytes()
     }
 
     fn shl_u256(shift: [u8; 32], val: [u8; 32]) -> [u8; 32] {
@@ -967,12 +924,12 @@ impl EvmExecutor {
         ((b[0] as usize) << 24) | ((b[1] as usize) << 16) | ((b[2] as usize) << 8) | (b[3] as usize)
     }
 
-    fn u256_to_i256(val: [u8; 32]) -> i128 {
-        Self::u256_to_u128(val) as i128
+    fn u256_to_i256(val: [u8; 32]) -> ethnum::i256 {
+        ethnum::i256::from_be_bytes(val)
     }
     
-    fn i256_to_u256(val: i128) -> [u8; 32] {
-        Self::u128_to_u256(val as u128)
+    fn i256_to_u256(val: ethnum::i256) -> [u8; 32] {
+        val.to_be_bytes()
     }
 }
 
