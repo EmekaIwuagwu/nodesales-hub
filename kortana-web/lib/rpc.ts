@@ -81,61 +81,26 @@ export async function ethCall(
 }
 
 /**
- * Fetch the EXACT total transaction count from the mainnet.
- * Scans every block from 0 → latest using concurrent individual RPC calls
- * (JSON-RPC batch is not supported by the Kortana node).
+ * Fetch the exact total transaction count via the Kortana custom RPC endpoint.
+ * eth_getRecentTransactions returns all txs in one call — fast, no block scanning.
  */
 export async function getTotalTransactions(network: NetworkKey = "mainnet"): Promise<string> {
     const rpcUrl = NETWORK[network].rpcUrl;
-    const CHUNK = 20; // concurrent requests per round
-
     try {
-        // 1. Get latest block number
-        const bnResp = await fetch(rpcUrl, {
+        const resp = await fetch(rpcUrl, {
             method: "POST",
             cache: "no-store",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ jsonrpc: "2.0", method: "eth_blockNumber", params: [], id: 1 }),
+            body: JSON.stringify({
+                jsonrpc: "2.0",
+                method: "eth_getRecentTransactions",
+                params: [{ page: 1, limit: 99999 }],
+                id: 1,
+            }),
         });
-        const bnData = await bnResp.json();
-        if (!bnData.result) return "N/A";
-        const latestBlock = parseInt(bnData.result, 16);
-
-        // 2. Fetch every block individually in concurrent chunks
-        let totalTx = 0;
-
-        for (let start = 0; start <= latestBlock; start += CHUNK) {
-            const end = Math.min(start + CHUNK - 1, latestBlock);
-            const blockNums = Array.from({ length: end - start + 1 }, (_, i) => start + i);
-
-            const results = await Promise.all(
-                blockNums.map(n =>
-                    fetch(rpcUrl, {
-                        method: "POST",
-                        cache: "no-store",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            jsonrpc: "2.0",
-                            method: "eth_getBlockByNumber",
-                            // false = return tx hashes only (lighter payload)
-                            params: ["0x" + n.toString(16), false],
-                            id: n,
-                        }),
-                    })
-                        .then(r => r.json())
-                        .catch(() => null)
-                )
-            );
-
-            for (const item of results) {
-                const txs = item?.result?.transactions;
-                if (Array.isArray(txs)) {
-                    totalTx += txs.length;
-                }
-            }
-        }
-
-        return totalTx.toLocaleString();
+        const data = await resp.json();
+        const txs: unknown[] = Array.isArray(data?.result) ? data.result : [];
+        return txs.length.toLocaleString();
     } catch {
         return "N/A";
     }
