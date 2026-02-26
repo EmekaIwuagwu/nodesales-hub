@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 
 const AUDIT_PDF_URL =
-    'https://res.cloudinary.com/drha3dagy/raw/upload/v1772089907/kortana-docs/kortana-security-audit-report-2026.pdf';
+    'https://res.cloudinary.com/drha3dagy/raw/upload/v1772090185/kortana-docs/kortana-security-audit-report-2026.pdf';
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 const findings = [
