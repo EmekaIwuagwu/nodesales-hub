@@ -81,14 +81,13 @@ export async function ethCall(
 }
 
 /**
- * Fetch the real total transaction count from the mainnet.
- * Strategy: get the latest block number, batch-fetch block headers
- * (up to MAX_BLOCKS most recent), sum transaction counts, then
- * extrapolate for blocks beyond the window using the average tx-per-block.
+ * Fetch the EXACT total transaction count from the mainnet.
+ * Scans every block from 0 → latest using concurrent individual RPC calls
+ * (JSON-RPC batch is not supported by the Kortana node).
  */
 export async function getTotalTransactions(network: NetworkKey = "mainnet"): Promise<string> {
     const rpcUrl = NETWORK[network].rpcUrl;
-    const MAX_BLOCKS = 200; // keep request count reasonable
+    const CHUNK = 20; // concurrent requests per round
 
     try {
         // 1. Get latest block number
@@ -102,41 +101,41 @@ export async function getTotalTransactions(network: NetworkKey = "mainnet"): Pro
         if (!bnData.result) return "N/A";
         const latestBlock = parseInt(bnData.result, 16);
 
-        // 2. Batch-fetch the last MAX_BLOCKS block headers
-        const windowSize = Math.min(latestBlock + 1, MAX_BLOCKS);
-        const startBlock = latestBlock - windowSize + 1;
+        // 2. Fetch every block individually in concurrent chunks
+        let totalTx = 0;
 
-        const batchReqs = Array.from({ length: windowSize }, (_, i) => ({
-            jsonrpc: "2.0",
-            method: "eth_getBlockByNumber",
-            params: ["0x" + (startBlock + i).toString(16), false],
-            id: startBlock + i,
-        }));
+        for (let start = 0; start <= latestBlock; start += CHUNK) {
+            const end = Math.min(start + CHUNK - 1, latestBlock);
+            const blockNums = Array.from({ length: end - start + 1 }, (_, i) => start + i);
 
-        const batchResp = await fetch(rpcUrl, {
-            method: "POST",
-            cache: "no-store",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(batchReqs),
-        });
-        const batchData: { result?: { transactions?: string[] } }[] = await batchResp.json();
+            const results = await Promise.all(
+                blockNums.map(n =>
+                    fetch(rpcUrl, {
+                        method: "POST",
+                        cache: "no-store",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            jsonrpc: "2.0",
+                            method: "eth_getBlockByNumber",
+                            // false = return tx hashes only (lighter payload)
+                            params: ["0x" + n.toString(16), false],
+                            id: n,
+                        }),
+                    })
+                        .then(r => r.json())
+                        .catch(() => null)
+                )
+            );
 
-        // 3. Sum tx counts in the fetched window
-        let windowTxCount = 0;
-        let validBlocks = 0;
-        for (const item of batchData) {
-            const txs = item?.result?.transactions;
-            if (Array.isArray(txs)) {
-                windowTxCount += txs.length;
-                validBlocks++;
+            for (const item of results) {
+                const txs = item?.result?.transactions;
+                if (Array.isArray(txs)) {
+                    totalTx += txs.length;
+                }
             }
         }
 
-        // 4. Extrapolate total across all blocks using average tx-per-block
-        const avgTxPerBlock = validBlocks > 0 ? windowTxCount / validBlocks : 0;
-        const estimatedTotal = Math.round(avgTxPerBlock * (latestBlock + 1));
-
-        return estimatedTotal.toLocaleString();
+        return totalTx.toLocaleString();
     } catch {
         return "N/A";
     }
