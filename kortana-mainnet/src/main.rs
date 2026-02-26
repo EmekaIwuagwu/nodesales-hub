@@ -352,7 +352,7 @@ async fn main() {
                 let mut consensus = node.consensus.lock().unwrap();
                 consensus.current_slot = current_slot;
                 
-                if let Some(leader) = consensus.get_leader(current_slot) {
+                if let Some(leader) = consensus.get_leader(current_slot, consensus.finalized_hash) {
                     consensus.advance_era(current_slot);
                     
                     if leader == node_addr { 

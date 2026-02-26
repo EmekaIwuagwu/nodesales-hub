@@ -222,7 +222,7 @@ impl ConsensusEngine {
         }
     }
 
-    pub fn get_leader(&self, slot: u64) -> Option<Address> {
+    pub fn get_leader(&self, slot: u64, prev_hash: [u8; 32]) -> Option<Address> {
         let active_validators: Vec<_> = self.validators.iter()
             .filter(|v| v.is_active && !self.jailed_validators.contains_key(&v.address))
             .collect();
@@ -232,7 +232,8 @@ impl ConsensusEngine {
         }
         
         let mut hasher = Keccak256::new();
- hasher.update(slot.to_be_bytes());
+        hasher.update(slot.to_be_bytes());
+        hasher.update(prev_hash);
         let hash = hasher.finalize();
         let index = (u64::from_be_bytes(hash[0..8].try_into().unwrap()) % active_validators.len() as u64) as usize;
         

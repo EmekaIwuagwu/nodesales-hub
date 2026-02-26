@@ -102,6 +102,13 @@ impl KortanaNetwork {
                     SwarmEvent::NewListenAddr { address, .. } => {
                         println!("P2P Node listening on {:?}", address);
                     }
+                    SwarmEvent::ConnectionEstablished { peer_id, .. } => {
+                        let current_peers = self.swarm.connected_peers().count();
+                        if current_peers > 50 { // Max 50 peers for stability
+                            println!("[P2P] Peer limit reached, disconnecting {:?}", peer_id);
+                            let _ = self.swarm.disconnect_peer_id(peer_id);
+                        }
+                    }
                     SwarmEvent::Behaviour(event) => match event {
                         KortanaBehaviourEvent::Gossipsub(gossipsub::Event::Message {
                             message, ..
