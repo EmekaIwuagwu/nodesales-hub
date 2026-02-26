@@ -65,7 +65,8 @@ export default function Footer() {
                         <h3 className="text-[10px] font-black text-white uppercase tracking-[0.3em] mb-8">Network Ecosystem</h3>
                         <ul className="space-y-4">
                             <FooterLink href="/developers">Dev Portal</FooterLink>
-                            <FooterLink href="https://explorer.kortana.network" target="_blank">Ecosystem Explorer</FooterLink>
+                            <FooterLink href="https://explorer.mainnet.kortana.xyz/" target="_blank">Mainnet Explorer</FooterLink>
+                            <FooterLink href="https://explorer.testnet.kortana.xyz/" target="_blank">Testnet Explorer</FooterLink>
                             <FooterLink href="/presale">Presale Portal</FooterLink>
                             <FooterLink href="/faucets">Testnet Faucet</FooterLink>
                             <FooterLink href="/community">Join Community</FooterLink>
