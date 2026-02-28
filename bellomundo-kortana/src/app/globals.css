@@ -1,0 +1,208 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary-deep: #020617;
+  --color-primary-kortana: #0EA5E9;
+  --color-primary-bright: #38BDF8;
+
+  --color-secondary-deep: #78350F;
+  --color-secondary-warm: #F59E0B;
+  --color-secondary-soft: #FDE68A;
+
+  --color-neutral-obsidian: #010409;
+  --color-neutral-navy: #0D1117;
+  --color-neutral-slate: #161B22;
+  --color-neutral-muted: #30363D;
+  --color-neutral-dim: #8B949E;
+  --color-neutral-body: #C9D1D9;
+  --color-neutral-bright: #F0F6FC;
+
+  --color-success: #238636;
+  --color-warning: #D29922;
+  --color-error: #F85149;
+  --color-info: #58A6FF;
+
+  --font-display: var(--font-sora), "Inter", "system-ui", "sans-serif";
+  --font-body: var(--font-inter), "Inter", "system-ui", "sans-serif";
+  --font-mono: var(--font-jetbrains-mono), "monospace";
+
+  --animate-float: float 8s ease-in-out infinite;
+  --animate-pulse-subtle: pulse-subtle 4s ease-in-out infinite;
+  --animate-reveal: reveal 1.2s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+
+    50% {
+      transform: translateY(-40px) rotate(1deg);
+    }
+  }
+
+  @keyframes pulse-subtle {
+
+    0%,
+    100% {
+      opacity: 0.6;
+      transform: scale(1);
+    }
+
+    50% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes reveal {
+    0% {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+
+    100% {
+      transform: translateY(0%);
+      opacity: 1;
+    }
+  }
+}
+
+@layer base {
+  body {
+    background-color: var(--color-neutral-obsidian);
+    color: var(--color-neutral-body);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+}
+
+@utility luxury-glass {
+  backdrop-filter: blur(50px) saturate(200%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+@utility sexy-card {
+  position: relative;
+  border-radius: 3rem;
+  background: rgba(13, 17, 23, 0.4);
+  backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  padding: 3rem;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.05), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.6s;
+  }
+
+  &:hover {
+    transform: translateY(-15px) scale(1.01);
+    border-color: rgba(56, 189, 248, 0.2);
+    box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.8);
+
+    &::after {
+      opacity: 1;
+    }
+  }
+}
+
+@utility text-gradient-luxury {
+  background: linear-gradient(135deg, #FFF 20%, #8B949E 50%, #FFF 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 8s linear infinite;
+}
+
+@utility text-gradient-cyber {
+  background: linear-gradient(135deg, #FFF 0%, #38BDF8 50%, #F59E0B 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility btn-luxury {
+  @apply relative px-12 py-6 rounded-full font-black uppercase tracking-[0.3em] text-[11px] overflow-hidden transition-all duration-700;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: white;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.8s;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    letter-spacing: 0.4em;
+
+    &::before {
+      transform: translateX(100%);
+    }
+  }
+}
+
+@utility btn-luxury-gold {
+  @apply btn-luxury;
+  background: linear-gradient(135deg, #F59E0B, #FDE68A);
+  color: #010409;
+  border: none;
+
+  &:hover {
+    background: linear-gradient(135deg, #FDE68A, #F59E0B);
+    box-shadow: 0 0 50px rgba(245, 158, 11, 0.3);
+  }
+}
+
+@utility noise-overlay {
+  &::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+    opacity: 0.03;
+    mix-blend-mode: overlay;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
