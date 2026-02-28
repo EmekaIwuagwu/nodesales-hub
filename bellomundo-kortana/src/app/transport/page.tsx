@@ -15,7 +15,7 @@ export default function TransportLandingPage() {
             <section className="relative h-[90vh] flex items-center px-20">
                 <div className="absolute inset-0 z-0">
                     <img
-                        src="/luxury_ev_render.png"
+                        src="https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=3000&q=100"
                         alt="BelloMundo Transit"
                         className="w-full h-full object-cover opacity-60"
                     />

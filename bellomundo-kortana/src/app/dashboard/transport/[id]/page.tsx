@@ -27,7 +27,7 @@ const evCatalog = [
         model: "GT-X CORE",
         price: "42,000",
         range: "800 KM",
-        image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80",
+        image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=2000&q=100",
         acceleration: "1.9s",
         description: "Pure performance. The GT-X Core integrates direct solar-mesh charging with a high-torque dual motor system. It is the fastest legalized vehicle within Kortana City sectors."
     },
@@ -37,7 +37,7 @@ const evCatalog = [
         model: "NIMBUS ALPHA",
         price: "19,800",
         range: "450 KM",
-        image: "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=800&q=80",
+        image: "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=2000&q=100",
         acceleration: "3.4s",
         description: "The Nimbus Alpha focuses on urban agility. With its compact adaptive chassis, it can navigate the dense historic sectors of Kortana City with unparalleled ease."
     },

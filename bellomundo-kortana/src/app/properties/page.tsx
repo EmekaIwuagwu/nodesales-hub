@@ -15,7 +15,7 @@ export default function PropertiesLandingPage() {
             <section className="relative h-[90vh] flex items-center px-20">
                 <div className="absolute inset-0 z-0">
                     <img
-                        src="/luxury_penthouse_interior.png"
+                        src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=3000&q=100"
                         alt="BelloMundo Properties"
                         className="w-full h-full object-cover opacity-60"
                     />

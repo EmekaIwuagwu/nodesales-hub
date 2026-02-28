@@ -15,7 +15,7 @@ export default function EResidencyLandingPage() {
             <section className="relative h-[90vh] flex items-center px-20">
                 <div className="absolute inset-0 z-0">
                     <img
-                        src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1920&q=80"
+                        src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=3000&q=100"
                         alt="BelloMundo e-Residency"
                         className="w-full h-full object-cover opacity-30 grayscale"
                     />
