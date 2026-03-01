@@ -22,6 +22,11 @@ export const metadata: Metadata = {
   title: "BelloMundo | Smart City Financial Operating System",
   description: "The financial settlement layer for the smart city, powered by Kortana Blockchain and Dinar (DNR).",
   keywords: ["Smart City", "Blockchain", "Fintech", "Kortana", "Dinar", "DNR", "Payments"],
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  }
 };
 
 export default function RootLayout({
