@@ -23,9 +23,9 @@ export const metadata: Metadata = {
   description: "The financial settlement layer for the smart city, powered by Kortana Blockchain and Dinar (DNR).",
   keywords: ["Smart City", "Blockchain", "Fintech", "Kortana", "Dinar", "DNR", "Payments"],
   icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
-    apple: "/logo.png",
+    icon: "/logo-bellomundo.png",
+    shortcut: "/logo-bellomundo.png",
+    apple: "/logo-bellomundo.png",
   }
 };
 
