@@ -4,7 +4,12 @@
     "version": "1.0.0",
     "description": "Premium EVM Blockchain Wallet",
     "action": {
-        "default_popup": "index.html"
+        "default_popup": "index.html",
+        "default_icon": {
+            "16": "images/logo.png",
+            "48": "images/logo.png",
+            "128": "images/logo.png"
+        }
     },
     "background": {
         "service_worker": "background.js",
@@ -32,9 +37,9 @@
         }
     ],
     "icons": {
-        "16": "favicon.ico",
-        "48": "favicon.ico",
-        "128": "favicon.ico"
+        "16": "images/logo.png",
+        "48": "images/logo.png",
+        "128": "images/logo.png"
     },
     "web_accessible_resources": [
         {

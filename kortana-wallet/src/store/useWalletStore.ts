@@ -91,6 +91,7 @@ export const useWalletStore = create<WalletState>()(
                 accounts: state.accounts,
                 network: state.network,
                 tokens: state.tokens,
+                isLocked: state.isLocked, // ← CRITICAL: background.js reads this to authorize accounts
             }),
         }
     )
