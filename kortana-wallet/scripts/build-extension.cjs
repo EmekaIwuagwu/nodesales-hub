@@ -1,130 +1,175 @@
+/**
+ * Kortana Wallet — Chrome Extension Build Script
+ *
+ * Problem: Next.js static export produces:
+ *   - A `_next/` directory (forbidden by Chrome — underscore prefix is reserved)
+ *   - Absolute paths like `/next/static/...` (break in extension:// context)
+ *   - Inline <script> blocks (forbidden by Chrome ManifestV3 CSP)
+ *
+ * This script fixes all three issues after `next build`.
+ */
+
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
 const outDir = path.resolve(__dirname, '../out');
 
-console.log('Building Next.js project...');
+// ─────────────────────────────────────────────
+// STEP 1 — Build
+// ─────────────────────────────────────────────
+console.log('\n[1/5] Building Next.js project...');
 execSync('npm run build', { stdio: 'inherit' });
+console.log('✓ Build complete.\n');
 
-console.log('Fixing static paths for Chrome Extension...');
+// ─────────────────────────────────────────────
+// STEP 2 — Rename _next → next
+// ─────────────────────────────────────────────
+console.log('[2/5] Renaming _next → next ...');
 
-function walkSync(dir, callback) {
-    fs.readdirSync(dir).forEach((file) => {
-        const filePath = path.join(dir, file);
-        if (fs.statSync(filePath).isDirectory()) {
-            walkSync(filePath, callback);
-        } else {
-            callback(filePath);
-        }
-    });
-}
-
-// Rename and Clean Reserved Underscore paths
-// Chrome Extensions do not allow files/folders starting with _ (except _locales)
-function cleanReservedPaths(dir) {
+function renameUnderscoreDirs(dir) {
+    // Process deepest-first to avoid renaming a parent before its children
     const items = fs.readdirSync(dir);
-    items.forEach(item => {
-        const itemPath = path.join(dir, item);
-        const isDir = fs.statSync(itemPath).isDirectory();
-
-        if (item.startsWith('_')) {
-            const newItemName = item.replace(/^_+/, ''); // Remove leading underscores
-            const newPath = path.join(dir, newItemName);
-
+    for (const item of items) {
+        const fullPath = path.join(dir, item);
+        const stat = fs.statSync(fullPath);
+        if (stat.isDirectory()) renameUnderscoreDirs(fullPath);
+    }
+    for (const item of fs.readdirSync(dir)) {
+        if (item.startsWith('_') && item !== '_locales') {
+            const oldPath = path.join(dir, item);
+            const newName = item.replace(/^_+/, '');
+            const newPath = path.join(dir, newName);
             if (fs.existsSync(newPath)) {
-                if (fs.statSync(newPath).isDirectory()) {
-                    fs.rmSync(newPath, { recursive: true });
-                } else {
-                    fs.unlinkSync(newPath);
-                }
+                fs.rmSync(newPath, { recursive: true, force: true });
             }
-
-            fs.renameSync(itemPath, newPath);
-            console.log(`Renamed ${item} -> ${newItemName}`);
-
-            // Recurse into the renamed directory
-            if (isDir) cleanReservedPaths(newPath);
-        } else if (isDir) {
-            cleanReservedPaths(itemPath);
+            fs.renameSync(oldPath, newPath);
+            console.log(`  Renamed: ${item} → ${newName}`);
         }
-    });
+    }
+}
+renameUnderscoreDirs(outDir);
+console.log('✓ Rename done.\n');
+
+// ─────────────────────────────────────────────
+// STEP 3 — Fix all absolute paths → relative
+// ─────────────────────────────────────────────
+console.log('[3/5] Patching absolute paths → relative ...');
+
+function walkFiles(dir, callback) {
+    const items = fs.readdirSync(dir);
+    for (const item of items) {
+        const fullPath = path.join(dir, item);
+        if (fs.statSync(fullPath).isDirectory()) {
+            walkFiles(fullPath, callback);
+        } else {
+            callback(fullPath);
+        }
+    }
 }
 
-console.log('Cleaning reserved paths...');
-cleanReservedPaths(outDir);
+const EXTENSIONS_TO_PATCH = ['.html', '.js', '.css', '.txt', '.json'];
 
-// Replace all occurrences of reserved underscores in all files
-walkSync(outDir, (filePath) => {
-    if (filePath.endsWith('.html') || filePath.endsWith('.js') || filePath.endsWith('.css') || filePath.endsWith('.txt')) {
-        let content = fs.readFileSync(filePath, 'utf8');
+walkFiles(outDir, (filePath) => {
+    if (!EXTENSIONS_TO_PATCH.some(ext => filePath.endsWith(ext))) return;
 
-        // Targeted replacement of Next.js reserved paths
-        // Use a more robust replacement for absolute paths to relative paths
-        const newContent = content
-            .replace(/(?<=['"\/])_next(?=[\/'"])/g, 'next') // Matches _next between quotes or slashes
-            .replace(/\/_next/g, './next')
-            .replace(/_next\/static/g, 'next/static')
-            .replace(/\/_not-found/g, './not-found')
-            .replace(/_not-found\.html/g, 'not-found.html')
-            .replace(/_not-found\.txt/g, 'not-found.txt');
+    let content = fs.readFileSync(filePath, 'utf8');
+    const original = content;
 
-        if (content !== newContent) {
-            fs.writeFileSync(filePath, newContent, 'utf8');
-            console.log(`Updated references in ${path.relative(outDir, filePath)}`);
-        }
+    // The depth of this file relative to outDir — we need the right number of "../"
+    const relativeDirFromOut = path.relative(outDir, path.dirname(filePath));
+    const depth = relativeDirFromOut === '' ? 0 : relativeDirFromOut.split(path.sep).length;
+    const prefix = depth === 0 ? './' : '../'.repeat(depth);
+
+    // Replace all absolute references to /next/... → ./next/... (or with proper depth)
+    // Also catch /_next (if the rename didn't catch all string references in JS)
+    content = content
+        // Absolute paths with leading slash: "/next/..." → "./next/..." (or depth-relative)
+        .replace(/(?<=['"(\s,])\/next\//g, `${prefix}next/`)
+        // Also handle /_next (fallback in case any JS still references it)
+        .replace(/(?<=['"(\s,])\/_next\//g, `${prefix}next/`)
+        // href="/next and src="/next patterns in HTML attributes
+        .replace(/(href|src)="\/next\//g, `$1="${prefix}next/`)
+        .replace(/(href|src)="\/_next\//g, `$1="${prefix}next/`)
+        // CSS url() references
+        .replace(/url\(\/next\//g, `url(${prefix}next/`)
+        .replace(/url\(\/_next\//g, `url(${prefix}next/`)
+        // /images/ references
+        .replace(/(href|src)="\/images\//g, `$1="${prefix}images/`)
+        // /not-found paths
+        .replace(/\/_not-found/g, `${prefix}not-found`)
+        // Bare /next/ in JS strings (e.g. JSON, JS template literals)
+        .replace(/"\/next\//g, `"${prefix}next/`);
+
+    if (content !== original) {
+        fs.writeFileSync(filePath, content, 'utf8');
+        console.log(`  Patched: ${path.relative(outDir, filePath)}`);
     }
 });
+console.log('✓ Path patching done.\n');
 
-// Extract inline scripts to fix CSP violations
-walkSync(outDir, (filePath) => {
-    if (filePath.endsWith('.html')) {
-        let content = fs.readFileSync(filePath, 'utf8');
-        let scriptCounter = 0;
-        const dir = path.dirname(filePath);
-        const fileName = path.basename(filePath, '.html');
+// ─────────────────────────────────────────────
+// STEP 4 — Extract inline scripts (CSP fix)
+// ─────────────────────────────────────────────
+console.log('[4/5] Extracting inline scripts for CSP compliance ...');
 
-        const newContent = content.replace(/<script(?![^>]*src)([^>]*)>([\s\S]*?)<\/script>/gi, (match, attrs, scriptContent) => {
-            if (!scriptContent.trim()) return match;
+walkFiles(outDir, (filePath) => {
+    if (!filePath.endsWith('.html')) return;
 
-            scriptCounter++;
-            const scriptFileName = `${fileName}-script-${scriptCounter}.js`;
-            const scriptFilePath = path.join(dir, scriptFileName);
+    let content = fs.readFileSync(filePath, 'utf8');
+    const fileDir = path.dirname(filePath);
+    const baseName = path.basename(filePath, '.html');
+    let counter = 0;
 
-            fs.writeFileSync(scriptFilePath, scriptContent, 'utf8');
-            console.log(`Extracted inline script to ${scriptFileName}`);
-
-            return `<script src="./${scriptFileName}"${attrs}></script>`;
-        });
-
-        if (content !== newContent) {
-            fs.writeFileSync(filePath, newContent, 'utf8');
+    const patched = content.replace(
+        /<script(?![^>]*\bsrc\b)([^>]*)>([\s\S]*?)<\/script>/gi,
+        (match, attrs, body) => {
+            if (!body.trim()) return match;
+            counter++;
+            const scriptName = `${baseName}-inline-${counter}.js`;
+            fs.writeFileSync(path.join(fileDir, scriptName), body, 'utf8');
+            console.log(`  Extracted: ${scriptName}`);
+            return `<script src="./${scriptName}"${attrs}></script>`;
         }
+    );
+
+    if (patched !== content) {
+        fs.writeFileSync(filePath, patched, 'utf8');
     }
 });
+console.log('✓ CSP extraction done.\n');
 
-// Patch Next.js Invariant check for assetPrefix
-console.log('Patching Next.js assetPrefix checks...');
-walkSync(outDir, (filePath) => {
-    if (filePath.endsWith('.js')) {
-        let content = fs.readFileSync(filePath, 'utf8');
+// ─────────────────────────────────────────────
+// STEP 5 — Patch Next.js path-assertion invariants in JS
+// ─────────────────────────────────────────────
+console.log('[5/5] Patching Next.js runtime path assertions ...');
 
-        // Broadly patch any indexOf checks that look like they're verifying the script path
-        // This handles cases where Next.js expects certain path prefixes that don't exist in extensions
-        let newContent = content
-            .replace(/indexOf\("\.\/next\/"\)/g, 'indexOf("/next/")')
-            .replace(/indexOf\("\/_next\/"\)/g, 'indexOf("/next/")')
-            .replace(/indexOf\("(?:\.\/|\/)next\/"\)/g, 'indexOf("next/")');
+walkFiles(outDir, (filePath) => {
+    if (!filePath.endsWith('.js')) return;
 
-        // Also patch the actual throw to be more forgiving if possible
-        // (Replacing the -1 check with a check that always passes or handles extension protocol)
-        newContent = newContent.replace(/if\(-1===([a-zA-Z0-9]+)\)throw/g, 'if(false && -1===$1)throw');
+    let content = fs.readFileSync(filePath, 'utf8');
+    const original = content;
 
-        if (content !== newContent) {
-            fs.writeFileSync(filePath, newContent, 'utf8');
-            console.log(`Patched Invariant check in ${path.relative(outDir, filePath)}`);
-        }
+    // Next.js (Turbopack) does a startsWith / indexOf check on the script src
+    // to ensure assets are loaded from the expected prefix. In a chrome-extension://
+    // context the URL does not start with "/" so we patch the assertion away.
+    content = content
+        .replace(/if\(-1===([a-zA-Z0-9_$]+)\.indexOf\("(?:\.\/|\/)?next\/"\)\)/g,
+            'if(false)')
+        .replace(/if\(-1===([a-zA-Z0-9_$]+)\)throw/g,
+            'if(false&&-1===$1)throw');
+
+    if (content !== original) {
+        fs.writeFileSync(filePath, content, 'utf8');
+        console.log(`  Patched invariant: ${path.relative(outDir, filePath)}`);
     }
 });
+console.log('✓ Invariant patching done.\n');
 
-console.log('Extension build complete! Load the "out" folder in Chrome.');
+// ─────────────────────────────────────────────
+// DONE
+// ─────────────────────────────────────────────
+console.log('═══════════════════════════════════════════════════');
+console.log('  Extension build complete!');
+console.log('  → Load the "out/" folder in chrome://extensions/');
+console.log('═══════════════════════════════════════════════════\n');
