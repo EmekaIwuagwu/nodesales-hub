@@ -34,7 +34,7 @@ async function scanDirectory(path: string, service: FileService): Promise<Projec
         if (isDir) {
             const children = await scanDirectory(fullPath, service);
             results = [...results, ...children];
-        } else if (name.endsWith('.sol') || name.endsWith('.qrl')) {
+        } else if (name.endsWith('.sol') || name.endsWith('.ql')) {
             const content = await service.readFile(fullPath);
             results.push({
                 id: fullPath,
@@ -256,7 +256,7 @@ const editorSlice = createSlice({
                 state.activeFileId = null;
                 localStorage.setItem('kortana_ide_last_project', action.payload.path);
                 const hasSol = action.payload.files.some(f => f.name.endsWith('.sol'));
-                const hasQrl = action.payload.files.some(f => f.name.endsWith('.qrl'));
+                const hasQrl = action.payload.files.some(f => f.name.endsWith('.ql'));
                 state.projectLanguage = hasSol ? 'solidity' : (hasQrl ? 'quorlin' : null);
             }
         });
@@ -306,7 +306,7 @@ const editorSlice = createSlice({
                 state.projectPath = action.payload.path;
                 state.files = action.payload.files;
                 const hasSol = action.payload.files.some(f => f.name.endsWith('.sol'));
-                const hasQrl = action.payload.files.some(f => f.name.endsWith('.qrl'));
+                const hasQrl = action.payload.files.some(f => f.name.endsWith('.ql'));
                 state.projectLanguage = hasSol ? 'solidity' : (hasQrl ? 'quorlin' : null);
             }
         });

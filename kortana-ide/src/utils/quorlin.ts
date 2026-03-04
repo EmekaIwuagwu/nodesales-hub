@@ -5,7 +5,7 @@ export const registerQuorlinLanguage = (monaco: Monaco) => {
 
     monaco.languages.setMonarchTokensProvider('quorlin', {
         defaultToken: '',
-        tokenPostfix: '.qrl',
+        tokenPostfix: '.ql',
 
         keywords: [
             'contract', 'function', 'import', 'returns', 'if', 'else', 'while', 'for',

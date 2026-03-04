@@ -96,7 +96,7 @@ contract ${contractName} {
 }`;
 
 const QUORLIN_BOILERPLATE = (contractName: string) => `// Quorlin Script — Kortana Network
-// ${contractName}.qrl
+// ${contractName}.ql
 
 contract ${contractName} {
     // State variables
@@ -219,7 +219,7 @@ const App: React.FC = () => {
 
     const handleCreateNewFileFromContext = () => {
         if (!projectPath) return;
-        const ext = projectLanguage === 'solidity' ? '.sol' : '.qrl';
+        const ext = projectLanguage === 'solidity' ? '.sol' : '.ql';
         const raw = prompt(`New ${projectLanguage === 'solidity' ? 'Solidity Contract' : 'Quorlin Script'} name:`);
         if (!raw) { setContextMenu(null); return; }
         const fileName = raw.endsWith(ext) ? raw : `${raw}${ext}`;
@@ -255,7 +255,7 @@ const App: React.FC = () => {
 
     const handleRenameSubmit = (fileId: string) => {
         if (renameValue.trim()) {
-            const ext = projectLanguage === 'solidity' ? '.sol' : '.qrl';
+            const ext = projectLanguage === 'solidity' ? '.sol' : '.ql';
             const newName = renameValue.endsWith(ext) ? renameValue : `${renameValue}${ext}`;
             dispatch(renameFile({ fileId, newName }));
             addLog('info', `[FILE] Renamed to ${newName}`);
@@ -917,7 +917,7 @@ const App: React.FC = () => {
                             <ContextMenuItem
                                 icon={<FilePlus size={12} />}
                                 label={`New ${projectLanguage === 'solidity' ? 'Solidity Contract' : 'Quorlin Script'}`}
-                                shortcut={projectLanguage === 'solidity' ? '.sol' : '.qrl'}
+                                shortcut={projectLanguage === 'solidity' ? '.sol' : '.ql'}
                                 onClick={handleCreateNewFileFromContext}
                                 color="text-indigo-400"
                             />
