@@ -194,7 +194,6 @@ if (fs.existsSync(indexHtml)) {
         const extBaseJs = path.join(outDir, 'ext-base.js');
         fs.writeFileSync(extBaseJs,
             '// Chrome Extension base URL helper\n' +
-            '// Must run BEFORE any Turbopack chunks load\n' +
             'if(typeof chrome!=="undefined"&&chrome.runtime&&chrome.runtime.getURL){\n' +
             '  window.__EXT_BASE__=chrome.runtime.getURL("/");\n' +
             '}\n',
@@ -202,15 +201,19 @@ if (fs.existsSync(indexHtml)) {
         );
         console.log('  ✓ Wrote ext-base.js');
 
-        // Inject: <style> for sizing + <script src=ext-base.js> (no inline JS!)
+        // Only constrain html/body — let the app's own layout fill that space
+        // Do NOT constrain inner elements like main/div — that clips the wallet UI
         const inject =
             '<style id="ext-sizing">' +
-            'html,body{width:420px!important;min-width:420px!important;max-width:420px!important;' +
-            'height:600px!important;min-height:600px!important;overflow:hidden!important;' +
-            'margin:0!important;padding:0!important;background:#0a0e27!important}' +
-            'main{width:420px!important;height:600px!important;overflow-y:auto!important;overflow-x:hidden!important}' +
+            'html,body{' +
+            'width:420px!important;min-width:420px!important;max-width:420px!important;' +
+            'height:600px!important;min-height:600px!important;max-height:600px!important;' +
+            'overflow:hidden!important;' +
+            'margin:0!important;padding:0!important;' +
+            'background:#0a0e27!important' +
+            '}' +
             '</style>' +
-            '<script src="./ext-base.js"></script>';   // ← NO inline JS = CSP safe
+            '<script src="./ext-base.js"></script>';
 
         html = html.replace('<head>', '<head>' + inject);
         fs.writeFileSync(indexHtml, html, 'utf8');
