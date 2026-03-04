@@ -89,7 +89,12 @@ const walletSlice = createSlice({
             .addCase(connectWallet.rejected, (state, action) => {
                 state.isConnecting = false;
                 state.isConnected = false;
-                state.error = action.payload as string;
+                // If it's a manual cancellation, we don't treat it as a 'failure' to show in the UI alert
+                if (action.payload === 'CANCELLED') {
+                    state.error = null;
+                } else {
+                    state.error = action.payload as string;
+                }
             })
             .addCase(connectWithPrivateKey.pending, (state) => {
                 state.isConnecting = true;

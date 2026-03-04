@@ -88,27 +88,42 @@ export class BlockchainService {
 
             const browserProvider = new ethers.BrowserProvider(provider);
 
-            // Explicitly request accounts — this MUST trigger a popup if not already connected
-            // We use eth_requestAccounts to FORCE a permission check if needed.
+            // 1. Request accounts (Connect popup)
             const accounts = await browserProvider.send('eth_requestAccounts', []);
 
             if (!accounts || accounts.length === 0) {
                 throw new Error('No accounts returned from wallet.');
             }
 
-            // Await network synchronization — this is crucial for the 0 DNR issue
+            const address = accounts[0];
+
+            // 2. Ensure network match (Switch/Add popup)
+            // This happens BEFORE signature to ensure the user is on the right protocol.
             await this._ensureKortanaNetwork(provider);
+
+            // 3. MANDATORY IDENTITY SIGN-OFF (Authorizing and Sign in)
+            // This forces the 'Sign Message' popup which is the final authorization.
+            const timestamp = Date.now();
+            const message = `Welcome to Kortana Studio.\n\nSign this message to authenticate your developer identity and access your secure workspace.\n\nAddress: ${address}\nTimestamp: ${timestamp}`;
+
+            try {
+                // Trigger the 'personal_sign' popup
+                await browserProvider.send('personal_sign', [message, address]);
+                console.log(`[BlockchainService] ${providerType} authorization verified.`);
+            } catch (signError: any) {
+                console.error(`[BlockchainService] ${providerType} user rejected auth signature:`, signError);
+                throw new Error('CONNECTION_CANCELLED');
+            }
 
             this.browserProvider = browserProvider;
             this.customSigner = null;
             this.activeProviderType = providerType;
 
-            return accounts[0];
+            return address;
         } catch (error: any) {
-            console.error(`[BlockchainService] ${providerType} connection error:`, error);
+            console.error(`[BlockchainService] ${providerType} connection sequence failed:`, error);
 
-            // Handle User Rejection (Code 4001 is EIP-1193 standard)
-            if (error.code === 4001 || error.message?.includes('user rejected') || error.message?.includes('User denied')) {
+            if (error.code === 4001 || error.message?.includes('user rejected') || error.message?.includes('User denied') || error.message === 'CONNECTION_CANCELLED') {
                 throw new Error('CONNECTION_CANCELLED');
             }
 

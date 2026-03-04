@@ -328,15 +328,15 @@ const App: React.FC = () => {
                                 className="w-20 h-20 md:w-28 md:h-28 relative z-10 drop-shadow-[0_0_25px_rgba(79,70,229,0.4)]"
                             />
                         </div>
-                        <div className="text-center">
-                            <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight mb-2 bg-clip-text text-transparent bg-gradient-to-b from-white to-white/70">
-                                Kortana Studio
-                            </h1>
-                            <div className="flex items-center justify-center space-x-2">
-                                <span className="h-px w-6 md:w-8 bg-indigo-500/50" />
-                                <p className="text-[10px] md:text-[12px] text-indigo-400 uppercase tracking-[0.4em] font-bold">The Next Generation IDE</p>
-                                <span className="h-px w-6 md:w-8 bg-indigo-500/50" />
+                        <div className="text-center space-y-4">
+                            <div className="flex items-center justify-center space-x-3 text-indigo-400">
+                                <ShieldCheck size={14} className="animate-pulse" />
+                                <span className="text-[10px] font-black uppercase tracking-[0.5em]">Auth Protocol Active</span>
                             </div>
+                            <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
+                                IDENTITY <br />
+                                <span className="text-indigo-500">PORTAL.</span>
+                            </h1>
                         </div>
                     </div>
 
@@ -354,18 +354,26 @@ const App: React.FC = () => {
                             <button
                                 onClick={() => dispatch(connectWallet('kortana'))}
                                 disabled={isConnecting}
-                                className="group relative w-full h-[64px] rounded-2xl overflow-hidden transition-all active:scale-[0.98] disabled:opacity-70"
+                                className="group relative w-full h-[68px] rounded-2xl overflow-hidden transition-all active:scale-[0.98] disabled:opacity-70 border border-indigo-500/30 hover:border-indigo-500/60"
                             >
-                                <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-indigo-700 group-hover:from-indigo-500 group-hover:to-indigo-600 transition-all" />
-                                <div className="relative flex items-center justify-center space-x-4 text-white">
-                                    {isConnecting ? (
-                                        <Loader2 size={20} className="animate-spin" />
-                                    ) : (
-                                        <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-                                            <Zap size={18} fill="currentColor" />
+                                <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-indigo-800 group-hover:from-indigo-500 group-hover:to-indigo-700 transition-all" />
+                                <div className="relative flex items-center justify-between px-8 text-white h-full">
+                                    <div className="flex items-center space-x-4">
+                                        {isConnecting ? (
+                                            <Loader2 size={24} className="animate-spin text-indigo-200" />
+                                        ) : (
+                                            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                                                <Zap size={20} fill="currentColor" />
+                                            </div>
+                                        )}
+                                        <div className="text-left">
+                                            <span className="block text-[15px] font-black uppercase tracking-wider">Kortana Wallet</span>
+                                            <span className="block text-[9px] text-indigo-300/60 font-bold tracking-widest uppercase">
+                                                {isConnecting ? "AUTHORIZING SEQUENCE..." : "Native Protocol Access"}
+                                            </span>
                                         </div>
-                                    )}
-                                    <span className="text-[15px] font-bold tracking-wide">Connect Kortana Wallet</span>
+                                    </div>
+                                    <ChevronRight size={20} className="opacity-20 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                                 </div>
                             </button>
 
@@ -373,22 +381,34 @@ const App: React.FC = () => {
                             <button
                                 onClick={() => dispatch(connectWallet('metamask'))}
                                 disabled={isConnecting}
-                                className="w-full h-[64px] rounded-2xl bg-white/[0.05] border border-white/[0.1] hover:bg-white/[0.1] transition-all flex items-center justify-center space-x-4 text-white/80 active:scale-[0.98] disabled:opacity-70 group"
+                                className="group relative w-full h-[68px] rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.15] transition-all flex items-center active:scale-[0.98] disabled:opacity-70"
                             >
-                                {isConnecting ? (
-                                    <Loader2 size={20} className="animate-spin" />
-                                ) : (
-                                    <svg width="24" height="24" viewBox="0 0 256 240" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid">
-                                        <path d="M239.066 14.505l-95.213 77.305 28.016-52.007L128 0l-43.869 39.803 28.016 52.007-95.213-77.305 13.568 113.111 25.132 23.447L29.351 161.4l51.914 36.335L128 240l46.735-42.265 51.914-36.335-26.283-10.342 25.132-23.447 13.568-113.111z" fill="#E2761B" />
-                                        <path d="M37.6 151.72l43.665 30.56L128 221.789l46.735-39.509 43.665-30.56L128 174.19l-90.4 22.47z" fill="#E4761B" />
-                                        <path d="M128 119.55l-2.022-26.68L128 94.137l2.022-1.267z" fill="#D7C1B3" />
-                                        <path d="M85.748 119.55l-3.37-44.468L128 94.137l45.622-19.055-3.371 44.468L128 136.56l-42.252-17.01z" fill="#233447" />
-                                        <path d="M27.329 127.616l25.132 23.447L29.351 161.4l-2.022-33.784zm174.209 0l-2.022 33.784-23.115-10.337 25.137-23.447z" fill="#CD7E2E" />
-                                        <path d="M37.6 151.72L128 174.19l-33.784-36.43zm180.8 0l-90.4 22.47 33.784-36.43z" fill="#763D16" />
-                                        <path d="M128 174.19l90.4-22.47L128 240l-90.4-88.28z" fill="#333" />
-                                    </svg>
-                                )}
-                                <span className="text-[15px] font-bold tracking-wide">Continue with MetaMask</span>
+                                <div className="flex items-center justify-between px-8 w-full text-white/80">
+                                    <div className="flex items-center space-x-4">
+                                        {isConnecting ? (
+                                            <Loader2 size={24} className="animate-spin" />
+                                        ) : (
+                                            <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
+                                                <svg width="24" height="24" viewBox="0 0 256 240" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid">
+                                                    <path d="M239.066 14.505l-95.213 77.305 28.016-52.007L128 0l-43.869 39.803 28.016 52.007-95.213-77.305 13.568 113.111 25.132 23.447L29.351 161.4l51.914 36.335L128 240l46.735-42.265 51.914-36.335-26.283-10.342 25.132-23.447 13.568-113.111z" fill="#E2761B" />
+                                                    <path d="M37.6 151.72l43.665 30.56L128 221.789l46.735-39.509 43.665-30.56L128 174.19l-90.4 22.47z" fill="#E4761B" />
+                                                    <path d="M128 119.55l-2.022-26.68L128 94.137l2.022-1.267z" fill="#D7C1B3" />
+                                                    <path d="M85.748 119.55l-3.37-44.468L128 94.137l45.622-19.055-3.371 44.468L128 136.56l-42.252-17.01z" fill="#233447" />
+                                                    <path d="M27.329 127.616l25.132 23.447L29.351 161.4l-2.022-33.784zm174.209 0l-2.022 33.784-23.115-10.337 25.137-23.447z" fill="#CD7E2E" />
+                                                    <path d="M37.6 151.72L128 174.19l-33.784-36.43zm180.8 0l-90.4 22.47 33.784-36.43z" fill="#763D16" />
+                                                    <path d="M128 174.19l90.4-22.47L128 240l-90.4-88.28z" fill="#333" />
+                                                </svg>
+                                            </div>
+                                        )}
+                                        <div className="text-left">
+                                            <span className="block text-[15px] font-black uppercase tracking-wider">MetaMask</span>
+                                            <span className="block text-[9px] text-white/30 font-bold tracking-widest uppercase">
+                                                {isConnecting ? "WAITING FOR SIGNATURE..." : "Universal Access"}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <ArrowRight size={20} className="opacity-20 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                                </div>
                             </button>
                         </div>
 
