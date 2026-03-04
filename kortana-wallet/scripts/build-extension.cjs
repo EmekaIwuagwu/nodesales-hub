@@ -183,11 +183,26 @@ walkFiles(outDir, (file) => {
 });
 
 // ── inject popup sizing + base-URL script into index.html ──
+// IMPORTANT: Chrome MV3 CSP blocks ALL inline <script> content.
+// The base-URL helper must be a separate .js file referenced via src=.
 const indexHtml = path.join(outDir, 'index.html');
 if (fs.existsSync(indexHtml)) {
     let html = fs.readFileSync(indexHtml, 'utf8');
 
     if (!html.includes('id="ext-sizing"')) {
+        // Write the chrome.runtime base helper as a standalone JS file
+        const extBaseJs = path.join(outDir, 'ext-base.js');
+        fs.writeFileSync(extBaseJs,
+            '// Chrome Extension base URL helper\n' +
+            '// Must run BEFORE any Turbopack chunks load\n' +
+            'if(typeof chrome!=="undefined"&&chrome.runtime&&chrome.runtime.getURL){\n' +
+            '  window.__EXT_BASE__=chrome.runtime.getURL("/");\n' +
+            '}\n',
+            'utf8'
+        );
+        console.log('  ✓ Wrote ext-base.js');
+
+        // Inject: <style> for sizing + <script src=ext-base.js> (no inline JS!)
         const inject =
             '<style id="ext-sizing">' +
             'html,body{width:420px!important;min-width:420px!important;max-width:420px!important;' +
@@ -195,13 +210,11 @@ if (fs.existsSync(indexHtml)) {
             'margin:0!important;padding:0!important;background:#0a0e27!important}' +
             'main{width:420px!important;height:600px!important;overflow-y:auto!important;overflow-x:hidden!important}' +
             '</style>' +
-            '<script>' +
-            'if(typeof chrome!=="undefined"&&chrome.runtime&&chrome.runtime.getURL){window.__EXT_BASE__=chrome.runtime.getURL("/")}' +
-            '</script>';
+            '<script src="./ext-base.js"></script>';   // ← NO inline JS = CSP safe
 
         html = html.replace('<head>', '<head>' + inject);
         fs.writeFileSync(indexHtml, html, 'utf8');
-        console.log('  ✓ Popup sizing + base-URL injected into index.html');
+        console.log('  ✓ Popup sizing + ext-base.js injected into index.html');
     }
 }
 
@@ -211,3 +224,4 @@ console.log('  Extension build complete!');
 console.log('  Load the "out/" folder in chrome://extensions/');
 console.log('  Popup: 420 × 600 px');
 console.log('═══════════════════════════════════════════════════\n');
+
