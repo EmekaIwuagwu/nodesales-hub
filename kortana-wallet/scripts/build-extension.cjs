@@ -140,9 +140,29 @@ walkFiles(outDir, (filePath) => {
 console.log('✓ CSP extraction done.\n');
 
 // ─────────────────────────────────────────────
-// STEP 5 — Patch Next.js path-assertion invariants in JS
+// STEP 5 — Patch Turbopack runtime for Chrome Extension
 // ─────────────────────────────────────────────
-console.log('[5/5] Patching Next.js runtime path assertions ...');
+/*
+ * ROOT CAUSE OF BLANK SCREEN:
+ *
+ * Turbopack generates a `getAssetPrefix()` function in ff523c3d*.js that does:
+ *
+ *   function getAssetPrefix() {
+ *     let e = document.currentScript;                   // ← null for async scripts!
+ *     let {pathname: t} = new URL(e.src);
+ *     let n = t.indexOf("../../../next/");
+ *     if (-1 === n) throw ...                           // ← throws or falls through
+ *     return t.slice(0, n);                            // ← returns "" when n=-1
+ *   }
+ *
+ * In Chrome extensions, async <script> tags have document.currentScript === null.
+ * When getAssetPrefix() returns "" or throws, all dynamic chunk loads point to
+ * the wrong URL and React never mounts → blank page.
+ *
+ * FIX: Replace getAssetPrefix with one that uses chrome.runtime.getURL() when
+ * running as an extension, falling back to the computed path otherwise.
+ */
+console.log('[5/6] Patching Turbopack runtime for extension context ...');
 
 walkFiles(outDir, (filePath) => {
     if (!filePath.endsWith('.js')) return;
@@ -150,21 +170,50 @@ walkFiles(outDir, (filePath) => {
     let content = fs.readFileSync(filePath, 'utf8');
     const original = content;
 
-    // Next.js (Turbopack) does a startsWith / indexOf check on the script src
-    // to ensure assets are loaded from the expected prefix. In a chrome-extension://
-    // context the URL does not start with "/" so we patch the assertion away.
+    // 1) Patch the getAssetPrefix function: replace the currentScript-based
+    //    detection with a chrome-extension-safe version.
+    //    The original pattern: get e=document.currentScript; new URL(e.src); t.indexOf("../../../next/")
+    content = content.replace(
+        /function\s+l\s*\(\s*\)\s*\{[^}]*document\.currentScript[^}]*indexOf[^}]*\}/,
+        `function l() {
+  // Chrome Extension patch: compute base from chrome.runtime if available
+  if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL) {
+    return chrome.runtime.getURL('/');
+  }
+  // Fallback: try currentScript
+  var sc = document.currentScript;
+  if (!sc || !sc.src) return './';
+  var url = new URL(sc.src);
+  var idx = url.pathname.indexOf('/next/');
+  if (idx === -1) idx = url.pathname.lastIndexOf('/') + 1;
+  return url.origin + url.pathname.slice(0, idx);
+}`
+    );
+
+    // 2) Patch the TURBOPACK runtime base path variable t="../../../next/"
+    //    When chunk loader uses this to build URLs, it needs to resolve from
+    //    the correct base. Replace the static string with a runtime compute.
+    content = content.replace(
+        /let\s+t\s*=\s*"\.\.\/\.\.\/\.\.\/next\/"/,
+        `let t=(typeof chrome!=='undefined'&&chrome.runtime&&chrome.runtime.getURL)?chrome.runtime.getURL('next/'):document.currentScript&&document.currentScript.src?(new URL(document.currentScript.src).origin+new URL(document.currentScript.src).pathname.replace(/next\\/static\\/chunks\\/.*/,'next/')):"./next/"`
+    );
+
+    // 3) Patch the otherChunks list — strip "./" from "static/chunks/X.js"
+    //    since the base already provides the correct root
+    // (no change needed — the existing path patching handles these)
+
+    // 4) Patch throw guards (safety net)
     content = content
-        .replace(/if\(-1===([a-zA-Z0-9_$]+)\.indexOf\("(?:\.\/|\/)?next\/"\)\)/g,
-            'if(false)')
-        .replace(/if\(-1===([a-zA-Z0-9_$]+)\)throw/g,
-            'if(false&&-1===$1)throw');
+        .replace(/if\(-1===([a-zA-Z0-9_$]+)\.indexOf\("(?:\.\/|\/)?next\/"\)\)/g, 'if(false)')
+        .replace(/if\(-1===([a-zA-Z0-9_$]+)\)throw/g, 'if(false&&-1===$1)throw');
 
     if (content !== original) {
         fs.writeFileSync(filePath, content, 'utf8');
-        console.log(`  Patched invariant: ${path.relative(outDir, filePath)}`);
+        console.log(`  Patched runtime: ${path.relative(outDir, filePath)}`);
     }
 });
-console.log('✓ Invariant patching done.\n');
+console.log('✓ Runtime patching done.\n');
+
 
 // ─────────────────────────────────────────────
 // STEP 6 — Inject popup sizing into index.html
