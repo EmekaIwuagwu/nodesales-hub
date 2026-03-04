@@ -1,270 +1,213 @@
 /**
- * Kortana Wallet — Chrome Extension Build Script
+ * Kortana Wallet — Chrome Extension Build Script (v3)
  *
- * Problem: Next.js static export produces:
- *   - A `_next/` directory (forbidden by Chrome — underscore prefix is reserved)
- *   - Absolute paths like `/next/static/...` (break in extension:// context)
- *   - Inline <script> blocks (forbidden by Chrome ManifestV3 CSP)
- *
- * This script fixes all three issues after `next build`.
+ * Fixes applied after `next build`:
+ *  1. Rename _next/ → next/ (Chrome blocks underscore-prefixed dirs)
+ *  2. Patch absolute /next/ paths → relative ./next/ paths in all files
+ *  3. Extract inline <script> blocks to .js files (MV3 CSP)
+ *  4. Patch Turbopack's getAssetPrefix() — uses document.currentScript
+ *     which is NULL for async scripts in extensions → blank popup
+ *  5. Inject popup sizing CSS (420×600) and base-URL script into index.html
  */
 
+'use strict';
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
 const outDir = path.resolve(__dirname, '../out');
 
-// ─────────────────────────────────────────────
-// STEP 1 — Build
-// ─────────────────────────────────────────────
-console.log('\n[1/5] Building Next.js project...');
+// ── helpers ───────────────────────────────────────────────────────────────────
+function walkFiles(dir, cb) {
+    for (const item of fs.readdirSync(dir)) {
+        const full = path.join(dir, item);
+        fs.statSync(full).isDirectory() ? walkFiles(full, cb) : cb(full);
+    }
+}
+
+// ── STEP 1: build ─────────────────────────────────────────────────────────────
+console.log('\n[1/5] Building Next.js ...');
 execSync('npm run build', { stdio: 'inherit' });
-console.log('✓ Build complete.\n');
+console.log('✓ Build done.\n');
 
-// ─────────────────────────────────────────────
-// STEP 2 — Rename _next → next
-// ─────────────────────────────────────────────
-console.log('[2/5] Renaming _next → next ...');
+// ── STEP 2: rename _next → next ───────────────────────────────────────────────
+console.log('[2/5] Renaming underscore dirs ...');
 
-function renameUnderscoreDirs(dir) {
-    // Process deepest-first to avoid renaming a parent before its children
-    const items = fs.readdirSync(dir);
-    for (const item of items) {
-        const fullPath = path.join(dir, item);
-        const stat = fs.statSync(fullPath);
-        if (stat.isDirectory()) renameUnderscoreDirs(fullPath);
+function renameDirs(dir) {
+    // recurse depth-first so children are processed before parents
+    for (const item of fs.readdirSync(dir)) {
+        const full = path.join(dir, item);
+        if (fs.statSync(full).isDirectory()) renameDirs(full);
     }
     for (const item of fs.readdirSync(dir)) {
         if (item.startsWith('_') && item !== '_locales') {
-            const oldPath = path.join(dir, item);
-            const newName = item.replace(/^_+/, '');
-            const newPath = path.join(dir, newName);
-            if (fs.existsSync(newPath)) {
-                fs.rmSync(newPath, { recursive: true, force: true });
-            }
-            fs.renameSync(oldPath, newPath);
-            console.log(`  Renamed: ${item} → ${newName}`);
+            const src = path.join(dir, item);
+            const dst = path.join(dir, item.replace(/^_+/, ''));
+            if (fs.existsSync(dst)) fs.rmSync(dst, { recursive: true, force: true });
+            fs.renameSync(src, dst);
+            console.log(`  ${item} → ${path.basename(dst)}`);
         }
     }
 }
-renameUnderscoreDirs(outDir);
+renameDirs(outDir);
 console.log('✓ Rename done.\n');
 
-// ─────────────────────────────────────────────
-// STEP 3 — Fix all absolute paths → relative
-// ─────────────────────────────────────────────
-console.log('[3/5] Patching absolute paths → relative ...');
+// ── STEP 3: absolute-path fix ─────────────────────────────────────────────────
+console.log('[3/5] Patching absolute paths ...');
 
-function walkFiles(dir, callback) {
-    const items = fs.readdirSync(dir);
-    for (const item of items) {
-        const fullPath = path.join(dir, item);
-        if (fs.statSync(fullPath).isDirectory()) {
-            walkFiles(fullPath, callback);
-        } else {
-            callback(fullPath);
-        }
-    }
-}
+walkFiles(outDir, (file) => {
+    if (!/\.(html|js|css|txt|json)$/.test(file)) return;
 
-const EXTENSIONS_TO_PATCH = ['.html', '.js', '.css', '.txt', '.json'];
+    const raw = fs.readFileSync(file, 'utf8');
 
-walkFiles(outDir, (filePath) => {
-    if (!EXTENSIONS_TO_PATCH.some(ext => filePath.endsWith(ext))) return;
+    // depth from outDir → determines how many "../" to prepend
+    const rel = path.relative(outDir, path.dirname(file));
+    const depth = rel === '' ? 0 : rel.split(path.sep).length;
+    const p = depth === 0 ? './' : '../'.repeat(depth);
 
-    let content = fs.readFileSync(filePath, 'utf8');
-    const original = content;
+    const fixed = raw
+        .replace(/(href|src)="\/next\//g, `$1="${p}next/`)
+        .replace(/(href|src)="\/_next\//g, `$1="${p}next/`)
+        .replace(/url\(\/next\//g, `url(${p}next/`)
+        .replace(/url\(\/_next\//g, `url(${p}next/`)
+        .replace(/(href|src)="\/images\//g, `$1="${p}images/`)
+        .replace(/\/_not-found/g, `${p}not-found`)
+        .replace(/"\/next\//g, `"${p}next/`);
 
-    // The depth of this file relative to outDir — we need the right number of "../"
-    const relativeDirFromOut = path.relative(outDir, path.dirname(filePath));
-    const depth = relativeDirFromOut === '' ? 0 : relativeDirFromOut.split(path.sep).length;
-    const prefix = depth === 0 ? './' : '../'.repeat(depth);
-
-    // Replace all absolute references to /next/... → ./next/... (or with proper depth)
-    // Also catch /_next (if the rename didn't catch all string references in JS)
-    content = content
-        // Absolute paths with leading slash: "/next/..." → "./next/..." (or depth-relative)
-        .replace(/(?<=['"(\s,])\/next\//g, `${prefix}next/`)
-        // Also handle /_next (fallback in case any JS still references it)
-        .replace(/(?<=['"(\s,])\/_next\//g, `${prefix}next/`)
-        // href="/next and src="/next patterns in HTML attributes
-        .replace(/(href|src)="\/next\//g, `$1="${prefix}next/`)
-        .replace(/(href|src)="\/_next\//g, `$1="${prefix}next/`)
-        // CSS url() references
-        .replace(/url\(\/next\//g, `url(${prefix}next/`)
-        .replace(/url\(\/_next\//g, `url(${prefix}next/`)
-        // /images/ references
-        .replace(/(href|src)="\/images\//g, `$1="${prefix}images/`)
-        // /not-found paths
-        .replace(/\/_not-found/g, `${prefix}not-found`)
-        // Bare /next/ in JS strings (e.g. JSON, JS template literals)
-        .replace(/"\/next\//g, `"${prefix}next/`);
-
-    if (content !== original) {
-        fs.writeFileSync(filePath, content, 'utf8');
-        console.log(`  Patched: ${path.relative(outDir, filePath)}`);
+    if (fixed !== raw) {
+        fs.writeFileSync(file, fixed, 'utf8');
+        console.log(`  ${path.relative(outDir, file)}`);
     }
 });
 console.log('✓ Path patching done.\n');
 
-// ─────────────────────────────────────────────
-// STEP 4 — Extract inline scripts (CSP fix)
-// ─────────────────────────────────────────────
-console.log('[4/5] Extracting inline scripts for CSP compliance ...');
+// ── STEP 4: extract inline scripts ────────────────────────────────────────────
+console.log('[4/5] Extracting inline scripts ...');
 
-walkFiles(outDir, (filePath) => {
-    if (!filePath.endsWith('.html')) return;
+walkFiles(outDir, (file) => {
+    if (!file.endsWith('.html')) return;
 
-    let content = fs.readFileSync(filePath, 'utf8');
-    const fileDir = path.dirname(filePath);
-    const baseName = path.basename(filePath, '.html');
-    let counter = 0;
+    const raw = fs.readFileSync(file, 'utf8');
+    const dir = path.dirname(file);
+    const base = path.basename(file, '.html');
+    let n = 0;
 
-    const patched = content.replace(
+    const out = raw.replace(
         /<script(?![^>]*\bsrc\b)([^>]*)>([\s\S]*?)<\/script>/gi,
-        (match, attrs, body) => {
-            if (!body.trim()) return match;
-            counter++;
-            const scriptName = `${baseName}-inline-${counter}.js`;
-            fs.writeFileSync(path.join(fileDir, scriptName), body, 'utf8');
-            console.log(`  Extracted: ${scriptName}`);
-            return `<script src="./${scriptName}"${attrs}></script>`;
+        (_, attrs, body) => {
+            if (!body.trim()) return _;
+            const name = `${base}-inline-${++n}.js`;
+            fs.writeFileSync(path.join(dir, name), body, 'utf8');
+            return `<script src="./${name}"${attrs}></script>`;
         }
     );
 
-    if (patched !== content) {
-        fs.writeFileSync(filePath, patched, 'utf8');
+    if (out !== raw) {
+        fs.writeFileSync(file, out, 'utf8');
+        console.log(`  ${path.relative(outDir, file)} (${n} scripts)`);
     }
 });
 console.log('✓ CSP extraction done.\n');
 
-// ─────────────────────────────────────────────
-// STEP 5 — Patch Turbopack runtime for Chrome Extension
-// ─────────────────────────────────────────────
+// ── STEP 5: patch Turbopack runtime + inject sizing ───────────────────────────
+console.log('[5/5] Patching runtime & injecting popup sizing ...');
+
 /*
- * ROOT CAUSE OF BLANK SCREEN:
+ * THE ROOT CAUSE OF THE BLANK POPUP:
  *
- * Turbopack generates a `getAssetPrefix()` function in ff523c3d*.js that does:
+ * Turbopack generates a function like this in ff523c3d*.js:
  *
- *   function getAssetPrefix() {
- *     let e = document.currentScript;                   // ← null for async scripts!
- *     let {pathname: t} = new URL(e.src);
- *     let n = t.indexOf("../../../next/");
- *     if (-1 === n) throw ...                           // ← throws or falls through
- *     return t.slice(0, n);                            // ← returns "" when n=-1
+ *   function l() {
+ *     let e = document.currentScript;   // ← NULL for async="" scripts!
+ *     …
+ *     let n = t.indexOf("/_next/");
+ *     return t.slice(0, n);            // n=-1 → returns "" → wrong base
  *   }
  *
- * In Chrome extensions, async <script> tags have document.currentScript === null.
- * When getAssetPrefix() returns "" or throws, all dynamic chunk loads point to
- * the wrong URL and React never mounts → blank page.
+ * When getAssetPrefix() returns "" every dynamic chunk load resolves to
+ * the wrong URL and React never mounts → black popup.
  *
- * FIX: Replace getAssetPrefix with one that uses chrome.runtime.getURL() when
- * running as an extension, falling back to the computed path otherwise.
+ * We find the function using a brace-counting parser (works regardless of
+ * what inner strings the minifier produces) and replace it.
  */
-console.log('[5/6] Patching Turbopack runtime for extension context ...');
+const PATCHED_FN =
+    'function l(){' +
+    'if(typeof chrome!=="undefined"&&chrome.runtime&&chrome.runtime.getURL){' +
+    'return chrome.runtime.getURL("/")}' +
+    'var sc=document.currentScript;' +
+    'if(!sc||!sc.src){return window.__EXT_BASE__||"./"}' +
+    'var u=new URL(sc.src);var i=u.pathname.indexOf("/next/");' +
+    'if(i===-1){i=u.pathname.lastIndexOf("/")+1}' +
+    'return u.origin+u.pathname.slice(0,i)}';
 
-walkFiles(outDir, (filePath) => {
-    if (!filePath.endsWith('.js')) return;
+let patchedFiles = 0;
 
-    let content = fs.readFileSync(filePath, 'utf8');
-    const original = content;
+walkFiles(outDir, (file) => {
+    if (!file.endsWith('.js')) return;
 
-    // 1) Patch the getAssetPrefix function: replace the currentScript-based
-    //    detection with a chrome-extension-safe version.
-    //    The original pattern: get e=document.currentScript; new URL(e.src); t.indexOf("../../../next/")
-    content = content.replace(
-        /function\s+l\s*\(\s*\)\s*\{[^}]*document\.currentScript[^}]*indexOf[^}]*\}/,
-        `function l() {
-  // Chrome Extension patch: compute base from chrome.runtime if available
-  if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL) {
-    return chrome.runtime.getURL('/');
-  }
-  // Fallback: try currentScript
-  var sc = document.currentScript;
-  if (!sc || !sc.src) return './';
-  var url = new URL(sc.src);
-  var idx = url.pathname.indexOf('/next/');
-  if (idx === -1) idx = url.pathname.lastIndexOf('/') + 1;
-  return url.origin + url.pathname.slice(0, idx);
-}`
+    let src = fs.readFileSync(file, 'utf8');
+    const orig = src;
+
+    // ── patch getAssetPrefix (brace-count method — works on any minification) ──
+    const NEEDLE = 'function l(){let e=document.currentScript';
+    const start = src.indexOf(NEEDLE);
+    if (start !== -1) {
+        let depth = 0, i = start, end = -1;
+        while (i < src.length) {
+            if (src[i] === '{') depth++;
+            else if (src[i] === '}') { if (--depth === 0) { end = i + 1; break; } }
+            i++;
+        }
+        if (end !== -1) {
+            src = src.slice(0, start) + PATCHED_FN + src.slice(end);
+            console.log(`  ✓ Patched getAssetPrefix: ${path.relative(outDir, file)}`);
+        }
+    }
+
+    // ── patch the Turbopack chunk-base variable ──
+    // Matches:  let t="../../../next/"
+    src = src.replace(
+        /\blet t="\.\.\/\.\.\/\.\.\/next\/"/g,
+        `let t=(typeof chrome!=="undefined"&&chrome.runtime&&chrome.runtime.getURL)?chrome.runtime.getURL("next/"):"./next/"`
     );
 
-    // 2) Patch the TURBOPACK runtime base path variable t="../../../next/"
-    //    When chunk loader uses this to build URLs, it needs to resolve from
-    //    the correct base. Replace the static string with a runtime compute.
-    content = content.replace(
-        /let\s+t\s*=\s*"\.\.\/\.\.\/\.\.\/next\/"/,
-        `let t=(typeof chrome!=='undefined'&&chrome.runtime&&chrome.runtime.getURL)?chrome.runtime.getURL('next/'):document.currentScript&&document.currentScript.src?(new URL(document.currentScript.src).origin+new URL(document.currentScript.src).pathname.replace(/next\\/static\\/chunks\\/.*/,'next/')):"./next/"`
-    );
+    // ── patch throw-guards ──
+    src = src
+        .replace(/if\(-1===([A-Za-z0-9_$]+)\.indexOf\("(?:\.\/|\/)?next\/"\)\)/g, 'if(false)')
+        .replace(/if\(-1===([A-Za-z0-9_$]+)\)throw/g, 'if(false&&-1===$1)throw');
 
-    // 3) Patch the otherChunks list — strip "./" from "static/chunks/X.js"
-    //    since the base already provides the correct root
-    // (no change needed — the existing path patching handles these)
-
-    // 4) Patch throw guards (safety net)
-    content = content
-        .replace(/if\(-1===([a-zA-Z0-9_$]+)\.indexOf\("(?:\.\/|\/)?next\/"\)\)/g, 'if(false)')
-        .replace(/if\(-1===([a-zA-Z0-9_$]+)\)throw/g, 'if(false&&-1===$1)throw');
-
-    if (content !== original) {
-        fs.writeFileSync(filePath, content, 'utf8');
-        console.log(`  Patched runtime: ${path.relative(outDir, filePath)}`);
+    if (src !== orig) {
+        fs.writeFileSync(file, src, 'utf8');
+        patchedFiles++;
     }
 });
-console.log('✓ Runtime patching done.\n');
 
-
-// ─────────────────────────────────────────────
-// STEP 6 — Inject popup sizing into index.html
-// Chrome measures popup size from the DOM before JS runs.
-// We inject a <style> block that hard-codes 420×600 into the root.
-// ─────────────────────────────────────────────
-console.log('[6/6] Injecting extension popup sizing ...');
-
+// ── inject popup sizing + base-URL script into index.html ──
 const indexHtml = path.join(outDir, 'index.html');
 if (fs.existsSync(indexHtml)) {
     let html = fs.readFileSync(indexHtml, 'utf8');
 
-    const popupStyle = `
-<style id="ext-popup-sizing">
-  /* Chrome Extension Popup: force 420×600 so the popup is a proper size */
-  html, body {
-    width: 420px !important;
-    min-width: 420px !important;
-    max-width: 420px !important;
-    height: 600px !important;
-    min-height: 600px !important;
-    overflow: hidden !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: #0a0e27 !important;
-  }
-  main {
-    width: 420px !important;
-    height: 600px !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-  }
-</style>`;
+    if (!html.includes('id="ext-sizing"')) {
+        const inject =
+            '<style id="ext-sizing">' +
+            'html,body{width:420px!important;min-width:420px!important;max-width:420px!important;' +
+            'height:600px!important;min-height:600px!important;overflow:hidden!important;' +
+            'margin:0!important;padding:0!important;background:#0a0e27!important}' +
+            'main{width:420px!important;height:600px!important;overflow-y:auto!important;overflow-x:hidden!important}' +
+            '</style>' +
+            '<script>' +
+            'if(typeof chrome!=="undefined"&&chrome.runtime&&chrome.runtime.getURL){window.__EXT_BASE__=chrome.runtime.getURL("/")}' +
+            '</script>';
 
-    // Inject right after <head>
-    if (!html.includes('id="ext-popup-sizing"')) {
-        html = html.replace('<head>', '<head>' + popupStyle);
+        html = html.replace('<head>', '<head>' + inject);
         fs.writeFileSync(indexHtml, html, 'utf8');
-        console.log('  ✓ Popup sizing injected into index.html');
-    } else {
-        console.log('  (already injected, skipping)');
+        console.log('  ✓ Popup sizing + base-URL injected into index.html');
     }
 }
-console.log('✓ Sizing injection done.\n');
 
-// ─────────────────────────────────────────────
-// DONE
-// ─────────────────────────────────────────────
+console.log(`✓ Done (${patchedFiles} JS files patched).\n`);
 console.log('═══════════════════════════════════════════════════');
 console.log('  Extension build complete!');
-console.log('  → Load the "out/" folder in chrome://extensions/');
-console.log('  → Popup will be 420×600px');
+console.log('  Load the "out/" folder in chrome://extensions/');
+console.log('  Popup: 420 × 600 px');
 console.log('═══════════════════════════════════════════════════\n');
-
