@@ -8,28 +8,12 @@ import { TransactionRequest } from '@/components/views/TransactionRequest';
 import { useEffect, useState } from 'react';
 
 export default function Home() {
-  const { mnemonic, address, isLocked } = useWalletStore();
-  const [hydrated, setHydrated] = useState(false);
+  const { mnemonic, address, isLocked, _hasHydrated } = useWalletStore();
   const [pendingSignRequest, setPendingSignRequest] = useState(false);
   const [pendingTxRequest, setPendingTxRequest] = useState(false);
 
   useEffect(() => {
-    // Wait for zustand persist (async chromeStorage) to finish hydrating
-    // useWalletStore.persist.hasHydrated() may be false during async storage read
-    const unsub = useWalletStore.persist.onFinishHydration(() => {
-      setHydrated(true);
-    });
-
-    // If already hydrated (sync case / web app), mark immediately
-    if (useWalletStore.persist.hasHydrated()) {
-      setHydrated(true);
-    }
-
-    return () => unsub();
-  }, []);
-
-  useEffect(() => {
-    if (!hydrated) return;
+    if (!_hasHydrated) return;
     if (typeof chrome !== 'undefined' && chrome.storage?.session) {
       chrome.storage.session.get('pendingSign', (data: any) => {
         if (data.pendingSign?.status === 'pending') setPendingSignRequest(true);
@@ -38,9 +22,10 @@ export default function Home() {
         if (data.pendingTransaction?.status === 'pending') setPendingTxRequest(true);
       });
     }
-  }, [hydrated]);
+  }, [_hasHydrated]);
 
-  if (!hydrated) {
+  // Show spinner while async chromeStorage is being read
+  if (!_hasHydrated) {
     return (
       <div style={{
         width: '100%',

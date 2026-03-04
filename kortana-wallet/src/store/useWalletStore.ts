@@ -7,10 +7,10 @@ interface WalletState {
     // Persistent State (Encrypted/Public)
     address: string | null;
     encryptedMnemonic: string | null;
-    passwordHash: string | null; // SHA256 of password to verify on unlock
+    passwordHash: string | null;
     accounts: string[];
     network: NetworkType;
-    tokens: any[]; // Custom registered tokens
+    tokens: any[];
 
     // Memory-only State (Cleared on lock)
     mnemonic: string | null;
@@ -19,6 +19,9 @@ interface WalletState {
     balance: string;
     lastInteraction: number;
 
+    // Hydration tracking (not persisted)
+    _hasHydrated: boolean;
+    setHasHydrated: (state: boolean) => void;
 
     // Actions
     setAddress: (address: string | null) => void;
@@ -31,9 +34,6 @@ interface WalletState {
     setMnemonic: (mnemonic: string | null) => void;
     setPrivateKey: (key: string | null) => void;
     updateLastInteraction: () => void;
-
-
-
     addAccount: (address: string) => void;
     reset: () => void;
 }
@@ -41,20 +41,22 @@ interface WalletState {
 export const useWalletStore = create<WalletState>()(
     persist(
         (set) => ({
-            // Default Values
+            // Defaults
             address: null,
             encryptedMnemonic: null,
             passwordHash: null,
             accounts: [],
             network: 'mainnet',
             tokens: [],
-
             mnemonic: null,
             privateKey: null,
             isLocked: true,
             balance: '0.00',
             lastInteraction: Date.now(),
 
+            // Hydration flag — starts false, set to true in onRehydrateStorage
+            _hasHydrated: false,
+            setHasHydrated: (state) => set({ _hasHydrated: state }),
 
             // Setters
             setAddress: (address) => set({ address }),
@@ -63,7 +65,7 @@ export const useWalletStore = create<WalletState>()(
             setNetwork: (network) => set({ network }),
             setLocked: (isLocked) => {
                 if (isLocked) {
-                    set({ isLocked, mnemonic: null, privateKey: null }); // Clear sensitive data on lock
+                    set({ isLocked, mnemonic: null, privateKey: null });
                 } else {
                     set({ isLocked });
                 }
@@ -74,11 +76,11 @@ export const useWalletStore = create<WalletState>()(
             setPrivateKey: (privateKey) => set({ privateKey }),
             updateLastInteraction: () => set({ lastInteraction: Date.now() }),
 
-
             addAccount: (address) => set((state) => ({
-                accounts: state.accounts.includes(address) ? state.accounts : [...state.accounts, address]
+                accounts: state.accounts.includes(address)
+                    ? state.accounts
+                    : [...state.accounts, address]
             })),
-
 
             reset: () => set({
                 address: null,
@@ -90,21 +92,27 @@ export const useWalletStore = create<WalletState>()(
                 mnemonic: null,
                 privateKey: null,
                 isLocked: true,
-                balance: '0.00'
+                balance: '0.00',
             }),
         }),
         {
             name: 'kortana-wallet-secure-storage',
             storage: createJSONStorage(() => chromeStorage),
-            partialize: (state) => ({ // Only persist these fields
+            partialize: (state) => ({
                 address: state.address,
                 encryptedMnemonic: state.encryptedMnemonic,
                 passwordHash: state.passwordHash,
                 accounts: state.accounts,
                 network: state.network,
                 tokens: state.tokens,
-                isLocked: state.isLocked, // ← CRITICAL: background.js reads this to authorize accounts
+                isLocked: state.isLocked,
+                // NOTE: _hasHydrated is intentionally NOT persisted
             }),
+            onRehydrateStorage: () => (state) => {
+                // This callback fires when async storage read completes.
+                // state may be undefined if storage was empty (first install).
+                state?.setHasHydrated(true);
+            },
         }
     )
 );
