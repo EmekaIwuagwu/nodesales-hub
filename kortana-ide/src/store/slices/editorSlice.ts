@@ -77,11 +77,11 @@ export const createNewProject = createAsyncThunk(
             await service.createFolder(`${projectPath}/contracts`);
             await service.createFolder(`${projectPath}/scripts`);
 
-            const ext = language === 'solidity' ? 'sol' : 'qrl';
-            const initialFile = `${projectPath}/contracts/Counter.${ext}`;
+            const ext = language === 'solidity' ? 'sol' : 'ql';
+            const initialFile = `${projectPath}/contracts/Main.${ext}`;
             const initialContent = language === 'solidity'
-                ? '// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\ncontract Counter {\n    uint256 public count;\n    function increment() public { count += 1; }\n}'
-                : '// Quorlin Script\ncontract Counter {\n    // Quorlin logic here\n}';
+                ? `// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\ncontract NewContract {\n    string public name = "Kortana Contract";\n    uint256 public value;\n\n    function setValue(uint256 _value) public {\n        value = _value;\n    }\n}`
+                : `// Quorlin Script\ncontract NewScript {\n    // Quorlin logic here\n    function run() public {\n        // Execution logic\n    }\n}`;
 
             await service.writeFile(initialFile, initialContent);
 
@@ -226,11 +226,11 @@ const editorSlice = createSlice({
                 state.files = action.payload.files;
                 state.projectLanguage = (action.meta.arg as any).language;
                 localStorage.setItem('kortana_ide_last_project', action.payload.path);
-                // Find the Counter file and set it active
-                const counterFile = action.payload.files.find(f => f.name.toLowerCase().includes('counter'));
-                if (counterFile) {
-                    state.activeFileId = counterFile.id;
-                    counterFile.isOpen = true;
+                // Find the Main file and set it active
+                const mainFile = action.payload.files.find(f => f.name.toLowerCase().includes('main'));
+                if (mainFile) {
+                    state.activeFileId = mainFile.id;
+                    mainFile.isOpen = true;
                 } else {
                     state.activeFileId = null;
                 }

@@ -28,28 +28,40 @@ export class BlockchainService {
         return BlockchainService.instance;
     }
 
-    public async connectWallet(): Promise<string> {
+    public async connectWallet(providerType: 'metamask' | 'kortana' = 'metamask'): Promise<string> {
         const isElectron = typeof window.ipcRenderer !== 'undefined';
+        let provider: any;
 
-        if (typeof window.ethereum === 'undefined' || !window.ethereum) {
-            if (isElectron) {
-                window.open('http://localhost:3000', '_blank');
-                throw new Error('REDIRECTING_TO_WEB');
+        if (providerType === 'metamask') {
+            provider = window.ethereum;
+            if (!provider || !provider.isMetaMask) {
+                if (isElectron) {
+                    window.open('http://localhost:3000', '_blank');
+                    throw new Error('REDIRECTING_TO_WEB');
+                }
+                const msg = 'MetaMask not detected. Please install the extension.';
+                alert(msg);
+                throw new Error(msg);
             }
-            const msg = 'MetaMask not detected. Please install the extension.';
-            alert(msg);
-            throw new Error(msg);
+        } else {
+            // Kortana Wallet detection (Assuming window.kortana or similar)
+            provider = (window as any).kortana || window.ethereum;
+            if (!provider) {
+                const msg = 'Kortana Wallet not detected. Please install the Kortana extension.';
+                alert(msg);
+                throw new Error(msg);
+            }
         }
 
         try {
-            this.browserProvider = new ethers.BrowserProvider(window.ethereum);
+            this.browserProvider = new ethers.BrowserProvider(provider);
             const accounts = await this.browserProvider.send("eth_requestAccounts", []);
             await this.ensureKortanaNetwork();
             this.customSigner = null;
             return accounts[0];
         } catch (error: any) {
-            console.error('Wallet connection error:', error);
-            throw new Error(error.message || 'Failed to connect wallet');
+            console.error(`${providerType} connection error:`, error);
+            throw new Error(error.message || `Failed to connect ${providerType} wallet`);
         }
     }
 

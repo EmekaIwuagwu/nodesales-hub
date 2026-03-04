@@ -47,7 +47,7 @@ const App: React.FC = () => {
     const { files, activeFileId, sidebarActiveTab, projectPath, projectLanguage } = useSelector((state: RootState) => state.editor);
     const { status: compilerStatus, selectedLanguage, lastResult } = useSelector((state: RootState) => state.compiler);
     const { lastDeployment } = useSelector((state: RootState) => state.deployment);
-    const { isConnected, address: walletAddress, isConnecting, error: walletError, currentNetwork } = useSelector((state: RootState) => state.wallet);
+    const { isConnected, address: walletAddress, isConnecting, error: walletError, currentNetwork, walletType } = useSelector((state: RootState) => state.wallet);
 
     const [isLoading, setIsLoading] = useState(true);
     const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
@@ -58,6 +58,7 @@ const App: React.FC = () => {
     const [deployTab, setDeployTab] = useState<'compile' | 'interact'>('compile');
     const [privateKeyInput, setPrivateKeyInput] = useState('');
     const [showPKInput, setShowPKInput] = useState(false);
+    const [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
 
     const activeFile = files.find(f => f.id === activeFileId);
     const openFiles = files.filter(f => f.isOpen);
@@ -146,6 +147,32 @@ const App: React.FC = () => {
         setIsNewProjectModalOpen(false);
     };
 
+    const handleContextMenu = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setContextMenu({ x: e.clientX, y: e.clientY });
+    };
+
+    const handleCreateNewFileFromProject = () => {
+        if (!projectPath) return;
+        const ext = projectLanguage === 'solidity' ? '.sol' : '.qrl';
+        const name = prompt(`Enter ${projectLanguage} file name (will auto-append ${ext}):`);
+        if (name) {
+            const fileName = name.endsWith(ext) ? name : `${name}${ext}`;
+            const boilerplate = projectLanguage === 'solidity'
+                ? `// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\ncontract NewContract {\n    string public name = "Kortana Contract";\n    uint256 public value;\n\n    function setValue(uint256 _value) public {\n        value = _value;\n    }\n}`
+                : `// Quorlin Script\ncontract NewScript {\n    // Quorlin logic here\n    function run() public {\n        // Execution logic\n    }\n}`;
+            dispatch(createNewFile({ name: fileName, content: boilerplate }));
+        }
+        setContextMenu(null);
+    };
+
+    // Close context menu on global click
+    useEffect(() => {
+        const handleClick = () => setContextMenu(null);
+        window.addEventListener('click', handleClick);
+        return () => window.removeEventListener('click', handleClick);
+    }, []);
+
     if (isLoading) return <SplashScreen />;
 
     return (
@@ -213,7 +240,7 @@ const App: React.FC = () => {
                         title={walletError || ''}
                     >
                         <div className={`w-1 h-1 rounded-full ${isConnected ? 'bg-indigo-400 shadow-[0_0_8px_indigo]' : 'bg-vscode-error animate-pulse'} `} />
-                        <span>{isConnected ? 'MetaMask Linked' : isConnecting ? 'Authenticating...' : 'Provider Error'}</span>
+                        <span>{isConnected ? `${walletType === 'metamask' ? 'MetaMask' : walletType === 'kortana' ? 'Kortana Wallet' : 'Private Key'} Linked` : isConnecting ? 'Authenticating...' : 'Provider Error'}</span>
 
                         {walletError && (
                             <div className="absolute top-full right-0 mt-2 w-64 bg-vscode-sidebar/95 backdrop-blur-xl border border-vscode-error/30 p-3 rounded-lg text-[10px] text-vscode-error shadow-2xl z-[200] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
@@ -267,7 +294,10 @@ const App: React.FC = () => {
                             <div className="animate-fade-in">
                                 {projectPath ? (
                                     <>
-                                        <div className="sidebar-item active group mb-1">
+                                        <div
+                                            className="sidebar-item active group mb-1 cursor-context-menu"
+                                            onContextMenu={handleContextMenu}
+                                        >
                                             <ChevronDown size={14} className="mr-2 text-vscode-accent" />
                                             <span className="text-white text-[11px] font-bold uppercase">{projectPath.split(/[\\/]/).pop()}</span>
                                         </div>
@@ -424,13 +454,25 @@ const App: React.FC = () => {
                                 </div>
                             </div>
 
-                            <button
-                                onClick={() => dispatch(connectWallet())}
-                                disabled={isConnected || isConnecting}
-                                className={`w-full py-2.5 rounded-lg text-[12px] font-bold transition-all shadow-lg hover:-translate-y-0.5 ${isConnected ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30' : 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border border-indigo-500'}`}
-                            >
-                                {isConnecting ? 'Opening Bridge...' : isConnected ? `Connected: ${walletAddress?.slice(0, 6)}...${walletAddress?.slice(-4)}` : walletError === 'REDIRECTING_TO_WEB' ? 'Syncing Browser...' : 'Link MetaMask Wallet'}
-                            </button>
+                            <div className="flex flex-col space-y-2">
+                                <button
+                                    onClick={() => dispatch(connectWallet('metamask'))}
+                                    disabled={isConnected || isConnecting}
+                                    className={`w-full py-2.5 rounded-lg text-[12px] font-bold transition-all shadow-lg hover:-translate-y-0.5 flex items-center justify-center space-x-2 ${isConnected && walletType === 'metamask' ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30' : 'bg-gradient-to-r from-orange-500 to-orange-600 text-white border border-orange-500'}`}
+                                >
+                                    <ShieldCheck size={14} />
+                                    <span>{isConnected && walletType === 'metamask' ? `MetaMask: ${walletAddress?.slice(0, 6)}...` : 'Link MetaMask'}</span>
+                                </button>
+
+                                <button
+                                    onClick={() => dispatch(connectWallet('kortana'))}
+                                    disabled={isConnected || isConnecting}
+                                    className={`w-full py-2.5 rounded-lg text-[12px] font-bold transition-all shadow-lg hover:-translate-y-0.5 flex items-center justify-center space-x-2 ${isConnected && walletType === 'kortana' ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30' : 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white border border-indigo-500'}`}
+                                >
+                                    <Cpu size={14} />
+                                    <span>{isConnected && walletType === 'kortana' ? `Kortana: ${walletAddress?.slice(0, 6)}...` : 'Link Kortana Wallet'}</span>
+                                </button>
+                            </div>
 
                             {!isConnected && !isConnecting && (
                                 <div className="space-y-2 pt-2 border-t border-white/5">
@@ -547,6 +589,26 @@ const App: React.FC = () => {
                 onClose={() => setIsNewProjectModalOpen(false)}
                 onCreate={handleCreateProject}
             />
+
+            {contextMenu && (
+                <div
+                    className="fixed z-[300] bg-vscode-sidebar border border-white/10 shadow-2xl rounded-md py-1 min-w-[160px] animate-in fade-in zoom-in duration-200 glass-panel"
+                    style={{ left: contextMenu.x, top: contextMenu.y }}
+                >
+                    <div
+                        className="px-3 py-1.5 hover:bg-vscode-accent text-white cursor-pointer flex items-center space-x-2 text-[11px]"
+                        onClick={handleCreateNewFileFromProject}
+                    >
+                        {projectLanguage === 'solidity' ? <ShieldCheck size={12} className="text-emerald-400" /> : <Cpu size={12} className="text-amber-400" />}
+                        <span>New {projectLanguage === 'solidity' ? 'Contract' : 'Script'} (.${projectLanguage === 'solidity' ? 'sol' : 'qrl'})</span>
+                    </div>
+                    <div className="h-[1px] bg-white/5 my-1" />
+                    <div className="px-3 py-1.5 hover:bg-vscode-accent text-white cursor-pointer flex items-center space-x-2 text-[11px]">
+                        <FolderPlus size={12} className="text-vscode-muted" />
+                        <span>New Folder</span>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

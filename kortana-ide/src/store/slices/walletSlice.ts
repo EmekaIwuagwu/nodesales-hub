@@ -7,6 +7,7 @@ interface WalletState {
     isConnecting: boolean;
     error: string | null;
     currentNetwork: 'TESTNET' | 'MAINNET';
+    walletType: 'metamask' | 'kortana' | 'privateKey' | null;
 }
 
 const initialState: WalletState = {
@@ -15,6 +16,7 @@ const initialState: WalletState = {
     isConnecting: false,
     error: null,
     currentNetwork: 'TESTNET',
+    walletType: null,
 };
 
 export const switchNetwork = createAsyncThunk(
@@ -32,13 +34,13 @@ export const switchNetwork = createAsyncThunk(
 
 export const connectWallet = createAsyncThunk(
     'wallet/connect',
-    async (_, { rejectWithValue }) => {
+    async (type: 'metamask' | 'kortana', { rejectWithValue }) => {
         try {
             const service = BlockchainService.getInstance();
-            const address = await service.connectWallet();
-            return address;
+            const address = await service.connectWallet(type);
+            return { address, type };
         } catch (err: any) {
-            return rejectWithValue(err.message || 'Failed to connect wallet');
+            return rejectWithValue(err.message || `Failed to connect ${type} wallet`);
         }
     }
 );
@@ -75,7 +77,8 @@ const walletSlice = createSlice({
             .addCase(connectWallet.fulfilled, (state, action) => {
                 state.isConnecting = false;
                 state.isConnected = true;
-                state.address = action.payload;
+                state.address = action.payload.address;
+                state.walletType = action.payload.type;
             })
             .addCase(connectWallet.rejected, (state, action) => {
                 state.isConnecting = false;
@@ -90,6 +93,7 @@ const walletSlice = createSlice({
                 state.isConnecting = false;
                 state.isConnected = true;
                 state.address = action.payload;
+                state.walletType = 'privateKey';
             })
             .addCase(connectWithPrivateKey.rejected, (state, action) => {
                 state.isConnecting = false;
