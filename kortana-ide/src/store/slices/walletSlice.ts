@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { BlockchainService } from '../../services/BlockchainService';
+import { FileService } from '../../services/FileService';
 
 interface WalletState {
     address: string | null;
@@ -63,6 +64,7 @@ const walletSlice = createSlice({
     initialState,
     reducers: {
         disconnect(state) {
+            FileService.getInstance().clearAddress();
             state.address = null;
             state.isConnected = false;
             state.error = null;

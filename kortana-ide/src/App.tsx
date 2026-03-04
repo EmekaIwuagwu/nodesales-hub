@@ -35,6 +35,7 @@ import {
     deleteFile,
     renameFile,
     loadLastProject,
+    loadWorkspace,
     clearWorkspace,
     undoLastChange,
 } from './store/slices/editorSlice';
@@ -132,6 +133,7 @@ const App: React.FC = () => {
     const { isConnected, address: walletAddress, isConnecting, error: walletError, currentNetwork, walletType } = useSelector((state: RootState) => state.wallet);
 
     const [isLoading, setIsLoading] = useState(true);
+    const [isWorkspaceLoading, setIsWorkspaceLoading] = useState(false);
     const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
     const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
     const [consoleTab, setConsoleTab] = useState<'output' | 'console' | 'problems' | 'interact'>('output');
@@ -144,18 +146,37 @@ const App: React.FC = () => {
     const [renameValue, setRenameValue] = useState('');
     const [consoleLogs, setConsoleLogs] = useState<{ type: 'info' | 'success' | 'error' | 'warn'; msg: string }[]>([
         { type: 'info', msg: '[SYSTEM] Kortana Studio v1.0.4 — Engine Initialized' },
-        { type: 'info', msg: '[IDE] Create a new project to get started.' },
+        { type: 'info', msg: '[IDE] Connect your wallet to access your workspace.' },
     ]);
 
     const activeFile = files.find(f => f.id === activeFileId);
     const openFiles = files.filter(f => f.isOpen);
 
-    // ─── Lifecycle ────────────────────────────
+    // Splash screen only
     useEffect(() => {
-        dispatch(loadLastProject());
         const timer = setTimeout(() => setIsLoading(false), 2500);
         return () => clearTimeout(timer);
     }, [dispatch]);
+
+    // ─── Wallet-as-Identity: load workspace when address is set ────────────────
+    useEffect(() => {
+        if (walletAddress) {
+            setIsWorkspaceLoading(true);
+            addLog('info', `[AUTH] Wallet connected: ${walletAddress}`);
+            addLog('info', '[WORKSPACE] Restoring your workspace...');
+            dispatch(loadWorkspace(walletAddress)).then(() => {
+                setIsWorkspaceLoading(false);
+                addLog('success', '[WORKSPACE] Workspace loaded successfully.');
+            });
+        } else {
+            // Wallet disconnected — clear in-memory state
+            dispatch(clearWorkspace());
+            setConsoleLogs([
+                { type: 'info', msg: '[SYSTEM] Kortana Studio v1.0.4 — Engine Initialized' },
+                { type: 'info', msg: '[IDE] Connect your wallet to access your workspace.' },
+            ]);
+        }
+    }, [walletAddress, dispatch]);
 
     useEffect(() => {
         if (lastDeployment) {
@@ -275,8 +296,126 @@ const App: React.FC = () => {
 
     if (isLoading) return <SplashScreen />;
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // WALLET LANDING PAGE — shown when no wallet is connected
+    // This is the "front door" of the IDE. The user MUST connect to access it.
+    // ─────────────────────────────────────────────────────────────────────────
+    if (!isConnected) {
+        return (
+            <div className="h-screen w-screen bg-[#060709] flex flex-col items-center justify-center overflow-hidden relative font-sans">
+                {/* Ambient glow background */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute top-1/4 left-1/3 w-[600px] h-[600px] rounded-full bg-indigo-600/10 blur-[120px]" />
+                    <div className="absolute bottom-1/4 right-1/3 w-[400px] h-[400px] rounded-full bg-violet-600/10 blur-[100px]" />
+                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
+                </div>
+
+                {/* Animated grid lines */}
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(99,102,241,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.03)_1px,transparent_1px)] bg-[size:60px_60px] pointer-events-none" />
+
+                <div className="relative z-10 flex flex-col items-center space-y-10 max-w-md w-full px-8">
+                    {/* Logo */}
+                    <div className="flex flex-col items-center space-y-4">
+                        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-2xl shadow-indigo-500/30">
+                            <Zap size={40} className="text-white" />
+                        </div>
+                        <div className="text-center">
+                            <h1 className="text-3xl font-black text-white tracking-tight">Kortana Studio</h1>
+                            <p className="text-[13px] text-indigo-300/70 mt-1 uppercase tracking-[0.3em] font-medium">Blockchain IDE</p>
+                        </div>
+                    </div>
+
+                    {/* Tagline */}
+                    <div className="text-center space-y-2">
+                        <p className="text-[15px] text-white/60 leading-relaxed">
+                            Your workspace is tied to your wallet.<br />
+                            Connect to access your projects and pick up where you left off.
+                        </p>
+                    </div>
+
+                    {/* Wallet Buttons */}
+                    <div className="w-full space-y-3">
+                        <button
+                            onClick={() => dispatch(connectWallet('metamask'))}
+                            disabled={isConnecting}
+                            className="w-full py-4 rounded-xl font-bold text-[14px] flex items-center justify-center space-x-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-orange-500/20 disabled:opacity-50"
+                        >
+                            {isConnecting ? <Loader2 size={18} className="animate-spin" /> : <span className="text-xl">🦊</span>}
+                            <span>{isConnecting ? 'Waiting for approval...' : 'Connect with MetaMask'}</span>
+                        </button>
+
+                        <button
+                            onClick={() => dispatch(connectWallet('kortana'))}
+                            disabled={isConnecting}
+                            className="w-full py-4 rounded-xl font-bold text-[14px] flex items-center justify-center space-x-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-indigo-500/20 disabled:opacity-50"
+                        >
+                            {isConnecting ? <Loader2 size={18} className="animate-spin" /> : <span className="text-xl">⚡</span>}
+                            <span>{isConnecting ? 'Waiting for approval...' : 'Connect with Kortana Wallet'}</span>
+                        </button>
+
+                        {/* Private Key fallback */}
+                        <div className="pt-1">
+                            <button
+                                onClick={() => setShowPKInput(!showPKInput)}
+                                className="w-full text-center text-[11px] text-white/30 hover:text-white/60 transition-colors py-1"
+                            >
+                                {showPKInput ? '— Hide —' : '🔑 Use Private Key instead'}
+                            </button>
+                            {showPKInput && (
+                                <div className="mt-2 space-y-2 animate-in slide-in-from-top-2 duration-200">
+                                    <input
+                                        type="password"
+                                        placeholder="Private Key (0x...)"
+                                        value={privateKeyInput}
+                                        onChange={e => setPrivateKeyInput(e.target.value)}
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-[12px] text-white focus:outline-none focus:border-indigo-500/50 placeholder:text-white/20"
+                                    />
+                                    <button
+                                        onClick={() => { if (privateKeyInput) dispatch(connectWithPrivateKey(privateKeyInput)); }}
+                                        className="w-full py-3 bg-white/10 hover:bg-white/20 rounded-lg text-[12px] font-bold text-white transition-all"
+                                    >
+                                        Access with Key
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {walletError && (
+                        <div className="w-full p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-start space-x-2 text-[11px] text-red-400">
+                            <AlertCircle size={14} className="shrink-0 mt-0.5" />
+                            <span>{walletError}</span>
+                        </div>
+                    )}
+
+                    {/* Footer */}
+                    <div className="text-[10px] text-white/15 text-center uppercase tracking-widest">
+                        Powered by Kortana Protocol • Mainnet & Testnet
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // WORKSPACE LOADING OVERLAY — loading the address's project data
+    // ─────────────────────────────────────────────────────────────────────────
+    if (isWorkspaceLoading) {
+        return (
+            <div className="h-screen w-screen bg-[#060709] flex flex-col items-center justify-center font-sans space-y-4">
+                <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+                    <Loader2 size={28} className="text-indigo-400 animate-spin" />
+                </div>
+                <div className="text-center space-y-1">
+                    <p className="text-[14px] font-bold text-white">Restoring Your Workspace</p>
+                    <p className="text-[11px] text-white/40 font-mono">{walletAddress?.slice(0, 6)}...{walletAddress?.slice(-4)}</p>
+                </div>
+            </div>
+        );
+    }
+
     // ─────────────────────────────────────────────
-    // RENDER
+    // MAIN IDE RENDER
     // ─────────────────────────────────────────────
     return (
         <div className="flex flex-col h-screen w-screen bg-vscode-bg font-sans overflow-hidden animate-fade-in text-vscode-text" onContextMenu={e => e.preventDefault()}>

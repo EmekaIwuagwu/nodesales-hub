@@ -71,25 +71,44 @@ export const createNewProject = createAsyncThunk(
     async ({ projectName, language }: { projectName: string, language: 'solidity' | 'quorlin' }, { rejectWithValue }) => {
         try {
             const service = FileService.getInstance();
-            // In web mode, place all projects under 'kortana-workspace'
-            const isWeb = typeof window.ipcRenderer === 'undefined';
-            let rootPath: string;
-            if (isWeb) {
-                rootPath = 'kortana-workspace';
-            } else {
-                const selected = await service.selectFolder();
-                if (!selected) return null;
-                rootPath = selected;
-            }
+            // selectFolder() returns the address-scoped virtual root in web mode
+            // or lets the user pick a folder in Electron mode
+            const rootPath = await service.selectFolder();
+            if (!rootPath) return null;
 
             const projectPath = `${rootPath}/${projectName}`;
             await service.createFolder(projectPath);
-            // The contracts folder holds the smart contracts
             await service.createFolder(`${projectPath}/contracts`);
 
-            // ✅ Start with an EMPTY contracts folder — no files pre-created
-            // The user must right-click and create a new file.
+            // Save this as the last project for this address
+            service.setLastProject(projectPath);
+
+            // Start with an EMPTY contracts folder — user creates files via right-click
             return { path: projectPath, files: [], language };
+        } catch (err: any) {
+            return rejectWithValue(err.message);
+        }
+    }
+);
+
+/**
+ * Called immediately after wallet connects.
+ * Sets the address in FileService, then loads the last project for that address.
+ * This restores the full workspace from the previous session.
+ */
+export const loadWorkspace = createAsyncThunk(
+    'editor/loadWorkspace',
+    async (address: string, { rejectWithValue }) => {
+        try {
+            const service = FileService.getInstance();
+            const lastPath = service.setAddress(address); // loads address storage
+            if (!lastPath) return null; // first-time user: no workspace yet
+
+            const exists = await service.isDirectory(lastPath);
+            if (!exists) return null;
+
+            const files = await scanDirectory(lastPath, service);
+            return { path: lastPath, files };
         } catch (err: any) {
             return rejectWithValue(err.message);
         }
@@ -308,6 +327,27 @@ const editorSlice = createSlice({
                 const hasSol = action.payload.files.some(f => f.name.endsWith('.sol'));
                 const hasQrl = action.payload.files.some(f => f.name.endsWith('.ql'));
                 state.projectLanguage = hasSol ? 'solidity' : (hasQrl ? 'quorlin' : null);
+            }
+        });
+        builder.addCase(loadWorkspace.fulfilled, (state, action) => {
+            if (action.payload) {
+                state.projectPath = action.payload.path;
+                state.files = action.payload.files;
+                const hasSol = action.payload.files.some(f => f.name.endsWith('.sol'));
+                const hasQrl = action.payload.files.some(f => f.name.endsWith('.ql'));
+                state.projectLanguage = hasSol ? 'solidity' : (hasQrl ? 'quorlin' : null);
+                // Re-open the first file if any files exist
+                if (action.payload.files.length > 0) {
+                    const firstFile = action.payload.files[0];
+                    state.activeFileId = firstFile.id;
+                    firstFile.isOpen = true;
+                }
+            } else {
+                // New user - clean slate
+                state.projectPath = null;
+                state.files = [];
+                state.projectLanguage = null;
+                state.activeFileId = null;
             }
         });
     }
