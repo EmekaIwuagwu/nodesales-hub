@@ -10,6 +10,10 @@
   --cyan-accent: #06b6d4;
   --neon-green: #10b981;
   --error-red: #ef4444;
+
+  /* Extension popup dimensions */
+  --ext-width: 420px;
+  --ext-height: 600px;
 }
 
 @theme {
@@ -27,7 +31,7 @@
 }
 
 /* ============================================================
-   BASE RESET — Works for: Extension popup, Mobile, Desktop
+   BASE RESET
    ============================================================ */
 *,
 *::before,
@@ -35,8 +39,7 @@
   box-sizing: border-box;
 }
 
-html,
-body {
+html {
   width: 100%;
   height: 100%;
   margin: 0;
@@ -45,13 +48,42 @@ body {
 }
 
 body {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
   background: var(--deep-space);
   color: var(--foreground);
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   CHROME EXTENSION POPUP — Fixed 420×600 container
+   Chrome sizes popup to match the root element's dimensions.
+   We detect extension context via the chrome-extension URL scheme.
+   The .ext-root class is added by page.tsx when running as extension.
+   ============================================================ */
+.ext-root {
+  width: var(--ext-width) !important;
+  height: var(--ext-height) !important;
+  min-width: var(--ext-width) !important;
+  min-height: var(--ext-height) !important;
+  max-height: var(--ext-height) !important;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+}
+
+/* When running as extension, constrain the html/body too */
+html.is-extension,
+html.is-extension body {
+  width: var(--ext-width);
+  min-width: var(--ext-width);
+  overflow: hidden;
 }
 
 @layer base {
@@ -79,7 +111,7 @@ body {
     transform: translateY(-2px);
   }
 
-  /* Premium Buttons */
+  /* Buttons */
   .btn-launch {
     position: relative;
     padding: 0.625rem 1.25rem;
@@ -87,7 +119,7 @@ body {
     color: #0a0e27;
     border-radius: 9999px;
     font-weight: 800;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     transition: all 0.3s ease;
     box-shadow: 0 4px 20px -5px rgba(255, 255, 255, 0.3);
     border: none;
@@ -118,7 +150,7 @@ body {
     color: white;
     border-radius: 9999px;
     font-weight: 700;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
@@ -134,7 +166,6 @@ body {
     border-color: rgba(6, 182, 212, 0.4);
   }
 
-  /* Gradients */
   .text-gradient-kortana {
     background: linear-gradient(to right, #06b6d4, #7c3aed, #06b6d4);
     background-size: 200% auto;
@@ -151,7 +182,6 @@ body {
   }
 }
 
-/* Nebula Background Blobs */
 .nebula-purple {
   background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%);
   filter: blur(80px);
@@ -162,7 +192,6 @@ body {
   filter: blur(80px);
 }
 
-/* Grainy Texture */
 .grainy-overlay {
   position: fixed;
   inset: 0;
@@ -174,7 +203,7 @@ body {
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 3px;
 }
 
 ::-webkit-scrollbar-track {
@@ -188,16 +217,4 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
-}
-
-/* ============================================================
-   EXTENSION-SPECIFIC compact mode at small popup widths
-   ============================================================ */
-@media (max-width: 420px) {
-
-  .btn-launch,
-  .btn-outline {
-    padding: 0.45rem 0.875rem;
-    font-size: 0.68rem;
-  }
 }

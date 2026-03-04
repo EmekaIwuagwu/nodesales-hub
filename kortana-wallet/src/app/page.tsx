@@ -12,9 +12,26 @@ export default function Home() {
   const [isClient, setIsClient] = useState(false);
   const [pendingSignRequest, setPendingSignRequest] = useState(false);
   const [pendingTxRequest, setPendingTxRequest] = useState(false);
+  const [isExtension, setIsExtension] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
+
+    // Detect if running inside a Chrome Extension popup
+    const isExt =
+      typeof window !== 'undefined' &&
+      (window.location.protocol === 'chrome-extension:' ||
+        (typeof chrome !== 'undefined' && !!chrome.runtime?.id));
+
+    if (isExt) {
+      setIsExtension(true);
+      // Force html element to extension dimensions so Chrome sizes the popup correctly
+      document.documentElement.classList.add('is-extension');
+      document.documentElement.style.width = '420px';
+      document.documentElement.style.minWidth = '420px';
+      document.body.style.width = '420px';
+      document.body.style.minWidth = '420px';
+    }
 
     if (typeof chrome !== 'undefined' && chrome.storage?.session) {
       // Check for pending signature request (personal_sign)
@@ -38,7 +55,7 @@ export default function Home() {
   // Transaction approval takes priority
   if (pendingTxRequest) {
     return (
-      <main>
+      <main className={isExtension ? 'ext-root' : 'w-full min-h-screen'}>
         <TransactionRequest onDismiss={() => setPendingTxRequest(false)} />
       </main>
     );
@@ -47,14 +64,14 @@ export default function Home() {
   // Sign request second
   if (pendingSignRequest) {
     return (
-      <main>
+      <main className={isExtension ? 'ext-root' : 'w-full min-h-screen'}>
         <SignRequest onDismiss={() => setPendingSignRequest(false)} />
       </main>
     );
   }
 
   return (
-    <main>
+    <main className={isExtension ? 'ext-root' : 'w-full min-h-screen'}>
       {address && mnemonic && !isLocked ? (
         <Dashboard />
       ) : (

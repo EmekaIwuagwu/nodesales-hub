@@ -167,9 +167,55 @@ walkFiles(outDir, (filePath) => {
 console.log('✓ Invariant patching done.\n');
 
 // ─────────────────────────────────────────────
+// STEP 6 — Inject popup sizing into index.html
+// Chrome measures popup size from the DOM before JS runs.
+// We inject a <style> block that hard-codes 420×600 into the root.
+// ─────────────────────────────────────────────
+console.log('[6/6] Injecting extension popup sizing ...');
+
+const indexHtml = path.join(outDir, 'index.html');
+if (fs.existsSync(indexHtml)) {
+    let html = fs.readFileSync(indexHtml, 'utf8');
+
+    const popupStyle = `
+<style id="ext-popup-sizing">
+  /* Chrome Extension Popup: force 420×600 so the popup is a proper size */
+  html, body {
+    width: 420px !important;
+    min-width: 420px !important;
+    max-width: 420px !important;
+    height: 600px !important;
+    min-height: 600px !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #0a0e27 !important;
+  }
+  main {
+    width: 420px !important;
+    height: 600px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+</style>`;
+
+    // Inject right after <head>
+    if (!html.includes('id="ext-popup-sizing"')) {
+        html = html.replace('<head>', '<head>' + popupStyle);
+        fs.writeFileSync(indexHtml, html, 'utf8');
+        console.log('  ✓ Popup sizing injected into index.html');
+    } else {
+        console.log('  (already injected, skipping)');
+    }
+}
+console.log('✓ Sizing injection done.\n');
+
+// ─────────────────────────────────────────────
 // DONE
 // ─────────────────────────────────────────────
 console.log('═══════════════════════════════════════════════════');
 console.log('  Extension build complete!');
 console.log('  → Load the "out/" folder in chrome://extensions/');
+console.log('  → Popup will be 420×600px');
 console.log('═══════════════════════════════════════════════════\n');
+
