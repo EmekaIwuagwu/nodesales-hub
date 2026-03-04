@@ -34,7 +34,7 @@ import {
 } from './store/slices/editorSlice';
 import { compileCode, setLanguage } from './store/slices/compilerSlice';
 import { resetStatus } from './store/slices/deploymentSlice';
-import { connectWallet, connectWithPrivateKey } from './store/slices/walletSlice';
+import { connectWallet, connectWithPrivateKey, switchNetwork } from './store/slices/walletSlice';
 import CodeEditor from './components/CodeEditor';
 import DeploymentModal from './components/DeploymentModal';
 import InteractionPanel from './components/InteractionPanel';
@@ -47,7 +47,7 @@ const App: React.FC = () => {
     const { files, activeFileId, sidebarActiveTab, projectPath, projectLanguage } = useSelector((state: RootState) => state.editor);
     const { status: compilerStatus, selectedLanguage, lastResult } = useSelector((state: RootState) => state.compiler);
     const { lastDeployment } = useSelector((state: RootState) => state.deployment);
-    const { isConnected, address: walletAddress, isConnecting, error: walletError } = useSelector((state: RootState) => state.wallet);
+    const { isConnected, address: walletAddress, isConnecting, error: walletError, currentNetwork } = useSelector((state: RootState) => state.wallet);
 
     const [isLoading, setIsLoading] = useState(true);
     const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
@@ -389,7 +389,7 @@ const App: React.FC = () => {
                                 <div className="animate-fade-in space-y-1">
                                     <div className="text-white opacity-40">[SYSTEM] Node v21.4.0 Engine Initializing...</div>
                                     <div className="text-indigo-400">[IDE] Kortana Studio Universal Core 1.0.4 - READY</div>
-                                    <div className="text-emerald-400">[INFO] Compilation Pipeline linked to Kortana Mainnet.</div>
+                                    <div className="text-emerald-400">[INFO] Compilation Pipeline linked to Kortana {currentNetwork === 'TESTNET' ? 'Testnet' : 'Mainnet'}.</div>
                                     {compilerStatus === 'compiling' && <div className="text-vscode-accent animate-pulse mt-2">Compiling source bytes...</div>}
                                     {compilerStatus === 'success' && <div className="text-emerald-500 font-bold mt-2">✓ Compilation Complete - 0 Errors, 0 Warnings</div>}
                                 </div>
@@ -468,17 +468,26 @@ const App: React.FC = () => {
                             <h3 className="text-[10px] font-bold text-white tracking-widest px-1 uppercase">Deployment Pipeline</h3>
                             <div className="grid grid-cols-1 gap-2">
                                 <button
-                                    onClick={() => dispatch(connectWallet())}
-                                    className="p-3 bg-white/2 border border-white/5 rounded-lg flex items-center justify-between group hover:bg-white/5"
+                                    onClick={() => {
+                                        const next = currentNetwork === 'TESTNET' ? 'MAINNET' : 'TESTNET';
+                                        dispatch(switchNetwork(next));
+                                    }}
+                                    className="p-3 bg-white/2 border border-white/5 rounded-lg flex items-center justify-between group hover:bg-white/5 w-full transition-all"
                                 >
                                     <div className="flex items-center space-x-3">
                                         <div className="p-2 rounded bg-indigo-500/10"><Globe size={16} className="text-indigo-400" /></div>
                                         <div className="text-left">
-                                            <div className="text-[11px] font-bold text-white">Kortana Testnet</div>
-                                            <div className="text-[8px] text-vscode-muted">ID: 91000 - POSEIDON</div>
+                                            <div className="text-[11px] font-bold text-white">
+                                                {currentNetwork === 'TESTNET' ? 'Kortana Testnet' : 'Kortana Mainnet'}
+                                            </div>
+                                            <div className="text-[8px] text-vscode-muted uppercase">
+                                                {currentNetwork === 'TESTNET' ? 'Chain ID: 72511' : 'Chain ID: 9002'}
+                                            </div>
                                         </div>
                                     </div>
-                                    <ChevronDown size={14} className="text-vscode-muted group-hover:text-white" />
+                                    <div className="text-[8px] font-bold text-indigo-400 bg-indigo-400/10 px-1.5 py-0.5 rounded border border-indigo-400/20 group-hover:bg-indigo-400 group-hover:text-white transition-colors uppercase">
+                                        Switch
+                                    </div>
                                 </button>
 
                                 <button

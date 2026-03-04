@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
 import { deployContract } from '../store/slices/deploymentSlice';
 import { IDE_CONFIG } from '../config';
+import { switchNetwork } from '../store/slices/walletSlice';
 
 interface DeploymentModalProps {
     isOpen: boolean;
@@ -16,9 +17,11 @@ interface DeploymentModalProps {
 
 const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose, contractName: initialContractName, bytecode, abi, onInteract }) => {
     const dispatch = useDispatch<AppDispatch>();
+    const { currentNetwork, address: walletAddress } = useSelector((state: RootState) => state.wallet);
+    const network = currentNetwork.toLowerCase() as 'testnet' | 'mainnet';
+
     const [gasLimit, setGasLimit] = useState('3000000');
     const [gasPrice, setGasPrice] = useState('20');
-    const [network, setNetwork] = useState<'testnet' | 'mainnet'>('testnet');
     const [contractName, setContractName] = useState(initialContractName);
     const [copied, setCopied] = useState(false);
 
@@ -27,17 +30,14 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose, cont
     const [constructorInputs, setConstructorInputs] = useState<Record<string, string>>({});
 
     const { isDeploying, status, error, lastDeployment } = useSelector((state: RootState) => state.deployment);
-    const { address: walletAddress } = useSelector((state: RootState) => state.wallet);
 
-    // Smart Defaults Logic: Stop making the user do the work!
+    // Smart Defaults Logic
     React.useEffect(() => {
         if (constructorAbi?.inputs && walletAddress && isOpen) {
             const defaults: Record<string, string> = {};
             constructorAbi.inputs.forEach((input: any) => {
                 const name = input.name.toLowerCase();
-                // If it looks like a supply, give it 1 Million
                 if (name.includes('supply')) defaults[input.name] = '1000000';
-                // If it looks like a treasury/owner, give it YOUR address
                 if (name.includes('treasury') || name.includes('owner') || name.includes('recipient') || input.type === 'address') {
                     defaults[input.name] = walletAddress;
                 }
@@ -47,7 +47,6 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose, cont
     }, [constructorAbi, walletAddress, isOpen]);
 
     const handleDeploy = () => {
-        // Collect constructor arguments
         const args = (constructorAbi?.inputs || []).map((input: any) => {
             return constructorInputs[input.name] || "";
         });
@@ -73,9 +72,9 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose, cont
 
     if (!isOpen) return null;
 
-    const explorerUrl = network === 'testnet'
-        ? IDE_CONFIG.NETWORKS.POSEIDON.blockExplorerUrls[0]
-        : 'https://explorer.kortana.org/';
+    const explorerUrl = currentNetwork === 'TESTNET'
+        ? IDE_CONFIG.NETWORKS.TESTNET.blockExplorerUrls[0]
+        : IDE_CONFIG.NETWORKS.MAINNET.blockExplorerUrls[0];
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in px-4">
@@ -140,14 +139,14 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose, cont
                         <label className="text-[10px] text-vscode-muted uppercase font-black tracking-widest">Target Environment</label>
                         <div className="flex p-1 bg-black/40 rounded-xl border border-white/5">
                             <button
-                                onClick={() => setNetwork('testnet')}
-                                className={`flex-1 py-2 text-[11px] font-bold rounded-lg transition-all ${network === 'testnet' ? 'bg-indigo-600 text-white shadow-lg' : 'text-vscode-muted hover:text-white'}`}
+                                onClick={() => dispatch(switchNetwork('TESTNET'))}
+                                className={`flex-1 py-2 text-[11px] font-bold rounded-lg transition-all ${currentNetwork === 'TESTNET' ? 'bg-indigo-600 text-white shadow-lg' : 'text-vscode-muted hover:text-white'}`}
                             >
                                 Kortana Testnet
                             </button>
                             <button
-                                onClick={() => setNetwork('mainnet')}
-                                className={`flex-1 py-2 text-[11px] font-bold rounded-lg transition-all ${network === 'mainnet' ? 'bg-indigo-600 text-white shadow-lg' : 'text-vscode-muted hover:text-white'}`}
+                                onClick={() => dispatch(switchNetwork('MAINNET'))}
+                                className={`flex-1 py-2 text-[11px] font-bold rounded-lg transition-all ${currentNetwork === 'MAINNET' ? 'bg-indigo-600 text-white shadow-lg' : 'text-vscode-muted hover:text-white'}`}
                             >
                                 Kortana Mainnet
                             </button>
@@ -286,6 +285,5 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose, cont
         </div>
     );
 };
-
 
 export default DeploymentModal;

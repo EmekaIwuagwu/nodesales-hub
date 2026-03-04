@@ -6,7 +6,7 @@ interface WalletState {
     isConnected: boolean;
     isConnecting: boolean;
     error: string | null;
-    chainId: number | null;
+    currentNetwork: 'TESTNET' | 'MAINNET';
 }
 
 const initialState: WalletState = {
@@ -14,8 +14,21 @@ const initialState: WalletState = {
     isConnected: false,
     isConnecting: false,
     error: null,
-    chainId: null,
+    currentNetwork: 'TESTNET',
 };
+
+export const switchNetwork = createAsyncThunk(
+    'wallet/switchNetwork',
+    async (networkKey: 'TESTNET' | 'MAINNET', { rejectWithValue }) => {
+        try {
+            const service = BlockchainService.getInstance();
+            await service.setNetwork(networkKey);
+            return networkKey;
+        } catch (err: any) {
+            return rejectWithValue(err.message || 'Failed to switch network');
+        }
+    }
+);
 
 export const connectWallet = createAsyncThunk(
     'wallet/connect',
@@ -82,6 +95,9 @@ const walletSlice = createSlice({
                 state.isConnecting = false;
                 state.isConnected = false;
                 state.error = action.payload as string;
+            })
+            .addCase(switchNetwork.fulfilled, (state, action) => {
+                state.currentNetwork = action.payload;
             });
     },
 });

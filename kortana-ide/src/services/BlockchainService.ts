@@ -1,29 +1,23 @@
 import { ethers } from 'ethers';
 import { IDE_CONFIG } from '../config';
 
-const KORTANA_TESTNET = IDE_CONFIG.NETWORKS.POSEIDON;
-const CHAIN_ID = parseInt(KORTANA_TESTNET.chainId, 16); // 72511
+const DEFAULT_NETWORK = IDE_CONFIG.NETWORKS.TESTNET;
 
 /**
  * BlockchainService — Kortana Protocol Adapter
- *
- * After the long-term blockchain fix (adding baseFeePerGas to block responses),
- * MetaMask now correctly identifies Kortana as an EIP-1559 chain and sends
- * proper Type-2 transactions which the node's existing decoder handles.
- *
- * The deploy() method now works seamlessly with MetaMask OR a private key.
  */
 export class BlockchainService {
     private static instance: BlockchainService;
     private browserProvider: ethers.BrowserProvider | null = null;
     private customSigner: ethers.Wallet | null = null;
     private rpcProvider: ethers.JsonRpcProvider;
+    private currentNetwork = DEFAULT_NETWORK;
 
     private constructor() {
         // Always maintain a direct RPC connection
-        this.rpcProvider = new ethers.JsonRpcProvider(KORTANA_TESTNET.rpcUrls[0], {
-            chainId: CHAIN_ID,
-            name: 'Kortana Testnet'
+        this.rpcProvider = new ethers.JsonRpcProvider(this.currentNetwork.rpcUrls[0], {
+            chainId: parseInt(this.currentNetwork.chainId, 16),
+            name: this.currentNetwork.chainName
         });
     }
 
@@ -70,18 +64,34 @@ export class BlockchainService {
         }
     }
 
+    public async setNetwork(networkKey: 'TESTNET' | 'MAINNET') {
+        const network = IDE_CONFIG.NETWORKS[networkKey];
+        this.currentNetwork = network;
+        this.rpcProvider = new ethers.JsonRpcProvider(this.currentNetwork.rpcUrls[0], {
+            chainId: parseInt(this.currentNetwork.chainId, 16),
+            name: this.currentNetwork.chainName
+        });
+
+        // Re-sync MetaMask if connected
+        if (this.browserProvider) {
+            await this.ensureKortanaNetwork();
+        }
+
+        console.log(`Switched to ${network.chainName}`);
+    }
+
     private async ensureKortanaNetwork() {
         if (!window.ethereum) return;
         try {
             await window.ethereum.request({
                 method: 'wallet_addEthereumChain',
-                params: [KORTANA_TESTNET],
+                params: [this.currentNetwork],
             });
             await window.ethereum.request({
                 method: 'wallet_switchEthereumChain',
-                params: [{ chainId: KORTANA_TESTNET.chainId }],
+                params: [{ chainId: this.currentNetwork.chainId }],
             });
-            console.log("Network synchronized with Kortana Testnet");
+            console.log(`Network synchronized with ${this.currentNetwork.chainName}`);
         } catch (error: any) {
             if (error.code !== 4001) {
                 console.warn("Network switch warning:", error.message);

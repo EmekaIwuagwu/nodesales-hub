@@ -10,6 +10,7 @@ builder.Services.AddSwaggerGen();
 
 // Register our custom services
 builder.Services.AddScoped<ICompilerService, CompilerService>();
+builder.Services.AddHostedService<KeepAliveService>();
 
 // Configure CORS for local development (Electron window)
 builder.Services.AddCors(options =>

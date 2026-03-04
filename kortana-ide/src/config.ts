@@ -5,7 +5,7 @@ export const IDE_CONFIG = {
         DEFAULT_VERSION: '0.8.19'
     },
     NETWORKS: {
-        POSEIDON: {
+        TESTNET: {
             chainId: '0x11b3f',
             chainName: 'Kortana Testnet',
             nativeCurrency: {
@@ -13,8 +13,19 @@ export const IDE_CONFIG = {
                 symbol: 'DNR',
                 decimals: 18
             },
-            rpcUrls: ['https://poseidon-rpc.kortana.worchsester.xyz/'],
-            blockExplorerUrls: ['https://explorer-poseidon.kortana.worchsester.xyz/']
+            rpcUrls: ['https://poseidon-rpc.testnet.kortana.xyz/'],
+            blockExplorerUrls: ['https://explorer.testnet.kortana.xyz/']
+        },
+        MAINNET: {
+            chainId: '0x232a',
+            chainName: 'Kortana Mainnet',
+            nativeCurrency: {
+                name: 'Dinar',
+                symbol: 'DNR',
+                decimals: 18
+            },
+            rpcUrls: ['https://zeus-rpc.mainnet.kortana.xyz/'],
+            blockExplorerUrls: ['https://explorer.mainnet.kortana.xyz/']
         }
     }
 };
