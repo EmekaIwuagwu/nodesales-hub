@@ -9,6 +9,7 @@ interface EditorState {
     projectPath: string | null;
     projectLanguage: 'solidity' | 'quorlin' | null;
     isProjectLoading: boolean;
+    undoStack: { id: string; content: string }[];
 }
 
 const initialState: EditorState = {
@@ -18,6 +19,7 @@ const initialState: EditorState = {
     projectPath: null,
     projectLanguage: null,
     isProjectLoading: false,
+    undoStack: [],
 };
 
 // Helper for recursive file scanning
@@ -66,27 +68,28 @@ export const openProject = createAsyncThunk(
 
 export const createNewProject = createAsyncThunk(
     'editor/createNewProject',
-    async ({ projectName, language }: { projectName: string, language: any }, { rejectWithValue }) => {
+    async ({ projectName, language }: { projectName: string, language: 'solidity' | 'quorlin' }, { rejectWithValue }) => {
         try {
             const service = FileService.getInstance();
-            const rootPath = await service.selectFolder();
-            if (!rootPath) return null;
+            // In web mode, place all projects under 'kortana-workspace'
+            const isWeb = typeof window.ipcRenderer === 'undefined';
+            let rootPath: string;
+            if (isWeb) {
+                rootPath = 'kortana-workspace';
+            } else {
+                const selected = await service.selectFolder();
+                if (!selected) return null;
+                rootPath = selected;
+            }
 
             const projectPath = `${rootPath}/${projectName}`;
             await service.createFolder(projectPath);
+            // The contracts folder holds the smart contracts
             await service.createFolder(`${projectPath}/contracts`);
-            await service.createFolder(`${projectPath}/scripts`);
 
-            const ext = language === 'solidity' ? 'sol' : 'ql';
-            const initialFile = `${projectPath}/contracts/Main.${ext}`;
-            const initialContent = language === 'solidity'
-                ? `// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\ncontract NewContract {\n    string public name = "Kortana Contract";\n    uint256 public value;\n\n    function setValue(uint256 _value) public {\n        value = _value;\n    }\n}`
-                : `// Quorlin Script\ncontract NewScript {\n    // Quorlin logic here\n    function run() public {\n        // Execution logic\n    }\n}`;
-
-            await service.writeFile(initialFile, initialContent);
-
-            const files = await scanDirectory(projectPath, service);
-            return { path: projectPath, files };
+            // ✅ Start with an EMPTY contracts folder — no files pre-created
+            // The user must right-click and create a new file.
+            return { path: projectPath, files: [], language };
         } catch (err: any) {
             return rejectWithValue(err.message);
         }
@@ -119,8 +122,8 @@ export const createNewFile = createAsyncThunk(
         const state = (getState() as any).editor as EditorState;
         if (!state.projectPath) return rejectWithValue('No project open');
 
-        // Default to contracts folder if it exists
-        const filePath = name.includes('/') ? `${state.projectPath}/${name}` : `${state.projectPath}/contracts/${name}`;
+        // Always create in the contracts folder
+        const filePath = `${state.projectPath}/contracts/${name}`;
         try {
             const service = FileService.getInstance();
             await service.writeFile(filePath, content);
@@ -152,13 +155,32 @@ export const deleteFile = createAsyncThunk(
     }
 );
 
+export const renameFile = createAsyncThunk(
+    'editor/renameFile',
+    async ({ fileId, newName }: { fileId: string; newName: string }, { getState, rejectWithValue }) => {
+        const state = (getState() as any).editor as EditorState;
+        const file = state.files.find(f => f.id === fileId);
+        if (!file) return rejectWithValue('File not found');
+
+        const dirPath = file.path!.split('/').slice(0, -1).join('/');
+        const newPath = `${dirPath}/${newName}`;
+
+        try {
+            const service = FileService.getInstance();
+            await service.renameFile(file.path!, newPath);
+            return { oldId: fileId, newId: newPath, newName, newPath };
+        } catch (err: any) {
+            return rejectWithValue(err.message);
+        }
+    }
+);
+
 export const loadLastProject = createAsyncThunk(
     'editor/loadLastProject',
-    async (_, { dispatch }) => {
+    async (_) => {
         const lastPath = localStorage.getItem('kortana_ide_last_project');
         if (lastPath) {
             const service = FileService.getInstance();
-            // Check if path still exists in mock or real FS
             const exists = await service.isDirectory(lastPath);
             if (exists) {
                 const files = await scanDirectory(lastPath, service);
@@ -185,8 +207,21 @@ const editorSlice = createSlice({
         updateFileContent(state, action: PayloadAction<{ id: string, content: string }>) {
             const file = state.files.find(f => f.id === action.payload.id);
             if (file) {
+                // Push to undo stack before changing
+                state.undoStack.push({ id: file.id, content: file.content });
+                if (state.undoStack.length > 50) state.undoStack.shift(); // cap
                 file.content = action.payload.content;
                 file.isDirty = true;
+            }
+        },
+        undoLastChange(state) {
+            const last = state.undoStack.pop();
+            if (last) {
+                const file = state.files.find(f => f.id === last.id);
+                if (file) {
+                    file.content = last.content;
+                    file.isDirty = true;
+                }
             }
         },
         setSidebarTab(state, action: PayloadAction<string>) {
@@ -201,6 +236,12 @@ const editorSlice = createSlice({
                     state.activeFileId = remainingOpen.length > 0 ? remainingOpen[0].id : null;
                 }
             }
+        },
+        clearWorkspace(state) {
+            state.files = [];
+            state.activeFileId = null;
+            state.projectPath = null;
+            state.projectLanguage = null;
         }
     },
     extraReducers: (builder) => {
@@ -214,7 +255,6 @@ const editorSlice = createSlice({
                 state.files = action.payload.files;
                 state.activeFileId = null;
                 localStorage.setItem('kortana_ide_last_project', action.payload.path);
-                // Auto-detect project language based on file extensions
                 const hasSol = action.payload.files.some(f => f.name.endsWith('.sol'));
                 const hasQrl = action.payload.files.some(f => f.name.endsWith('.qrl'));
                 state.projectLanguage = hasSol ? 'solidity' : (hasQrl ? 'quorlin' : null);
@@ -223,22 +263,17 @@ const editorSlice = createSlice({
         builder.addCase(createNewProject.fulfilled, (state, action) => {
             if (action.payload) {
                 state.projectPath = action.payload.path;
-                state.files = action.payload.files;
-                state.projectLanguage = (action.meta.arg as any).language;
+                state.files = [];  // ✅ Always empty on new project
+                state.projectLanguage = action.payload.language;
+                state.activeFileId = null;
                 localStorage.setItem('kortana_ide_last_project', action.payload.path);
-                // Find the Main file and set it active
-                const mainFile = action.payload.files.find(f => f.name.toLowerCase().includes('main'));
-                if (mainFile) {
-                    state.activeFileId = mainFile.id;
-                    mainFile.isOpen = true;
-                } else {
-                    state.activeFileId = null;
-                }
             }
         });
         builder.addCase(createNewFile.fulfilled, (state, action) => {
-            state.files.push(action.payload as any);
-            state.activeFileId = action.payload!.id;
+            if (action.payload) {
+                state.files.push(action.payload as any);
+                state.activeFileId = action.payload.id;
+            }
         });
         builder.addCase(saveActiveFile.fulfilled, (state, action) => {
             const file = state.files.find(f => f.id === action.payload);
@@ -253,6 +288,19 @@ const editorSlice = createSlice({
                 state.activeFileId = remainingOpen.length > 0 ? remainingOpen[0].id : null;
             }
         });
+        builder.addCase(renameFile.fulfilled, (state, action) => {
+            if (action.payload) {
+                const { oldId, newId, newName, newPath } = action.payload;
+                const file = state.files.find(f => f.id === oldId);
+                if (file) {
+                    file.id = newId;
+                    file.name = newName;
+                    file.path = newPath;
+                    file.language = newName.endsWith('.sol') ? 'solidity' : 'quorlin';
+                    if (state.activeFileId === oldId) state.activeFileId = newId;
+                }
+            }
+        });
         builder.addCase(loadLastProject.fulfilled, (state, action) => {
             if (action.payload) {
                 state.projectPath = action.payload.path;
@@ -265,5 +313,5 @@ const editorSlice = createSlice({
     }
 });
 
-export const { setActiveFile, updateFileContent, setSidebarTab, closeFile } = editorSlice.actions;
+export const { setActiveFile, updateFileContent, setSidebarTab, closeFile, clearWorkspace, undoLastChange } = editorSlice.actions;
 export default editorSlice.reducer;

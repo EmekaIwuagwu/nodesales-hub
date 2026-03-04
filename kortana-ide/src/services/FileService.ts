@@ -15,15 +15,14 @@ export class FileService {
 
         if (this.isWeb) {
             this.loadFromStorage();
-            // If empty, add default files
-            if (this.mockFiles.size === 0) {
-                this.mockDirs.add('web-project-root');
-                this.mockDirs.add('web-project-root/contracts');
-                this.mockDirs.add('web-project-root/scripts');
-                this.mockFiles.set('web-project-root/contracts/MyToken.sol', '// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\ncontract MyToken {\n    string public name = "Kortana Web Token";\n}');
-                this.mockFiles.set('web-project-root/scripts/Deploy.ql', 'contract Deploy {\n    function main() public {\n        // Deployment logic\n    }\n}');
-                this.persist();
+            // ✅ Migration: clear the old default 'web-project-root' project that was pre-populated.
+            // This ensures all existing users start with a bare IDE.
+            const lastProject = localStorage.getItem('kortana_ide_last_project');
+            if (lastProject === 'web-project-root') {
+                this.clearAll();
             }
+            // Do NOT pre-populate any default project.
+            // The IDE starts completely bare. Files/dirs are only created via user actions.
         }
     }
 
@@ -56,11 +55,17 @@ export class FileService {
         return FileService.instance;
     }
 
+    /** Returns a virtual root for web mode. Each project is a subfolder of this. */
+    public async getWebRoot(): Promise<string> {
+        return 'kortana-workspace';
+    }
+
     public async selectFolder(): Promise<string | null> {
         if (!this.isWeb) {
             return await window.ipcRenderer.invoke('fs:selectFolder');
         }
-        return 'web-project-root';
+        // In web mode, we use our virtual workspace root
+        return 'kortana-workspace';
     }
 
     public async readFile(path: string): Promise<string> {
@@ -134,5 +139,27 @@ export class FileService {
             return await window.ipcRenderer.invoke('fs:isDirectory', path);
         }
         return this.mockDirs.has(path);
+    }
+
+    /** Completly wipe all stored data — used for a clean start */
+    public clearAll() {
+        this.mockFiles.clear();
+        this.mockDirs.clear();
+        localStorage.removeItem('kortana_ide_files');
+        localStorage.removeItem('kortana_ide_dirs');
+        localStorage.removeItem('kortana_ide_last_project');
+    }
+
+    /** Rename a file in the mock FS */
+    public async renameFile(oldPath: string, newPath: string): Promise<boolean> {
+        if (!this.isWeb) {
+            // Electron would need its own IPC call; skipping for now
+            return false;
+        }
+        const content = this.mockFiles.get(oldPath) || '';
+        this.mockFiles.delete(oldPath);
+        this.mockFiles.set(newPath, content);
+        this.persist();
+        return true;
     }
 }

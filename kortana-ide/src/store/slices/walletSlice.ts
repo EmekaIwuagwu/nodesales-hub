@@ -66,6 +66,7 @@ const walletSlice = createSlice({
             state.address = null;
             state.isConnected = false;
             state.error = null;
+            state.walletType = null;
         }
     },
     extraReducers: (builder) => {
