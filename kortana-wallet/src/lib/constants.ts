@@ -58,3 +58,6 @@ export const NETWORKS = {
 
 export type NetworkType = keyof typeof NETWORKS;
 
+// Contract Addresses
+export const PRICE_ORACLE_ADDRESS = '0xA603b873302EE3D4769C834833ff2c1dfb734d59'; // Deploy address
+

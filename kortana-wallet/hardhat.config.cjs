@@ -12,26 +12,10 @@ module.exports = {
             chainId: 72511,
             accounts: PRIVATE_KEY ? [PRIVATE_KEY] : [],
         },
-        avalanche_fuji: {
-            url: "https://api.avax-test.network/ext/bc/C/rpc",
-            chainId: 43113,
-            accounts: PRIVATE_KEY ? [PRIVATE_KEY] : [],
-        },
-        base_sepolia: {
-            url: "https://sepolia.base.org",
-            chainId: 84532,
-            accounts: PRIVATE_KEY ? [PRIVATE_KEY] : [],
-        },
-        sepolia: {
-            url: "https://rpc.ankr.com/eth_sepolia",
-            chainId: 11155111,
-            accounts: PRIVATE_KEY ? [PRIVATE_KEY] : [],
-        },
-        polygon_amoy: {
-            url: "https://rpc-amoy.polygon.technology",
-            chainId: 80002,
+        kortana_mainnet: {
+            url: "https://zeus-rpc.mainnet.kortana.xyz",
+            chainId: 9002,
             accounts: PRIVATE_KEY ? [PRIVATE_KEY] : [],
         }
-
     }
 };

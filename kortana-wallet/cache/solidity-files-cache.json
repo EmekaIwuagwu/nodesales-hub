@@ -305,6 +305,42 @@
       "artifacts": [
         "KortanaWrappedAsset"
       ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-wallet\\contracts\\KortanaPriceOracle.sol": {
+      "lastModificationDate": 1772704003452,
+      "contentHash": "6dbf73fa2c56783238e466218962d090",
+      "sourceName": "contracts/KortanaPriceOracle.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "KortanaPriceOracle"
+      ]
     }
   }
 }
