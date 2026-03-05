@@ -101,7 +101,7 @@ export const Dashboard: React.FC = () => {
     const isSubView = ['compliance', 'esg', 'stable', 'risk', 'subnet', 'transact', 'receive', 'history', 'settings'].includes(activeTab);
 
     return (
-        <div className="flex h-screen w-full bg-deep-space text-white overflow-hidden relative font-sans justify-center items-center">
+        <div className="flex h-screen w-full bg-deep-space text-white overflow-hidden relative font-sans justify-center">
             {/* Cinematic Backgrounds */}
             <div className="absolute inset-0 z-0 pointer-events-none">
                 <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] nebula-purple opacity-30 animate-pulse" />
