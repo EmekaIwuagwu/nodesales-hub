@@ -98,11 +98,11 @@ export const SignRequest: React.FC<{ onDismiss: () => void }> = ({ onDismiss }) 
         : request.message;
 
     return (
-        <div className="h-screen w-full flex items-center justify-center p-4 relative bg-deep-space overflow-hidden">
+        <div className="grid place-items-center h-screen w-screen bg-deep-space overflow-hidden relative">
             {/* Background Effects */}
-            <div className="absolute inset-0 z-0">
-                <div className="absolute top-[-10%] right-[-10%] w-[300px] h-[300px] nebula-purple opacity-40 animate-pulse" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] nebula-cyan opacity-30 animate-pulse" />
+            <div className="absolute inset-0 z-0 pointer-events-none">
+                <div className="absolute top-[-10%] right-[-10%] w-[300px] h-[300px] nebula-purple opacity-40" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] nebula-cyan opacity-30" />
                 <div className="grainy-overlay" />
             </div>
 
