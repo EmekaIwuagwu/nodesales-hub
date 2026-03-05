@@ -101,7 +101,7 @@ export const Dashboard: React.FC = () => {
     const isSubView = ['compliance', 'esg', 'stable', 'risk', 'subnet', 'transact', 'receive', 'history', 'settings'].includes(activeTab);
 
     return (
-        <div className="flex h-screen w-full bg-deep-space text-white overflow-hidden relative font-sans justify-center">
+        <div className="flex h-screen w-full bg-deep-space text-white overflow-hidden relative font-sans">
             {/* Cinematic Backgrounds */}
             <div className="absolute inset-0 z-0 pointer-events-none">
                 <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] nebula-purple opacity-30 animate-pulse" />
@@ -109,8 +109,8 @@ export const Dashboard: React.FC = () => {
                 <div className="grainy-overlay" />
             </div>
 
-            {/* ===== DESKTOP SIDEBAR (FIXED TO LEFT) ===== */}
-            <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-16 lg:w-64 glass-panel border-r-0 rounded-none bg-deep-space/60 backdrop-blur-3xl px-2 lg:px-5 py-6 flex-col z-20 transition-all duration-300 shrink-0">
+            {/* ===== DESKTOP SIDEBAR (FLEX INTEGRATED) ===== */}
+            <aside className="hidden md:flex flex-col sticky top-0 h-screen w-20 lg:w-64 glass-panel border-r-0 rounded-none bg-deep-space/60 backdrop-blur-3xl px-3 lg:px-5 py-8 z-20 transition-all duration-300 shrink-0">
 
                 {/* Logo */}
                 <div className="mb-8 flex items-center justify-center lg:justify-start gap-3 lg:px-2">
@@ -223,57 +223,62 @@ export const Dashboard: React.FC = () => {
             </nav>
 
             {/* ===== MAIN CONTENT ===== */}
-            <main className="flex-1 overflow-y-auto pt-14 md:pt-0 pb-20 md:pb-6 px-4 py-4 md:py-8 relative z-10 min-w-0 max-w-[440px] mx-auto w-full">
+            <main className="flex-1 overflow-y-auto pt-14 md:pt-0 pb-20 md:pb-6 relative z-10 w-full transition-all duration-500 scroll-smooth">
+                <div className="max-w-[440px] md:max-w-2xl lg:max-w-5xl xl:max-w-7xl mx-auto w-full px-4 md:px-8 lg:px-12 py-6 md:py-10 lg:py-16 xl:py-20">
 
-                {/* Top Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 md:mb-8 pt-2">
-                    <div className="space-y-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                            {isSubView && (
-                                <button onClick={() => setActiveTab('home')} className="p-1.5 hover:bg-white/5 rounded-full transition-colors shrink-0">
-                                    <ArrowLeft className="size-4 text-gray-500" />
-                                </button>
-                            )}
-                            <h1 className="text-base sm:text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-white uppercase font-heading truncate">
-                                {network === 'mainnet' ? 'ZEUS' : 'POSEIDON'} <span className="text-gradient-kortana">ENCLAVE</span>
-                            </h1>
+
+
+                    {/* Top Header */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8 md:mb-16 lg:mb-24 pt-2">
+                        <div className="space-y-2 md:space-y-4 min-w-0">
+                            <div className="flex items-center gap-3 md:gap-5">
+                                {isSubView && (
+                                    <button onClick={() => setActiveTab('home')} className="p-2 md:p-3 hover:bg-white/10 glass-panel rounded-2xl transition-all shrink-0 hover:scale-110 active:scale-95">
+                                        <ArrowLeft className="size-5 md:size-7 text-cyan-400" />
+                                    </button>
+                                )}
+                                <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tighter text-white uppercase font-heading leading-none drop-shadow-2xl">
+                                    {network === 'mainnet' ? 'ZEUS' : 'POSEIDON'} <span className="text-gradient-kortana">ENCLAVE</span>
+                                </h1>
+                            </div>
+                            <div
+                                className="flex items-center gap-2 md:gap-3 px-3 md:px-5 py-1.5 md:py-2.5 bg-white/5 rounded-2xl md:rounded-3xl w-fit cursor-pointer hover:bg-white/10 transition-all border border-white/5 shadow-inner group"
+                                onClick={copyAddress}
+                            >
+                                <span className="font-mono text-[9px] md:text-xs lg:text-sm text-gray-500 group-hover:text-cyan-400 transition-colors tracking-widest font-bold">
+                                    {address?.slice(0, 10)}...{address?.slice(-8)}
+                                </span>
+                                <div className="w-px h-3 md:h-4 bg-white/10 mx-1" />
+                                <Copy className="size-3 md:size-4 text-gray-600 group-hover:text-cyan-400 transition-colors shrink-0" />
+                            </div>
                         </div>
-                        <div
-                            className="flex items-center gap-1.5 px-2 py-1 bg-white/5 rounded-full w-fit cursor-pointer hover:bg-white/10 transition-all border border-white/5 max-w-[220px]"
-                            onClick={copyAddress}
-                        >
-                            <span className="font-mono text-[8px] sm:text-[9px] text-gray-500 tracking-wider truncate">
-                                {address?.slice(0, 8)}...{address?.slice(-6)}
-                            </span>
-                            <Copy className="size-2.5 text-gray-600 hover:text-cyan-400 transition-colors shrink-0" />
+                        <div className="hidden md:flex items-center gap-4">
+                            <div className={`px-5 lg:px-6 py-2.5 lg:py-3 glass-panel rounded-2xl lg:rounded-3xl flex items-center gap-3 border-opacity-30 border-2 ${network === 'mainnet' ? 'border-cyan-400 bg-cyan-400/5 shadow-cyan-400/20' : 'border-purple-400 bg-purple-400/5 shadow-purple-400/20'} shadow-2xl`}>
+                                <div className={`w-2 h-2 lg:w-2.5 lg:h-2.5 rounded-full animate-ping ${network === 'mainnet' ? 'bg-cyan-400' : 'bg-purple-400'}`} />
+                                <span className={`text-[10px] lg:text-xs font-black uppercase tracking-[0.4em] ${network === 'mainnet' ? 'text-cyan-400' : 'text-purple-400'}`}>
+                                    {network.toUpperCase()} SYNC
+                                </span>
+                            </div>
+                            <button onClick={refreshAll} className="w-11 h-11 lg:w-14 lg:h-14 rounded-2xl lg:rounded-3xl glass-panel flex items-center justify-center hover:scale-110 active:scale-90 transition-all cursor-pointer text-cyan-400 border-2 border-white/10 hover:border-cyan-400/50 shadow-2xl">
+                                <Zap className="size-5 lg:size-6" />
+                            </button>
                         </div>
                     </div>
-                    <div className="hidden md:flex items-center gap-3">
-                        <div className={`px-4 py-2 glass-panel rounded-full flex items-center gap-2 border-opacity-30 border ${network === 'mainnet' ? 'border-cyan-400 bg-cyan-400/5' : 'border-purple-400 bg-purple-400/5'}`}>
-                            <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${network === 'mainnet' ? 'bg-cyan-400' : 'bg-purple-400'}`} />
-                            <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${network === 'mainnet' ? 'text-cyan-400' : 'text-purple-400'}`}>
-                                {network.toUpperCase()} SYNC
-                            </span>
-                        </div>
-                        <button onClick={refreshAll} className="w-10 h-10 rounded-xl glass-panel flex items-center justify-center hover:scale-110 transition-transform cursor-pointer text-cyan-400">
-                            <Zap className="size-4" />
-                        </button>
-                    </div>
+
+                    {/* Tab Content */}
+                    <AnimatePresence mode="wait">
+                        {activeTab === 'home' && <HomeView key="home" balance={balance} network={network} tokens={tokens} onFeatureClick={handleFeatureClick} onRegisterToken={() => setIsRegisterOpen(true)} />}
+                        {activeTab === 'transact' && <TransactView key="transact" />}
+                        {activeTab === 'receive' && <ReceiveView key="receive" />}
+                        {activeTab === 'history' && <TransactionsView key="history" />}
+                        {activeTab === 'settings' && <SettingsView key="settings" />}
+                        {activeTab === 'compliance' && <ComplianceView key="compliance" />}
+                        {activeTab === 'esg' && <ESGView key="esg" />}
+                        {activeTab === 'stable' && <StableView key="stable" />}
+                        {activeTab === 'risk' && <RiskAIView key="risk" />}
+                        {activeTab === 'subnet' && <SubNetView key="subnet" />}
+                    </AnimatePresence>
                 </div>
-
-                {/* Tab Content */}
-                <AnimatePresence mode="wait">
-                    {activeTab === 'home' && <HomeView key="home" balance={balance} network={network} tokens={tokens} onFeatureClick={handleFeatureClick} onRegisterToken={() => setIsRegisterOpen(true)} />}
-                    {activeTab === 'transact' && <TransactView key="transact" />}
-                    {activeTab === 'receive' && <ReceiveView key="receive" />}
-                    {activeTab === 'history' && <TransactionsView key="history" />}
-                    {activeTab === 'settings' && <SettingsView key="settings" />}
-                    {activeTab === 'compliance' && <ComplianceView key="compliance" />}
-                    {activeTab === 'esg' && <ESGView key="esg" />}
-                    {activeTab === 'stable' && <StableView key="stable" />}
-                    {activeTab === 'risk' && <RiskAIView key="risk" />}
-                    {activeTab === 'subnet' && <SubNetView key="subnet" />}
-                </AnimatePresence>
             </main>
 
             <ComplianceModal isOpen={isComplianceOpen} onClose={() => setIsComplianceOpen(false)} />
