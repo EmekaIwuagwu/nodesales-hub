@@ -123,7 +123,7 @@ walkFiles(outDir, (file) => {
 const indexHtml = path.join(outDir, 'index.html');
 if (fs.existsSync(indexHtml)) {
     let html = fs.readFileSync(indexHtml, 'utf8');
-    const sizing = '<style>html,body{width:420px;height:600px;overflow:hidden;margin:0;padding:0;background:#0a0e27}</style>';
+    const sizing = '<style>html,body{width:420px;height:600px;min-width:420px;min-height:600px;overflow:hidden;margin:0!important;padding:0!important;background:#0a0e27}</style>';
     const base = '<base href="./">';
 
     html = html.replace('<head>', '<head>' + base + sizing);
