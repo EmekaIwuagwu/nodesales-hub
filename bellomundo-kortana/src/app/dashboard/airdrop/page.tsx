@@ -138,12 +138,12 @@ export default function AirdropDashboard() {
                                         {wallet.eligible ? (
                                             <div className="flex items-center gap-2 text-success">
                                                 <CheckCircle2 className="w-4 h-4" />
-                                                <span className="text-[10px] font-black uppercase tracking-widest">Eligible (>50 txs)</span>
+                                                <span className="text-[10px] font-black uppercase tracking-widest">Eligible (&gt;50 txs)</span>
                                             </div>
                                         ) : (
                                             <div className="flex items-center gap-2 text-white/30">
                                                 <XCircle className="w-4 h-4" />
-                                                <span className="text-[10px] font-black uppercase tracking-widest">Ineligible (<50 txs)</span>
+                                                <span className="text-[10px] font-black uppercase tracking-widest">Ineligible (&lt;50 txs)</span>
                                             </div>
                                         )}
                                     </td>
