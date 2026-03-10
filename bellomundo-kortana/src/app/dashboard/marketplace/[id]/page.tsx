@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
     ArrowLeft, Wallet, CheckCircle2, ShieldCheck, 
     Zap, Building2, Layers, Briefcase, TrendingUp,
-    MapPin, Calendar, Users, Info, ArrowRight
+    MapPin, Calendar, Users, Info, ArrowRight, Activity
 } from "lucide-react";
 
 interface MarketAsset {
