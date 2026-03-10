@@ -42,6 +42,7 @@ const sidebarItems = [
     { icon: <Zap className="w-5 h-5" />, label: "Utilities", href: "/dashboard/utilities" },
     { icon: <Globe className="w-5 h-5" />, label: "The Agora", href: "/dashboard/governance" },
     { icon: <UserCheck className="w-5 h-5" />, label: "e-Residency", href: "/dashboard/eresidency" },
+    { icon: <Award className="w-5 h-5" />, label: "Airdrop Eligibility", href: "/dashboard/airdrop" },
     { icon: <Settings className="w-5 h-5" />, label: "Settings", href: "/dashboard/settings" },
 ];
 
