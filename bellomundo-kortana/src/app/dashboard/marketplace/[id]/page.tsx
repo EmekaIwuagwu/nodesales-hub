@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
     ArrowLeft, Wallet, CheckCircle2, ShieldCheck, 
     Zap, Building2, Layers, Briefcase, TrendingUp,
-    MapPin, Calendar, Users, Info, ArrowRight, Activity
+    MapPin, Calendar, Users, Info, ArrowRight, Activity, X
 } from "lucide-react";
 
 interface MarketAsset {
@@ -130,11 +130,16 @@ const marketAssets: MarketAsset[] = [
     }
 ];
 
+import { executeSettlement } from "@/lib/walletProvider";
+import { parseEther } from "viem";
+
 export default function AssetDetailsPage() {
     const params = useParams();
     const router = useRouter();
     const [asset, setAsset] = useState<MarketAsset | null>(null);
-    const [paymentStatus, setPaymentStatus] = useState<'idle' | 'confirming' | 'success'>('idle');
+    const [paymentStatus, setPaymentStatus] = useState<'idle' | 'confirming' | 'success' | 'error'>('idle');
+    const [txHash, setTxHash] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     useEffect(() => {
         const found = marketAssets.find(a => a.id === params.id);
@@ -143,12 +148,53 @@ export default function AssetDetailsPage() {
         }
     }, [params.id]);
 
-    const handlePay = () => {
+    const handlePay = async () => {
+        if (!asset) return;
         setPaymentStatus('confirming');
-        // Simulate real transaction settlement
-        setTimeout(() => {
+        setErrorMessage(null);
+
+        try {
+            console.log('[Marketplace] Initiating settlement for asset:', asset.id);
+            const { txHash: hash } = await executeSettlement({
+                valueEther: asset.price,
+                paymentType: 'equity',
+                description: `Acquisition: ${asset.title}`,
+                serviceType: 'MARKETPLACE',
+                amount: asset.price,
+            });
+
+            setTxHash(hash);
+            console.log('[Marketplace] TX Hash returned:', hash);
+
+            // Record transaction in the ledger
+            await fetch("/api/transactions", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    txHash: hash,
+                    paymentType: "equity",
+                    recipient: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e", // Treasury
+                    amount: asset.price,
+                    amountDNR: parseFloat(asset.price),
+                    description: `Acquisition of ${asset.title} (${asset.id})`,
+                    serviceId: asset.id,
+                    serviceType: 'MARKETPLACE',
+                }),
+            });
+
             setPaymentStatus('success');
-        }, 3500); 
+        } catch (error: any) {
+            console.error('[Marketplace] Transaction failed:', error);
+            setPaymentStatus('error');
+            setErrorMessage(error.message || 'The terminal encountered a failure during settlement.');
+            
+            // Auto revert to idle after 5s if user rejected
+            setTimeout(() => {
+                if (paymentStatus !== 'success') {
+                    setPaymentStatus('idle');
+                }
+            }, 5000);
+        }
     };
 
     if (!asset) return (
@@ -303,7 +349,7 @@ export default function AssetDetailsPage() {
 
                         {/* Animated Feedback Terminal */}
                         <AnimatePresence>
-                            {(paymentStatus === 'confirming' || paymentStatus === 'success') && (
+                            {(paymentStatus === 'confirming' || paymentStatus === 'success' || paymentStatus === 'error') && (
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
@@ -324,7 +370,7 @@ export default function AssetDetailsPage() {
                                                 </p>
                                             </div>
                                         </>
-                                    ) : (
+                                    ) : paymentStatus === 'success' ? (
                                         <>
                                             <div className="w-28 h-28 bg-success/10 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.2)]">
                                                 <CheckCircle2 className="w-14 h-14 text-success" />
@@ -337,7 +383,7 @@ export default function AssetDetailsPage() {
                                                         <ArrowRight className="w-3 h-3 text-primary-bright" />
                                                     </div>
                                                     <div className="text-[11px] text-primary-bright font-mono break-all leading-relaxed lining-nums">
-                                                        0xb7d...{Math.random().toString(16).slice(2, 10)}...f8a1
+                                                        {txHash || 'Processing...'}
                                                     </div>
                                                 </div>
                                             </div>
@@ -346,6 +392,24 @@ export default function AssetDetailsPage() {
                                                 className="w-full py-6 bg-white/[0.03] border border-white/10 text-white hover:bg-white hover:text-neutral-obsidian text-[10px] font-black uppercase tracking-[0.4em] transition-all rounded-3xl"
                                             >
                                                 Return to Floor
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="w-24 h-24 bg-error/10 rounded-full flex items-center justify-center border border-error/20">
+                                                <X className="w-10 h-10 text-error" />
+                                            </div>
+                                            <div className="space-y-4">
+                                                <h4 className="text-white font-display font-black tracking-[0.2em] uppercase text-2xl">Settlement Failed</h4>
+                                                <p className="text-error/60 text-[11px] uppercase font-black tracking-[0.2em] leading-relaxed max-w-[280px]">
+                                                    {errorMessage || 'The protocol rejected the transaction request.'}
+                                                </p>
+                                            </div>
+                                            <button 
+                                                onClick={() => setPaymentStatus('idle')}
+                                                className="w-full py-6 bg-white/[0.03] border border-white/10 text-white hover:border-white/40 text-[10px] font-black uppercase tracking-[0.4em] transition-all rounded-3xl"
+                                            >
+                                                Try Again
                                             </button>
                                         </>
                                     )}
