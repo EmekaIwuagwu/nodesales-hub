@@ -29,7 +29,8 @@ import {
     Activity,
     Globe,
     ShieldCheck,
-    ShoppingCart
+    ShoppingCart,
+    Award
 } from "lucide-react";
 import Logo from "@/components/ui/Logo";
 
