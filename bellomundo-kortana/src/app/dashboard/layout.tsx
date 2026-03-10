@@ -30,12 +30,13 @@ import {
     Globe,
     ShieldCheck,
     ShoppingCart,
-    Award
+    BarChart3
 } from "lucide-react";
 import Logo from "@/components/ui/Logo";
 
 const sidebarItems = [
     { icon: <LayoutDashboard className="w-5 h-5" />, label: "Command Center", href: "/dashboard" },
+    { icon: <BarChart3 className="w-5 h-5" />, label: "Intelligence", href: "/dashboard/analytics" },
     { icon: <Activity className="w-5 h-5" />, label: "Asset Ledger", href: "/dashboard/history" },
     { icon: <Building2 className="w-5 h-5" />, label: "Properties", href: "/dashboard/properties" },
     { icon: <ShoppingCart className="w-5 h-5" />, label: "Marketplace", href: "/dashboard/marketplace" },

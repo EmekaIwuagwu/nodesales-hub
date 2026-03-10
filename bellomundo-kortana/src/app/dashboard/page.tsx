@@ -8,7 +8,7 @@ import QuickPay from "@/components/Dashboard/QuickPay";
 import UpcomingPayments from "@/components/Dashboard/UpcomingPayments";
 import RecentTransactions from "@/components/Dashboard/RecentTransactions";
 import SpendingChart from "@/components/Dashboard/SpendingChart";
-import { ArrowRight, Plus, Send, Activity, ShieldCheck, Globe, Info } from "lucide-react";
+import { ArrowRight, Plus, Send, Activity, ShieldCheck, Globe, Info, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import { TransferModal, MintDNRModal } from "@/components/Dashboard/FinancialActions";
 import { useAccount } from "wagmi";
@@ -123,7 +123,15 @@ export default function DashboardPage() {
                     <div className="flex flex-col gap-6">
                         <div className="flex items-center justify-between px-4">
                             <h2 className="text-[11px] text-white font-black uppercase tracking-[0.8em]">Historical Ledger</h2>
-                            <span className="text-[9px] text-white/20 font-black uppercase tracking-widest leading-none">Real-time Blockstream Sync</span>
+                            <div className="flex items-center gap-6">
+                                <Link 
+                                    href="/dashboard/analytics" 
+                                    className="text-[9px] text-primary-bright font-black uppercase tracking-widest hover:opacity-70 transition-opacity flex items-center gap-2"
+                                >
+                                    <BarChart3 className="w-3 h-3" /> FULL INTELLIGENCE
+                                </Link>
+                                <span className="text-[9px] text-white/20 font-black uppercase tracking-widest leading-none">Real-time Blockstream Sync</span>
+                            </div>
                         </div>
                         <div className="sexy-card !p-0">
                             <RecentTransactions />
