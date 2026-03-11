@@ -117,7 +117,7 @@ export const loadWorkspace = createAsyncThunk(
 
 export const saveActiveFile = createAsyncThunk(
     'editor/saveFile',
-    async (_, { getState, rejectWithValue }) => {
+    async (_: void, { getState, rejectWithValue }: any) => {
         const state = (getState() as any).editor as EditorState;
         const activeFile = state.files.find(f => f.id === state.activeFileId);
 
@@ -196,7 +196,7 @@ export const renameFile = createAsyncThunk(
 
 export const loadLastProject = createAsyncThunk(
     'editor/loadLastProject',
-    async (_) => {
+    async (_: void) => {
         const lastPath = localStorage.getItem('kortana_ide_last_project');
         if (lastPath) {
             const service = FileService.getInstance();

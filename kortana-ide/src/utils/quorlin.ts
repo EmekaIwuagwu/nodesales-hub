@@ -1,6 +1,9 @@
-import { Monaco } from '@monaco-editor/react';
+// Monaco type — use 'any' to avoid build-time module resolution failures
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Monaco = any;
 
 export const registerQuorlinLanguage = (monaco: Monaco) => {
+
     monaco.languages.register({ id: 'quorlin' });
 
     monaco.languages.setMonarchTokensProvider('quorlin', {
