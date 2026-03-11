@@ -66,7 +66,7 @@ interface ContextMenuState {
 // Boilerplate Snippets
 // ─────────────────────────────────────────────
 const SOLIDITY_BOILERPLATE = (contractName: string) => `// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 /**
  * @title ${contractName}
@@ -141,6 +141,7 @@ const App: React.FC = () => {
     const [consoleTab, setConsoleTab] = useState<'output' | 'console' | 'problems' | 'interact'>('output');
     const [menuOpen, setMenuOpen] = useState<string | null>(null);
     const [deployTab, setDeployTab] = useState<'compile' | 'interact'>('compile');
+    const [workspaceProjects, setWorkspaceProjects] = useState<string[]>([]);
     const [privateKeyInput, setPrivateKeyInput] = useState('');
     const [showPKInput, setShowPKInput] = useState(false);
     const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
@@ -160,6 +161,27 @@ const App: React.FC = () => {
         const timer = setTimeout(() => setIsLoading(false), 5000);
         return () => clearTimeout(timer);
     }, [dispatch]);
+
+    const fetchProjects = useCallback(async () => {
+        try {
+            const { FileService } = await import('./services/FileService');
+            const service = FileService.getInstance();
+            if (!service.hasAddress()) return;
+            const root = await service.selectFolder();
+            if (root) {
+                const children = await service.listDirectory(root);
+                const dirs = [];
+                for (const c of children) {
+                    if (await service.isDirectory(`${root}/${c}`)) dirs.push(`${root}/${c}`);
+                }
+                setWorkspaceProjects(dirs);
+            }
+        } catch(e) {}
+    }, []);
+
+    useEffect(() => {
+        fetchProjects();
+    }, [walletAddress, projectPath, fetchProjects]);
 
     // ─── Wallet-as-Identity: load workspace when address is set ────────────────
     useEffect(() => {
@@ -221,7 +243,9 @@ const App: React.FC = () => {
     const handleNewProject = () => { setIsNewProjectModalOpen(true); setMenuOpen(null); };
 
     const handleCreateProject = (name: string, language: 'solidity' | 'quorlin') => {
-        dispatch(createNewProject({ projectName: name, language }));
+        dispatch(createNewProject({ projectName: name, language })).then(() => {
+            fetchProjects();
+        });
         dispatch(setLanguage(language));
         dispatch(setSidebarTab('files'));
         setIsNewProjectModalOpen(false);
@@ -551,6 +575,18 @@ const App: React.FC = () => {
                                     }}>
                                         Clear Workspace
                                     </div>
+                                    <div className="px-3 py-1.5 hover:bg-vscode-accent text-white cursor-pointer transition-colors" onClick={async () => {
+                                        try {
+                                            const { FileService } = await import('./services/FileService');
+                                            FileService.getInstance().clearCurrentWorkspace();
+                                            dispatch(clearWorkspace());
+                                            setWorkspaceProjects([]);
+                                            addLog('success', '[SYSTEM] Workspace wiped clean.');
+                                        } catch (e) {}
+                                        setMenuOpen(null);
+                                    }}>
+                                        Format Disk (Wipe All)
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -629,7 +665,22 @@ const App: React.FC = () => {
                     {sidebarActiveTab === 'files' && (
                         <div className="flex flex-col h-full">
                             <div className="h-9 flex items-center justify-between px-4 text-[10px] font-bold text-vscode-muted uppercase tracking-[0.2em] border-b border-white/5 bg-white/2 shrink-0">
-                                <span>Explorer</span>
+                                <select 
+                                    className="bg-transparent text-white truncate max-w-[120px] outline-none cursor-pointer hover:bg-white/5 p-1 rounded"
+                                    value={projectPath || ''}
+                                    title="Switch Project"
+                                    onChange={(e) => {
+                                        if (e.target.value === 'new') { handleNewProject(); }
+                                        else if (e.target.value) { dispatch(openProject(e.target.value)); }
+                                    }}
+                                >
+                                    <option value="" disabled className="bg-vscode-bg">Select Project</option>
+                                    {workspaceProjects.map(p => (
+                                        <option key={p} value={p} className="bg-vscode-bg text-white">{p.split(/[/\\]/).pop()}</option>
+                                    ))}
+                                    <option disabled>──────────</option>
+                                    <option value="new" className="bg-vscode-bg text-indigo-400 font-bold">+ New Project</option>
+                                </select>
                                 <div className="flex items-center space-x-2">
                                     {projectPath && (
                                         <span title="New File">
