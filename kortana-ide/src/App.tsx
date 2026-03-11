@@ -59,6 +59,7 @@ interface ContextMenuState {
     y: number;
     target: ContextTarget;
     fileId?: string;
+    folderPath?: string;
 }
 
 // ─────────────────────────────────────────────
@@ -227,10 +228,25 @@ const App: React.FC = () => {
     };
 
     // ─── Context Menu ─────────────────────────
-    const handleFolderContextMenu = (e: React.MouseEvent) => {
+    const handleFolderContextMenu = (e: React.MouseEvent, folderPath?: string) => {
         e.preventDefault();
         e.stopPropagation();
-        setContextMenu({ x: e.clientX, y: e.clientY, target: 'folder' });
+        setContextMenu({ x: e.clientX, y: e.clientY, target: 'folder', folderPath });
+    };
+
+    const handleDropOnFileFolder = (e: React.DragEvent, targetFolder: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const fileId = e.dataTransfer.getData('text/plain');
+        if (!fileId) return;
+        const file = files.find(f => f.id === fileId);
+        if (!file) return;
+
+        const currentFolder = file.path!.split('/').slice(0, -1).join('/');
+        if (currentFolder !== targetFolder) {
+            dispatch(renameFile({ fileId, newName: file.name, targetFolder }));
+            addLog('info', `[WORKSPACE] Moved ${file.name} to ${targetFolder.split('/').pop()}`);
+        }
     };
 
     const handleFileContextMenu = (e: React.MouseEvent, fileId: string) => {
@@ -249,7 +265,10 @@ const App: React.FC = () => {
         const content = projectLanguage === 'solidity'
             ? SOLIDITY_BOILERPLATE(contractName)
             : QUORLIN_BOILERPLATE(contractName);
-        dispatch(createNewFile({ name: fileName, content }));
+        
+        const targetFolder = contextMenu?.folderPath || `${projectPath}/contracts`;
+
+        dispatch(createNewFile({ name: fileName, content, targetFolder }));
         addLog('success', `[FILE] Created ${fileName}`);
         dispatch(setSidebarTab('files'));
         setContextMenu(null);
@@ -635,7 +654,9 @@ const App: React.FC = () => {
                                         {/* Project Folder Header — right-click for folder context menu */}
                                         <div
                                             className="sidebar-item active group cursor-pointer select-none"
-                                            onContextMenu={handleFolderContextMenu}
+                                            onContextMenu={e => handleFolderContextMenu(e, projectPath)}
+                                            onDragOver={e => e.preventDefault()}
+                                            onDrop={e => handleDropOnFileFolder(e, projectPath)}
                                         >
                                             <ChevronDown size={14} className="mr-2 text-vscode-accent shrink-0" />
                                             <span className="text-white text-[11px] font-bold uppercase truncate flex-grow">
@@ -646,67 +667,109 @@ const App: React.FC = () => {
                                             </span>
                                         </div>
 
-                                        {/* contracts/ sub-folder label */}
-                                        {(files.length > 0 || true) && (
+                                        {/* Root Files array */}
+                                        {files.filter(f => f.path?.split('/').slice(0, -1).join('/') === projectPath).map(file => (
                                             <div
-                                                className="flex items-center pl-6 pr-2 py-1 text-[10px] text-vscode-muted/60 space-x-1 cursor-pointer hover:text-vscode-muted"
-                                                onContextMenu={handleFolderContextMenu}
+                                                key={file.id}
+                                                className={`flex items-center pl-8 pr-2 py-1 text-[12px] group cursor-pointer transition-colors ${activeFileId === file.id ? 'bg-vscode-accent/20 text-white' : 'text-vscode-muted hover:bg-white/5 hover:text-white'}`}
+                                                onClick={() => dispatch(setActiveFile(file.id))}
+                                                onContextMenu={e => handleFileContextMenu(e, file.id)}
+                                                draggable
+                                                onDragStart={e => e.dataTransfer.setData('text/plain', file.id)}
                                             >
-                                                <ChevronDown size={10} className="mr-1" />
-                                                <span className="uppercase tracking-widest font-bold">contracts</span>
+                                                {file.language === 'solidity'
+                                                    ? <ShieldCheck size={12} className="mr-2 text-emerald-400 shrink-0" />
+                                                    : <Cpu size={12} className="mr-2 text-amber-400 shrink-0" />
+                                                }
+                                                {renamingFileId === file.id ? (
+                                                    <input
+                                                        autoFocus
+                                                        value={renameValue}
+                                                        className="flex-grow bg-black/60 border border-indigo-500/50 rounded px-1 text-[11px] text-white outline-none"
+                                                        onChange={e => setRenameValue(e.target.value)}
+                                                        onBlur={() => handleRenameSubmit(file.id)}
+                                                        onKeyDown={e => {
+                                                            if (e.key === 'Enter') handleRenameSubmit(file.id);
+                                                            if (e.key === 'Escape') setRenamingFileId(null);
+                                                        }}
+                                                        onClick={e => e.stopPropagation()}
+                                                    />
+                                                ) : (
+                                                    <span className="truncate flex-grow">{file.name}</span>
+                                                )}
+                                                {file.isDirty && <div className="w-1 h-1 rounded-full bg-amber-400 shrink-0 ml-1" />}
+                                                <Trash2
+                                                    size={11}
+                                                    className="opacity-0 group-hover:opacity-40 hover:!opacity-100 hover:text-red-400 transition-all shrink-0 ml-1"
+                                                    onClick={e => handleDeleteFile(e, file.id)}
+                                                />
                                             </div>
-                                        )}
+                                        ))}
 
-                                        {/* File list */}
-                                        {files.length === 0 ? (
+                                        {/* contracts/ sub-folder label */}
+                                        <div
+                                            className="flex items-center pl-6 pr-2 py-1 text-[10px] text-vscode-muted/60 space-x-1 cursor-pointer hover:text-vscode-muted"
+                                            onContextMenu={e => handleFolderContextMenu(e, `${projectPath}/contracts`)}
+                                            onDragOver={e => e.preventDefault()}
+                                            onDrop={e => handleDropOnFileFolder(e, `${projectPath}/contracts`)}
+                                        >
+                                            <ChevronDown size={10} className="mr-1" />
+                                            <span className="uppercase tracking-widest font-bold">contracts</span>
+                                        </div>
+
+                                        {/* Contracts Files array */}
+                                        {files.filter(f => f.path?.split('/').slice(0, -1).join('/') === `${projectPath}/contracts`).map(file => (
+                                            <div
+                                                key={file.id}
+                                                className={`flex items-center pl-10 pr-2 py-1 text-[12px] group cursor-pointer transition-colors ${activeFileId === file.id ? 'bg-vscode-accent/20 text-white' : 'text-vscode-muted hover:bg-white/5 hover:text-white'}`}
+                                                onClick={() => dispatch(setActiveFile(file.id))}
+                                                onContextMenu={e => handleFileContextMenu(e, file.id)}
+                                                draggable
+                                                onDragStart={e => e.dataTransfer.setData('text/plain', file.id)}
+                                            >
+                                                {file.language === 'solidity'
+                                                    ? <ShieldCheck size={12} className="mr-2 text-emerald-400 shrink-0" />
+                                                    : <Cpu size={12} className="mr-2 text-amber-400 shrink-0" />
+                                                }
+                                                {renamingFileId === file.id ? (
+                                                    <input
+                                                        autoFocus
+                                                        value={renameValue}
+                                                        className="flex-grow bg-black/60 border border-indigo-500/50 rounded px-1 text-[11px] text-white outline-none"
+                                                        onChange={e => setRenameValue(e.target.value)}
+                                                        onBlur={() => handleRenameSubmit(file.id)}
+                                                        onKeyDown={e => {
+                                                            if (e.key === 'Enter') handleRenameSubmit(file.id);
+                                                            if (e.key === 'Escape') setRenamingFileId(null);
+                                                        }}
+                                                        onClick={e => e.stopPropagation()}
+                                                    />
+                                                ) : (
+                                                    <span className="truncate flex-grow">{file.name}</span>
+                                                )}
+                                                {file.isDirty && <div className="w-1 h-1 rounded-full bg-amber-400 shrink-0 ml-1" />}
+                                                <Trash2
+                                                    size={11}
+                                                    className="opacity-0 group-hover:opacity-40 hover:!opacity-100 hover:text-red-400 transition-all shrink-0 ml-1"
+                                                    onClick={e => handleDeleteFile(e, file.id)}
+                                                />
+                                            </div>
+                                        ))}
+
+                                        {/* Empty File list fallback if nothing created yet */}
+                                        {files.length === 0 && (
                                             <div className="px-4 py-6 text-center">
                                                 <div className="text-[10px] text-vscode-muted/50 mb-3 leading-relaxed">
                                                     Right-click the folder to create your first {projectLanguage === 'solidity' ? 'contract' : 'script'}
                                                 </div>
                                                 <button
-                                                    onClick={e => { e.stopPropagation(); handleCreateNewFileFromContext(); }}
+                                                    onClick={e => { e.stopPropagation(); setContextMenu({ x: 0, y: 0, target: 'folder', folderPath: projectPath }); handleCreateNewFileFromContext(); }}
                                                     className="text-[10px] px-3 py-1.5 rounded-lg bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/40 transition-all flex items-center space-x-1 mx-auto border border-indigo-500/30"
                                                 >
                                                     <FilePlus size={10} />
                                                     <span>New {projectLanguage === 'solidity' ? 'Contract' : 'Script'}</span>
                                                 </button>
                                             </div>
-                                        ) : (
-                                            files.map(file => (
-                                                <div
-                                                    key={file.id}
-                                                    className={`flex items-center pl-10 pr-2 py-1 text-[12px] group cursor-pointer transition-colors ${activeFileId === file.id ? 'bg-vscode-accent/20 text-white' : 'text-vscode-muted hover:bg-white/5 hover:text-white'}`}
-                                                    onClick={() => dispatch(setActiveFile(file.id))}
-                                                    onContextMenu={e => handleFileContextMenu(e, file.id)}
-                                                >
-                                                    {file.language === 'solidity'
-                                                        ? <ShieldCheck size={12} className="mr-2 text-emerald-400 shrink-0" />
-                                                        : <Cpu size={12} className="mr-2 text-amber-400 shrink-0" />
-                                                    }
-                                                    {renamingFileId === file.id ? (
-                                                        <input
-                                                            autoFocus
-                                                            value={renameValue}
-                                                            className="flex-grow bg-black/60 border border-indigo-500/50 rounded px-1 text-[11px] text-white outline-none"
-                                                            onChange={e => setRenameValue(e.target.value)}
-                                                            onBlur={() => handleRenameSubmit(file.id)}
-                                                            onKeyDown={e => {
-                                                                if (e.key === 'Enter') handleRenameSubmit(file.id);
-                                                                if (e.key === 'Escape') setRenamingFileId(null);
-                                                            }}
-                                                            onClick={e => e.stopPropagation()}
-                                                        />
-                                                    ) : (
-                                                        <span className="truncate flex-grow">{file.name}</span>
-                                                    )}
-                                                    {file.isDirty && <div className="w-1 h-1 rounded-full bg-amber-400 shrink-0 ml-1" />}
-                                                    <Trash2
-                                                        size={11}
-                                                        className="opacity-0 group-hover:opacity-40 hover:!opacity-100 hover:text-red-400 transition-all shrink-0 ml-1"
-                                                        onClick={e => handleDeleteFile(e, file.id)}
-                                                    />
-                                                </div>
-                                            ))
                                         )}
                                     </div>
                                 ) : (

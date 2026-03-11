@@ -137,12 +137,12 @@ export const saveActiveFile = createAsyncThunk(
 
 export const createNewFile = createAsyncThunk(
     'editor/createNewFile',
-    async ({ name, content }: { name: string, content: string }, { getState, rejectWithValue }) => {
+    async ({ name, content, targetFolder }: { name: string, content: string, targetFolder?: string }, { getState, rejectWithValue }) => {
         const state = (getState() as any).editor as EditorState;
         if (!state.projectPath) return rejectWithValue('No project open');
 
-        // Always create in the contracts folder
-        const filePath = `${state.projectPath}/contracts/${name}`;
+        const folderPath = targetFolder || `${state.projectPath}/contracts`;
+        const filePath = `${folderPath}/${name}`;
         try {
             const service = FileService.getInstance();
             await service.writeFile(filePath, content);
@@ -176,12 +176,12 @@ export const deleteFile = createAsyncThunk(
 
 export const renameFile = createAsyncThunk(
     'editor/renameFile',
-    async ({ fileId, newName }: { fileId: string; newName: string }, { getState, rejectWithValue }) => {
+    async ({ fileId, newName, targetFolder }: { fileId: string; newName: string; targetFolder?: string }, { getState, rejectWithValue }) => {
         const state = (getState() as any).editor as EditorState;
         const file = state.files.find(f => f.id === fileId);
         if (!file) return rejectWithValue('File not found');
 
-        const dirPath = file.path!.split('/').slice(0, -1).join('/');
+        const dirPath = targetFolder || file.path!.split('/').slice(0, -1).join('/');
         const newPath = `${dirPath}/${newName}`;
 
         try {
