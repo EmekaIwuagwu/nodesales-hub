@@ -52,10 +52,10 @@ async function scanDirectory(path: string, service: FileService): Promise<Projec
 
 export const openProject = createAsyncThunk(
     'editor/openProject',
-    async (_, { rejectWithValue }) => {
+    async (manualPath: string | undefined, { rejectWithValue }) => {
         try {
             const service = FileService.getInstance();
-            const path = await service.selectFolder();
+            const path = manualPath || await service.selectFolder();
             if (!path) return null;
 
             const files = await scanDirectory(path, service);
