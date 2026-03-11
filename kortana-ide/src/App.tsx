@@ -144,6 +144,7 @@ const App: React.FC = () => {
     const [privateKeyInput, setPrivateKeyInput] = useState('');
     const [showPKInput, setShowPKInput] = useState(false);
     const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
+    const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({ root: true, contracts: true });
     const [renamingFileId, setRenamingFileId] = useState<string | null>(null);
     const [renameValue, setRenameValue] = useState('');
     const [consoleLogs, setConsoleLogs] = useState<{ type: 'info' | 'success' | 'error' | 'warn'; msg: string }[]>([
@@ -654,11 +655,12 @@ const App: React.FC = () => {
                                         {/* Project Folder Header — right-click for folder context menu */}
                                         <div
                                             className="sidebar-item active group cursor-pointer select-none"
+                                            onClick={() => setExpandedFolders(prev => ({ ...prev, root: !prev.root }))}
                                             onContextMenu={e => handleFolderContextMenu(e, projectPath)}
                                             onDragOver={e => e.preventDefault()}
                                             onDrop={e => handleDropOnFileFolder(e, projectPath)}
                                         >
-                                            <ChevronDown size={14} className="mr-2 text-vscode-accent shrink-0" />
+                                            <ChevronDown size={14} className={`mr-2 text-vscode-accent shrink-0 transition-transform ${!expandedFolders.root ? '-rotate-90' : ''}`} />
                                             <span className="text-white text-[11px] font-bold uppercase truncate flex-grow">
                                                 {projectPath.split(/[/\\]/).pop()}
                                             </span>
@@ -668,7 +670,7 @@ const App: React.FC = () => {
                                         </div>
 
                                         {/* Root Files array */}
-                                        {files.filter(f => f.path?.split('/').slice(0, -1).join('/') === projectPath).map(file => (
+                                        {expandedFolders.root && files.filter(f => f.path?.split('/').slice(0, -1).join('/') === projectPath).map(file => (
                                             <div
                                                 key={file.id}
                                                 className={`flex items-center pl-8 pr-2 py-1 text-[12px] group cursor-pointer transition-colors ${activeFileId === file.id ? 'bg-vscode-accent/20 text-white' : 'text-vscode-muted hover:bg-white/5 hover:text-white'}`}
@@ -709,16 +711,17 @@ const App: React.FC = () => {
                                         {/* contracts/ sub-folder label */}
                                         <div
                                             className="flex items-center pl-6 pr-2 py-1 text-[10px] text-vscode-muted/60 space-x-1 cursor-pointer hover:text-vscode-muted"
+                                            onClick={() => setExpandedFolders(prev => ({ ...prev, contracts: !prev.contracts }))}
                                             onContextMenu={e => handleFolderContextMenu(e, `${projectPath}/contracts`)}
                                             onDragOver={e => e.preventDefault()}
                                             onDrop={e => handleDropOnFileFolder(e, `${projectPath}/contracts`)}
                                         >
-                                            <ChevronDown size={10} className="mr-1" />
+                                            <ChevronDown size={10} className={`mr-1 transition-transform ${!expandedFolders.contracts ? '-rotate-90' : ''}`} />
                                             <span className="uppercase tracking-widest font-bold">contracts</span>
                                         </div>
 
                                         {/* Contracts Files array */}
-                                        {files.filter(f => f.path?.split('/').slice(0, -1).join('/') === `${projectPath}/contracts`).map(file => (
+                                        {expandedFolders.contracts && files.filter(f => f.path?.split('/').slice(0, -1).join('/') === `${projectPath}/contracts`).map(file => (
                                             <div
                                                 key={file.id}
                                                 className={`flex items-center pl-10 pr-2 py-1 text-[12px] group cursor-pointer transition-colors ${activeFileId === file.id ? 'bg-vscode-accent/20 text-white' : 'text-vscode-muted hover:bg-white/5 hover:text-white'}`}
