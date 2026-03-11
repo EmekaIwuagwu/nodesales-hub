@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
     ArrowLeft, Wallet, CheckCircle2, ShieldCheck, 
     Zap, Building2, Layers, Briefcase, TrendingUp,
-    MapPin, Calendar, Users, Info, ArrowRight, Activity, X
+    MapPin, Calendar, Users, Info, ArrowRight, Activity, X, Loader2
 } from "lucide-react";
 
 interface MarketAsset {
@@ -140,6 +140,7 @@ export default function AssetDetailsPage() {
     const [paymentStatus, setPaymentStatus] = useState<'idle' | 'confirming' | 'success' | 'error'>('idle');
     const [txHash, setTxHash] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [txStatus, setTxStatus] = useState<string | null>(null);
 
     useEffect(() => {
         const found = marketAssets.find(a => a.id === params.id);
@@ -152,9 +153,11 @@ export default function AssetDetailsPage() {
         if (!asset) return;
         setPaymentStatus('confirming');
         setErrorMessage(null);
+        setTxStatus('Connecting to wallet...');
 
         try {
             console.log('[Marketplace] Initiating settlement for asset:', asset.id);
+            setTxStatus('Waiting for wallet approval...');
             const { txHash: hash } = await executeSettlement({
                 valueEther: asset.price,
                 paymentType: 'equity',
@@ -164,6 +167,7 @@ export default function AssetDetailsPage() {
             });
 
             setTxHash(hash);
+            setTxStatus('Recording on ledger...');
             console.log('[Marketplace] TX Hash returned:', hash);
 
             // Record transaction in the ledger
@@ -182,11 +186,17 @@ export default function AssetDetailsPage() {
                 }),
             });
 
+            setTxStatus('Settlement Successful.');
             setPaymentStatus('success');
         } catch (error: any) {
             console.error('[Marketplace] Transaction failed:', error);
             setPaymentStatus('error');
-            setErrorMessage(error.message || 'The terminal encountered a failure during settlement.');
+            const msg = error.message || '';
+            if (msg.toLowerCase().includes('rejected') || msg.toLowerCase().includes('denied')) {
+                setErrorMessage('Transaction rejected. Please approve in your wallet.');
+            } else {
+                setErrorMessage(msg || 'The terminal encountered a failure during settlement.');
+            }
             
             // Auto revert to idle after 5s if user rejected
             setTimeout(() => {
@@ -194,6 +204,8 @@ export default function AssetDetailsPage() {
                     setPaymentStatus('idle');
                 }
             }, 5000);
+        } finally {
+            setTxStatus(null);
         }
     };
 
@@ -206,6 +218,17 @@ export default function AssetDetailsPage() {
 
     return (
         <div className="max-w-[1400px] mx-auto pb-40 px-6 pt-12">
+            {/* Floating Status / Error Toast */}
+            {(errorMessage || txStatus) && (
+                <div className={`fixed top-6 right-6 z-[500] max-w-sm p-6 rounded-3xl border text-[10px] font-black uppercase tracking-widest shadow-2xl backdrop-blur-xl ${errorMessage
+                    ? 'bg-red-500/20 border-red-500/40 text-red-300'
+                    : 'bg-primary-bright/20 border-primary-bright/40 text-primary-bright'
+                    }`}>
+                    {errorMessage || txStatus}
+                    {errorMessage && <button onClick={() => setErrorMessage(null)} className="ml-4 opacity-60 hover:opacity-100">✕</button>}
+                </div>
+            )}
+            
             {/* Navigation */}
             <button 
                 onClick={() => router.push('/dashboard/marketplace')}
@@ -335,10 +358,17 @@ export default function AssetDetailsPage() {
                             <button 
                                 onClick={handlePay}
                                 disabled={paymentStatus !== 'idle'}
-                                className="w-full py-8 rounded-[2rem] bg-white text-neutral-obsidian text-[12px] font-black uppercase tracking-[0.4em] hover:bg-primary-bright hover:shadow-[0_0_30px_rgba(56,189,248,0.4)] transition-all flex items-center justify-center gap-4 disabled:opacity-20 disabled:cursor-not-allowed group"
+                                style={{ position: 'relative', zIndex: 10, pointerEvents: 'all' }}
+                                className={`w-full py-8 rounded-[2rem] text-[12px] font-black uppercase tracking-[0.4em] transition-all flex items-center justify-center gap-4 disabled:opacity-40 disabled:cursor-not-allowed group shadow-2xl ${
+                                    paymentStatus === 'success' 
+                                    ? 'bg-success text-neutral-obsidian' 
+                                    : paymentStatus === 'confirming'
+                                        ? 'bg-primary-bright/60 text-neutral-obsidian cursor-wait'
+                                        : 'bg-white text-neutral-obsidian hover:bg-primary-bright hover:shadow-[0_0_30px_rgba(56,189,248,0.4)] shadow-white/10'
+                                }`}
                             >
-                                <Wallet className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                                EXECUTE SETTLEMENT
+                                {paymentStatus === 'confirming' ? <Loader2 className="w-5 h-5 animate-spin" /> : paymentStatus === 'success' ? <ShieldCheck className="w-5 h-5" /> : <Zap className="w-5 h-5" />}
+                                {paymentStatus === 'success' ? "SETTLEMENT SECURED" : paymentStatus === 'confirming' ? txStatus || "AUTHORIZING..." : "AUTHORIZE SETTLEMENT"}
                             </button>
 
                             <div className="flex items-center gap-4 justify-center text-[9px] text-white/10 font-black uppercase tracking-widest">
