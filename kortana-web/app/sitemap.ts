@@ -109,6 +109,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
             changeFrequency: "monthly",
             priority: 0.6,
         },
+        {
+            url: `${BASE_URL}/privacy`,
+            lastModified: now,
+            changeFrequency: "yearly",
+            priority: 0.5,
+        },
     ];
 
     return staticRoutes;
