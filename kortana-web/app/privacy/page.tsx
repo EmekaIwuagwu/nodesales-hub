@@ -273,7 +273,7 @@ California residents have the right to:
 
 **9.3 Exercising Your Rights**
 
-Submit a data request to: **privacy@kortana.xyz**
+Submit a data request to: **privacy@kortana.network**
 
 We will respond within **30 days** (GDPR) or **45 days** (CCPA) of receiving a verifiable request. We may need to verify your identity before processing certain requests.
 
@@ -286,7 +286,7 @@ Kortana does not use your personal data for automated decision-making or profili
         title: "10. Children's Privacy (COPPA)",
         content: `The Kortana platform and Kortana Wallet extension are **not directed at children under the age of 13** (or 16 in the EU under GDPR). We do not knowingly collect personal data from children.
 
-If you are a parent or guardian and believe your child has provided us with personal information without your consent, please contact us immediately at **privacy@kortana.xyz**. We will delete such information within 30 days of verified notice.
+If you are a parent or guardian and believe your child has provided us with personal information without your consent, please contact us immediately at **privacy@kortana.network**. We will delete such information within 30 days of verified notice.
 
 Cryptocurrency and blockchain applications carry financial risk. We strongly recommend parental guidance for users under 18 years of age.`,
     },
@@ -339,19 +339,19 @@ We recommend checking this page periodically. Continued use of Kortana services 
         content: `If you have any questions, concerns, or requests relating to this Privacy Policy or our data practices, please contact us:
 
 **Kortana Foundation — Privacy & Data Protection**
-📧 **Email**: privacy@kortana.xyz
+📧 **Email**: privacy@kortana.network
 🌐 **Web**: kortana.xyz/privacy
 📮 **Response Time**: Within 30 days for privacy requests
 
 **For Chrome Web Store extension-specific privacy concerns:**
-📧 **Email**: privacy@kortana.xyz
+📧 **Email**: privacy@kortana.network
 **Subject line**: "Kortana Wallet Extension — Privacy Inquiry"
 
 **For security vulnerabilities or incident reporting:**
 📧 **Email**: security@kortana.xyz
 
 **For EU/UK GDPR Data Subject Requests:**
-Please email **privacy@kortana.xyz** with subject "GDPR Data Subject Request" and include your wallet address (if applicable) and the specific right you are invoking. We will verify your identity and respond within 30 days.
+Please email **privacy@kortana.network** with subject "GDPR Data Subject Request" and include your wallet address (if applicable) and the specific right you are invoking. We will verify your identity and respond within 30 days.
 
 If you are not satisfied with our response, you have the right to lodge a complaint with your local data protection authority:
 • **UK**: ico.org.uk
