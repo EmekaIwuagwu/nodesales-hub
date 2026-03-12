@@ -5,13 +5,13 @@ export const metadata: Metadata = {
     description:
         "Kortana's comprehensive Privacy Policy — covering the Kortana Wallet Chrome Extension, web platform, mobile applications, and blockchain infrastructure. Compliant with GDPR, CCPA, and Chrome Web Store User Data Policy.",
     alternates: {
-        canonical: "https://kortana.xyz/privacy",
+        canonical: "https://kortana.network/privacy",
     },
     openGraph: {
         title: "Privacy Policy | Kortana Blockchain",
         description:
             "Read the full Kortana Privacy Policy covering data collection, usage, storage, and your rights as a user of the Kortana ecosystem.",
-        url: "https://kortana.xyz/privacy",
+        url: "https://kortana.network/privacy",
     },
 };
 
@@ -22,11 +22,11 @@ const sections = [
         content: `This Privacy Policy ("Policy") is published by the Kortana Foundation ("Kortana", "we", "our", or "us") and governs the collection, processing, storage, and disclosure of personal data and information generated through your use of:
 
 • The **Kortana Wallet** Chrome Browser Extension (Chrome Web Store Item ID: efbodlbedoer/mcla/lkkkldahekahldmdeg)
-• The **Kortana Web Platform** at kortana.xyz and all subdomain properties
+• The **Kortana Web Platform** at kortana.network and all subdomain properties
 • The **Kortana Mobile Wallet** applications (iOS and Android)
 • The **Kortana Blockchain Networks** (Mainnet Chain ID 9002, Testnet Chain ID 9001)
 • The **Kortana IDE (Kortana Studio)** web and desktop development environment
-• The **Kortana Block Explorers** (explorer.kortana.xyz and related endpoints)
+• The **Kortana Block Explorers** (explorer.kortana.network and related endpoints)
 • The **Kortana Faucet** and developer infrastructure services
 • Any API, SDK, or developer tool published under the Kortana namespace
 
@@ -96,7 +96,7 @@ All extension data is stored exclusively on your local device using Chrome's \`c
 **3.2 Information Collected Automatically**
 
 • **Blockchain Transactions**: All transactions broadcast to the Kortana public blockchain are publicly visible by design. This is an inherent property of distributed ledger technology and falls outside the scope of data privacy regulation. We do not collect this data — it is recorded by the decentralised network.
-• **RPC Node Requests**: When your wallet queries our hosted RPC endpoints (rpc.kortana.xyz, testnet-rpc.kortana.xyz), your wallet address and request metadata (block number, gas price queries) are processed in memory to serve the response. We retain anonymised RPC access logs for **72 hours** for security and infrastructure purposes only.
+• **RPC Node Requests**: When your wallet queries our hosted RPC endpoints (rpc.kortana.network, testnet-rpc.kortana.network), your wallet address and request metadata (block number, gas price queries) are processed in memory to serve the response. We retain anonymised RPC access logs for **72 hours** for security and infrastructure purposes only.
 • **Web Platform Analytics**: We use **privacy-respecting, self-hosted analytics** (no Google Analytics, no Meta Pixel). We collect page views, referral source (anonymised), browser type, and country (not city). No personal identifiers.
 • **Error Monitoring**: Anonymised crash reports and error stack traces may be collected to improve product stability. These are stripped of wallet addresses and personal identifiers before collection.
 
@@ -233,7 +233,7 @@ We implement industry-standard and best-practice security measures:
 • **AES-256 Encryption**: All locally stored private keys and seed phrases in the Kortana Wallet are encrypted using AES-256-GCM with a key derived from your wallet password via PBKDF2 (100,000 iterations). Your password never leaves your device.
 • **TLS 1.3**: All data in transit between clients and Kortana infrastructure is protected by TLS 1.3 with forward secrecy.
 • **Zero-Knowledge Architecture**: Private keys are never transmitted to or stored on Kortana servers. You are the sole custodian of your private keys.
-• **Regular Security Audits**: Our smart contracts and infrastructure undergo periodic third-party security audits. Audit results are published at kortana.xyz/security-audit.
+• **Regular Security Audits**: Our smart contracts and infrastructure undergo periodic third-party security audits. Audit results are published at kortana.network/security-audit.
 • **Bug Bounty Programme**: Security researchers can responsibly disclose vulnerabilities through our bug bounty programme.
 
 **8.2 No Central Key Storage**
@@ -324,7 +324,7 @@ When retention periods expire, data is securely deleted or irreversibly anonymis
         title: "13. Policy Updates",
         content: `We may update this Privacy Policy to reflect changes in our practices, legal obligations, or the Kortana ecosystem. When we make material changes, we will:
 
-• Post the updated Policy at **kortana.xyz/privacy** with a new "Last Updated" date
+• Post the updated Policy at **kortana.network/privacy** with a new "Last Updated" date
 • Notify registered users via email (for material changes)
 • Post a notice on the Kortana wallet extension update notes and Chrome Web Store listing
 • Where required by law, obtain fresh consent
@@ -340,7 +340,7 @@ We recommend checking this page periodically. Continued use of Kortana services 
 
 **Kortana Foundation — Privacy & Data Protection**
 📧 **Email**: privacy@kortana.network
-🌐 **Web**: kortana.xyz/privacy
+🌐 **Web**: kortana.network/privacy
 📮 **Response Time**: Within 30 days for privacy requests
 
 **For Chrome Web Store extension-specific privacy concerns:**
@@ -348,7 +348,7 @@ We recommend checking this page periodically. Continued use of Kortana services 
 **Subject line**: "Kortana Wallet Extension — Privacy Inquiry"
 
 **For security vulnerabilities or incident reporting:**
-📧 **Email**: security@kortana.xyz
+📧 **Email**: security@kortana.network
 
 **For EU/UK GDPR Data Subject Requests:**
 Please email **privacy@kortana.network** with subject "GDPR Data Subject Request" and include your wallet address (if applicable) and the specific right you are invoking. We will verify your identity and respond within 30 days.
@@ -556,8 +556,8 @@ export default function PrivacyPage() {
                         <p className="text-slate-500 text-xs leading-relaxed max-w-lg">
                             This Privacy Policy was last updated on <strong className="text-slate-400">{lastUpdated}</strong>.
                             For questions or data requests, contact{" "}
-                            <a href="mailto:privacy@kortana.xyz" className="text-indigo-400 hover:text-indigo-300 transition-colors">
-                                privacy@kortana.xyz
+                            <a href="mailto:privacy@kortana.network" className="text-indigo-400 hover:text-indigo-300 transition-colors">
+                                privacy@kortana.network
                             </a>
                             . View our{" "}
                             <a href="/docs" className="text-indigo-400 hover:text-indigo-300 transition-colors">Documentation</a>
