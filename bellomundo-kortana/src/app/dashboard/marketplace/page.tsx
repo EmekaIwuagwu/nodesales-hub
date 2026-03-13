@@ -61,7 +61,7 @@ const marketAssets: MarketAsset[] = [
         yield: "+5.2%",
         liquidity: "Instant",
         progress: 100,
-        image: "https://images.unsplash.com/photo-1509391366360-fe5bb6583e2c?auto=format&fit=crop&w=800&q=80",
+        image: "/energy-grid.jpeg",
         sector: "Sector 4",
         totalShares: "10,000"
     },
@@ -74,7 +74,7 @@ const marketAssets: MarketAsset[] = [
         yield: "+15.2%",
         liquidity: "Low",
         progress: 68,
-        image: "https://images.unsplash.com/photo-1530836361253-efcc5056d9fe?auto=format&fit=crop&w=800&q=80",
+        image: "/vertical_harvest.jpeg",
         sector: "Eco-Sector 2",
         totalShares: "12,500"
     },
@@ -100,7 +100,7 @@ const marketAssets: MarketAsset[] = [
         yield: "+7.5%",
         liquidity: "Medium",
         progress: 31,
-        image: "https://images.unsplash.com/photo-1464938701291-1d3397063cb4?auto=format&fit=crop&w=800&q=80",
+        image: "/Terrav.jpeg",
         sector: "Sector 1",
         totalShares: "8,000"
     },
@@ -113,7 +113,7 @@ const marketAssets: MarketAsset[] = [
         yield: "+18.2%",
         liquidity: "High",
         progress: 12,
-        image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc4b?auto=format&fit=crop&w=800&q=80",
+        image: "/genesis-server.jpeg",
         sector: "Data Core",
         totalShares: "20,000"
     },
@@ -126,7 +126,7 @@ const marketAssets: MarketAsset[] = [
         yield: "+6.8%",
         liquidity: "Instant",
         progress: 55,
-        image: "https://images.unsplash.com/photo-1473163928189-39a0c8a92541?auto=format&fit=crop&w=800&q=80",
+        image: "/mlev.jpeg",
         sector: "Sector 3",
         totalShares: "4,000"
     }
