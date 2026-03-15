@@ -94,6 +94,12 @@ impl State {
         Ok(())
     }
 
+    pub fn mint(&mut self, to: &Address, amount: u128) {
+        let mut acc = self.get_account(to);
+        acc.balance = acc.balance.saturating_add(amount);
+        self.update_account(*to, acc);
+    }
+
     pub fn calculate_root(&self) -> [u8; 32] {
         self.trie.root_hash
     }

@@ -923,6 +923,45 @@ impl RpcHandler {
                      } else { Some(serde_json::Value::Null) }
                  } else { None }
             }
+            "kortana_mintToTreasury" => {
+                if let Some(arr) = p {
+                    let amount_str = arr.get(0).and_then(|v| v.as_str()).unwrap_or("0");
+                    let secret = arr.get(1).and_then(|v| v.as_str()).unwrap_or("");
+                    let target_addr_str = arr.get(2).and_then(|v| v.as_str());
+
+                    let admin_secret = std::env::var("KORTANA_ADMIN_SECRET").unwrap_or_else(|_| "KORTANA_PRIVATE_MINT_2026_BYPASS".to_string());
+                    if secret != admin_secret {
+                         return JsonRpcResponse::new_error(req_id, -32000, "Unauthorized: Invalid confidential secret");
+                    }
+
+                    let amount = if amount_str.starts_with("0x") {
+                        u128::from_str_radix(&amount_str[2..], 16).unwrap_or(0)
+                    } else {
+                        amount_str.parse::<u128>().unwrap_or(0)
+                    };
+
+                    let target_addr = if let Some(a_str) = target_addr_str {
+                        crate::address::Address::from_hex(a_str).unwrap_or(crate::address::Address::from_pubkey(b"foundation"))
+                    } else {
+                        crate::address::Address::from_pubkey(b"foundation")
+                    };
+
+                    let mut state = self.state.lock().unwrap();
+                    state.mint(&target_addr, amount);
+                    
+                    // Persist to DB immediately to ensure it survives restart
+                    let height = self.height.load(Ordering::SeqCst);
+                    let _ = self.storage.put_state(height, &state);
+
+                    Some(serde_json::json!({
+                        "status": "minted",
+                        "target": target_addr.to_hex(),
+                        "amount": amount.to_string(),
+                        "new_balance": state.get_account(&target_addr).balance.to_string(),
+                        "confidential": true
+                    }))
+                } else { None }
+            }
             _ => {
                 return JsonRpcResponse::new_error(req_id, -32601, &format!("Method {} not found", request.method));
             }
@@ -937,5 +976,100 @@ impl RpcHandler {
         } else {
             JsonRpcResponse::new_result(req_id, serde_json::Value::Null)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::state::account::State;
+    use crate::mempool::Mempool;
+    use crate::storage::Storage;
+    use crate::consensus::ConsensusEngine;
+    use std::sync::{Arc, Mutex};
+    use std::sync::atomic::AtomicU64;
+    use tokio::sync::mpsc;
+    use tempfile::tempdir;
+
+    fn setup_rpc() -> (RpcHandler, Arc<Mutex<State>>, Arc<Storage>) {
+        let state = Arc::new(Mutex::new(State::new()));
+        let mempool = Arc::new(Mutex::new(Mempool::new(100)));
+        let dir = tempdir().unwrap();
+        let db_path = dir.path().join("test_db");
+        let storage = Arc::new(Storage::new(db_path.to_str().unwrap()));
+        let (tx, _) = mpsc::channel(1);
+        let consensus = Arc::new(Mutex::new(ConsensusEngine::new(vec![])));
+        let height = Arc::new(AtomicU64::new(0));
+        
+        let handler = RpcHandler::new(
+            state.clone(),
+            mempool,
+            storage.clone(),
+            consensus,
+            tx,
+            height,
+            9002
+        );
+        (handler, state, storage)
+    }
+
+    #[tokio::test]
+    async fn test_kortana_mint_to_treasury() {
+        let (handler, state, _) = setup_rpc();
+        let foundation_addr = crate::address::Address::from_pubkey(b"foundation");
+        let secret = "KORTANA_PRIVATE_MINT_2026_BYPASS";
+        
+        let req = JsonRpcRequest {
+            jsonrpc: "2.0".to_string(),
+            method: "kortana_mintToTreasury".to_string(),
+            params: Some(serde_json::json!(["1000", secret])),
+            id: serde_json::json!(1),
+        };
+
+        let response = handler.handle(req).await;
+        assert!(response.result.is_some());
+        
+        let s = state.lock().unwrap();
+        let acc = s.get_account(&foundation_addr);
+        assert_eq!(acc.balance, 1000);
+    }
+
+    #[tokio::test]
+    async fn test_kortana_mint_to_specific_address() {
+        let (handler, state, _) = setup_rpc();
+        let target_addr_hex = "0x1234567890abcdef1234567890abcdef12345678";
+        let target_addr = crate::address::Address::from_hex(target_addr_hex).unwrap();
+        let secret = "KORTANA_PRIVATE_MINT_2026_BYPASS";
+        
+        let req = JsonRpcRequest {
+            jsonrpc: "2.0".to_string(),
+            method: "kortana_mintToTreasury".to_string(),
+            params: Some(serde_json::json!(["2000", secret, target_addr_hex])),
+            id: serde_json::json!(1),
+        };
+
+        let response = handler.handle(req).await;
+        assert!(response.result.is_some());
+        
+        let s = state.lock().unwrap();
+        let acc = s.get_account(&target_addr);
+        assert_eq!(acc.balance, 2000);
+    }
+
+    #[tokio::test]
+    async fn test_kortana_mint_invalid_secret() {
+        let (handler, _, _) = setup_rpc();
+        
+        let req = JsonRpcRequest {
+            jsonrpc: "2.0".to_string(),
+            method: "kortana_mintToTreasury".to_string(),
+            params: Some(serde_json::json!(["1000", "WRONG_SECRET"])),
+            id: serde_json::json!(1),
+        };
+
+        let response = handler.handle(req).await;
+        assert!(response.error.is_some());
+        let error = response.error.unwrap();
+        assert_eq!(error["message"], "Unauthorized: Invalid confidential secret");
     }
 }

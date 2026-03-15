@@ -308,8 +308,8 @@ mod tests {
             ValidatorInfo { address: Address::from_pubkey(b"v2"), stake: 100, is_active: true, commission: 500, missed_blocks: 0 },
         ];
         let engine = ConsensusEngine::new(validators);
-        let leader1 = engine.get_leader(1).unwrap();
-        let _leader2 = engine.get_leader(2).unwrap();
+        let leader1 = engine.get_leader(1, [0u8; 32]).unwrap();
+        let _leader2 = engine.get_leader(2, [0u8; 32]).unwrap();
         // Deterministic but likely different
         assert!(leader1 == leader1); 
     }
