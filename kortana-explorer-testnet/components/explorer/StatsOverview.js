@@ -54,12 +54,6 @@ const StatsOverview = ({ stats }) => {
                 value={stats?.latestBlock ?? '0'}
                 icon={Box}
             />
-            <StatCard
-                title="ACTIVE VALIDATORS"
-                value={stats?.activeValidators ?? '0'}
-                icon={Users}
-                suffix="/ 3"
-            />
         </div>
     );
 };
