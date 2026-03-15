@@ -1,0 +1,57 @@
+﻿Running Gradle task 'assembleDebug'...                          
+flutter : lib/features/onboarding/prese
+ntation/screens/create_wallet_screen.da
+rt:165:10: Error: Expected ';' after 
+this.
+At line:1 char:1
++ flutter build apk --debug > 
+build_log.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~
+    + CategoryInfo          : NotSpeci 
+   fied: (lib/features/on...';' after  
+   this.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCo 
+   mmandError
+ 
+         ),
+         ^
+lib/features/onboarding/presentation/sc
+reens/create_wallet_screen.dart:165:11:
+ Error: Expected an identifier, but 
+got ','.
+Try inserting an identifier before ','.
+         ),
+          ^
+lib/features/onboarding/presentation/sc
+reens/create_wallet_screen.dart:165:11:
+ Error: Unexpected token ';'.
+         ),
+          ^
+Target kernel_snapshot_program failed: 
+Exception
+
+
+FAILURE: Build failed with an 
+exception.
+
+* What went wrong:
+Execution failed for task 
+':app:compileFlutterBuildDebug'.
+> Process 'command 
+'C:\flutter\bin\flutter.bat'' finished 
+with non-zero exit value 1
+
+* Try:
+> Run with --stacktrace option to get 
+the stack trace.
+> Run with --info or --debug option to 
+get more log output.
+> Run with --scan to get full insights.
+> Get more help at 
+https://help.gradle.org.
+
+BUILD FAILED in 15s
+Running Gradle task 'assembleDebug'...                             15.5s
+Gradle task assembleDebug failed with 
+exit code 1

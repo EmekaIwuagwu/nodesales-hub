@@ -1,0 +1,225 @@
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 85.0.0 (97.0.0 available)
+  analyzer 7.6.0 (11.0.0 available)
+  analyzer_plugin 0.13.4 (0.14.5 available)
+  build 2.5.4 (4.0.4 available)
+  build_config 1.1.2 (1.3.0 available)
+  build_resolvers 2.5.4 (3.0.4 available)
+  build_runner 2.5.4 (2.12.2 available)
+  build_runner_core 9.1.2 (9.3.2 available)
+  clipboard 0.1.3 (3.0.14 available)
+  confetti 0.7.0 (0.8.0 available)
+  connectivity_plus 6.1.5 (7.0.0 available)
+  custom_lint_core 0.7.5 (0.8.2 available)
+  custom_lint_visitor 1.0.0+7.7.0 (1.0.0+9.0.0 available)
+  dart_style 3.1.1 (3.1.7 available)
+  device_info_plus 10.1.2 (12.3.0 available)
+  eip55 1.0.2 (1.0.3 available)
+  event 2.1.2 (3.1.0 available)
+  fl_chart 0.69.2 (1.1.1 available)
+  flutter_hooks 0.20.5 (0.21.3+1 available)
+  flutter_riverpod 2.6.1 (3.2.1 available)
+  flutter_secure_storage 9.2.4 (10.0.0 available)
+  flutter_secure_storage_linux 1.2.3 (3.0.0 available)
+  flutter_secure_storage_macos 3.1.3 (4.0.0 available)
+  flutter_secure_storage_platform_interface 1.1.2 (2.0.1 available)
+  flutter_secure_storage_web 1.2.1 (2.1.0 available)
+  flutter_secure_storage_windows 3.1.2 (4.1.0 available)
+  freezed 2.5.8 (3.2.5 available)
+  freezed_annotation 2.4.4 (3.1.0 available)
+  go_router 14.8.1 (17.1.0 available)
+  hooks_riverpod 2.6.1 (3.2.1 available)
+  js 0.6.7 (0.7.2 available)
+  json_annotation 4.9.0 (4.11.0 available)
+  json_rpc_2 3.0.3 (4.1.0 available)
+  json_serializable 6.9.5 (6.13.0 available)
+  local_auth 2.3.0 (3.0.1 available)
+  local_auth_android 1.0.56 (2.0.5 available)
+  local_auth_darwin 1.6.1 (2.0.3 available)
+  local_auth_windows 1.0.11 (2.0.1 available)
+  logger 1.4.0 (2.6.2 available)
+  meta 1.17.0 (1.18.1 available)
+  mobile_scanner 5.2.3 (7.2.0 available)
+  package_info_plus 8.3.1 (9.0.0 available)
+  palette_generator 0.3.3+7 (discontinued)
+  pointycastle 3.9.1 (4.0.0 available)
+  rive 0.13.20 (0.14.4 available)
+  riverpod 2.6.1 (3.2.1 available)
+  riverpod_analyzer_utils 0.5.9 (0.5.10 available)
+  riverpod_annotation 2.6.1 (4.0.2 available)
+  riverpod_generator 2.6.4 (4.0.3 available)
+  sec 1.1.0 (1.1.1 available)
+  share_plus 10.1.4 (12.0.1 available)
+  share_plus_platform_interface 5.0.2 (6.1.0 available)
+  source_gen 2.0.0 (4.2.0 available)
+  source_helper 1.3.7 (1.3.10 available)
+  very_good_analysis 6.0.0 (10.2.0 available)
+  wallet 0.0.13 (0.0.18 available)
+  walletconnect_flutter_v2 2.0.14 (discontinued replaced by reown_walletkit)
+  web3dart 2.7.3 (3.0.2 available)
+  web_socket_channel 2.4.0 (3.0.3 available)
+  win32 5.15.0 (6.0.0 available)
+  win32_registry 1.1.5 (3.0.2 available)
+Got dependencies!
+2 packages are discontinued.
+60 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Launching lib\main.dart on sdk gphone64 x86 64 in debug mode...
+Running Gradle task 'assembleDebug'...                            110.8s
+√ Built build\app\outputs\flutter-apk\app-debug.apk
+Installing build\app\outputs\flutter-apk\app-debug.apk...           4.1s
+D/FlutterJNI(23787): Beginning load of flutter...
+D/FlutterJNI(23787): flutter (null) was loaded normally!
+I/flutter (23787): [IMPORTANT:flutter/shell/platform/android/android_context_gl_impeller.cc(104)] Using the Impeller rendering backend (OpenGLES).
+D/FlutterRenderer(23787): Width is zero. 0,0
+D/FlutterRenderer(23787): Width is zero. 0,0
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+I/.kortana_wallet(23787): Compiler allocated 5042KB to compile void android.view.ViewRootImpl.performTraversals()
+Syncing files to device sdk gphone64 x86 64...                  
+D/ProfileInstaller(23787): Installing profile for network.kortana.kortana_wallet
+Syncing files to device sdk gphone64 x86 64...                     771ms
+
+Flutter run key commands.
+r Hot reload. 
+R Hot restart.
+h List all available interactive commands.
+d Detach (terminate "flutter run" but leave application running).
+c Clear the screen
+q Quit (terminate the application on the device).
+
+A Dart VM Service on sdk gphone64 x86 64 is available at: http://127.0.0.1:50707/CM6_9RlvSKA=/
+The Flutter DevTools debugger and profiler on sdk gphone64 x86 64 is available at: http://127.0.0.1:50707/CM6_9RlvSKA=/devtools/?uri=ws://127.0.0.1:50707/CM6_9RlvSKA=/ws
+I/Choreographer(23787): Skipped 172 frames!  The application may be doing too much work on its main thread.
+D/WindowLayoutComponentImpl(23787): Register WindowLayoutInfoListener on Context=network.kortana.kortana_wallet.MainActivity@7a5fdde, of which baseContext=android.app.ContextImpl@8f9fa89
+I/Choreographer(23787): Skipped 57 frames!  The application may be doing too much work on its main thread.
+I/HWUI    (23787): Davey! duration=1143ms; Flags=1, FrameTimelineVsyncId=95972, IntendedVsync=39784408472238, Vsync=39785358472200, InputEventId=0, HandleInputStart=39785370525345, AnimationStart=39785370526813, PerformTraversalsStart=39785370527566, DrawStart=39785422461207, FrameDeadline=39784425138904, FrameStartTime=39785365303739, FrameInterval=16666666, WorkloadTarget=16666666, SyncQueued=39785431278155, SyncStart=39785432653693, IssueDrawCommandsStart=39785432965263, SwapBuffers=39785498056209, FrameCompleted=39785553591180, DequeueBufferDuration=51503443, QueueBufferDuration=350816, GpuCompleted=39785515710474, SwapBuffersCompleted=39785553591180, DisplayPresentTime=127949588773200, CommandSubmissionCompleted=39785498056209, 
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/InsetsController(23787): hide(ime(), fromIme=false)
+I/ImeTracker(23787): network.kortana.kortana_wallet:c3d79142: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+W/WindowOnBackDispatcher(23787): sendCancelIfRunning: isInProgress=false callback=io.flutter.embedding.android.FlutterActivity$1@926b2a8
+I/.kortana_wallet(23787): AssetManager2(0x745e35cae7d8) locale list changing from [] to [en-US]
+I/ImeTracker(23787): network.kortana.kortana_wallet:de7a25a7: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InsetsController(23787): show(ime(), fromIme=false)
+D/InsetsController(23787): Setting requestedVisibleTypes to -1 (was -9)
+I/.kortana_wallet(23787): NativeAlloc concurrent mark compact GC freed 2511KB AllocSpace bytes, 4(116KB) LOS objects, 49% free, 3103KB/6207KB, paused 264us,6.795ms total 84.650ms
+D/InputConnectionAdaptor(23787): The input method toggled cursor monitoring on
+W/InteractionJankMonitor(23787): Initializing without READ_DEVICE_CONFIG permission. enabled=false, interval=1, missedFrameThreshold=3, frameTimeThreshold=64, package=network.kortana.kortana_wallet
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+I/ImeTracker(23787): network.kortana.kortana_wallet:de7a25a7: onShown
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+I/ImeTracker(23787): network.kortana.kortana_wallet:8903d82e: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InsetsController(23787): show(ime(), fromIme=false)
+I/ImeTracker(23787): network.kortana.kortana_wallet:8903d82e: onCancelled at PHASE_CLIENT_APPLY_ANIMATION
+I/ImeTracker(23787): network.kortana.kortana_wallet:609e7156: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT_REQUEST_HIDE_WITH_CONTROL fromUser true
+W/WindowOnBackDispatcher(23787): sendCancelIfRunning: isInProgress=false callback=android.view.ImeBackAnimationController@c78fc16
+D/InsetsController(23787): hide(ime(), fromIme=false)
+D/InsetsController(23787): Setting requestedVisibleTypes to -9 (was -1)
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+I/ImeTracker(23787): system_server:58b28101: onCancelled at PHASE_CLIENT_ON_CONTROLS_CHANGED
+D/InputConnectionAdaptor(23787): The input method toggled cursor monitoring on
+D/InsetsController(23787): show(ime(), fromIme=false)
+D/InsetsController(23787): Setting requestedVisibleTypes to -1 (was -9)
+D/InsetsController(23787): show(ime(), fromIme=false)
+I/ImeTracker(23787): com.google.android.inputmethod.latin:1277e384: onCancelled at PHASE_CLIENT_REPORT_REQUESTED_VISIBLE_TYPES
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+I/ImeTracker(23787): com.google.android.inputmethod.latin:1277e384: onShown
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+I/ImeTracker(23787): network.kortana.kortana_wallet:bc9b1029: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT fromUser false
+D/InsetsController(23787): hide(ime(), fromIme=false)
+W/WindowOnBackDispatcher(23787): sendCancelIfRunning: isInProgress=false callback=android.view.ImeBackAnimationController@c78fc16
+D/InsetsController(23787): Setting requestedVisibleTypes to -9 (was -1)
+D/CompatChangeReporter(23787): Compat change id reported: 395521150; UID 10217; state: ENABLED
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+W/WindowOnBackDispatcher(23787): sendCancelIfRunning: isInProgress=false callback=io.flutter.embedding.android.FlutterActivity$1@926b2a8
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+D/FlutterJNI(23787): Sending viewport metrics to the engine.
+I/ImeTracker(23787): system_server:4e05fc64: onCancelled at PHASE_CLIENT_ON_CONTROLS_CHANGED
+W/WindowOnBackDispatcher(23787): sendCancelIfRunning: isInProgress=false callback=io.flutter.embedding.android.FlutterActivity$1@926b2a8
+W/Choreographer(23787): Frame time is 0.22410999 ms in the future!  Check that graphics HAL is generating vsync timestamps using the correct timebase.
+
+══╡ EXCEPTION CAUGHT BY GESTURE ╞═══════════════════════════════════════════════════════════════════
+The following assertion was thrown while handling a gesture:
+You have popped the last page off of the stack, there are no pages left to show
+'package:go_router/src/delegate.dart':
+Failed assertion: line 162 pos 7: 'currentConfiguration.isNotEmpty'
+
+When the exception was thrown, this was the stack:
+#2      GoRouterDelegate._debugAssertMatchListNotEmpty (package:go_router/src/delegate.dart:162:7)
+#3      GoRouterDelegate._completeRouteMatch (package:go_router/src/delegate.dart:183:5)
+#4      GoRouterDelegate._handlePopPageWithRouteMatch (package:go_router/src/delegate.dart:141:7)
+#5      _CustomNavigatorState._handlePopPage (package:go_router/src/builder.dart:425:42)
+#6      NavigatorState.pop (package:flutter/src/widgets/navigator.dart:5598:28)
+#7      _CreateWalletScreenState.build.<anonymous closure> (package:kortana_wallet/features/onboarding/presentation/screens/create_wallet_screen.dart:53:50)
+#8      _InkResponseState.handleTap (package:flutter/src/material/ink_well.dart:1224:21)
+#9      GestureRecognizer.invokeCallback (package:flutter/src/gestures/recognizer.dart:345:24)
+#10     TapGestureRecognizer.handleTapUp (package:flutter/src/gestures/tap.dart:758:11)
+#11     BaseTapGestureRecognizer._checkUp (package:flutter/src/gestures/tap.dart:383:5)
+#12     BaseTapGestureRecognizer.handlePrimaryPointer (package:flutter/src/gestures/tap.dart:314:7)
+#13     PrimaryPointerGestureRecognizer.handleEvent (package:flutter/src/gestures/recognizer.dart:721:9)
+#14     PointerRouter._dispatch (package:flutter/src/gestures/pointer_router.dart:97:12)
+#15     PointerRouter._dispatchEventToRoutes.<anonymous closure> (package:flutter/src/gestures/pointer_router.dart:140:9)
+#16     _LinkedHashMapMixin.forEach (dart:_compact_hash:765:13)
+#17     PointerRouter._dispatchEventToRoutes (package:flutter/src/gestures/pointer_router.dart:138:18)
+#18     PointerRouter.route (package:flutter/src/gestures/pointer_router.dart:128:7)
+#19     GestureBinding.handleEvent (package:flutter/src/gestures/binding.dart:528:19)
+#20     GestureBinding.dispatchEvent (package:flutter/src/gestures/binding.dart:498:22)
+#21     RendererBinding.dispatchEvent (package:flutter/src/rendering/binding.dart:473:11)
+#22     GestureBinding._handlePointerEventImmediately (package:flutter/src/gestures/binding.dart:437:7)
+#23     GestureBinding.handlePointerEvent (package:flutter/src/gestures/binding.dart:394:5)
+#24     GestureBinding._flushPointerEventQueue (package:flutter/src/gestures/binding.dart:341:7)
+#25     GestureBinding._handlePointerDataPacket (package:flutter/src/gestures/binding.dart:308:9)
+#26     _invoke1 (dart:ui/hooks.dart:372:13)
+#27     PlatformDispatcher._dispatchPointerDataPacket (dart:ui/platform_dispatcher.dart:467:7)
+#28     _dispatchPointerDataPacket (dart:ui/hooks.dart:307:31)
+(elided 2 frames from class _AssertionError)
+
+Handler: "onTap"
+Recognizer:
+  TapGestureRecognizer#0d4ee
+════════════════════════════════════════════════════════════════════════════════════════════════════
+
+Another exception was thrown: 'package:flutter/src/widgets/navigator.dart': Failed assertion: line 4081 pos 12: '!_debugLocked': is not true.
+
+
+Lost connection to device.
+Terminate batch job (Y/N)? 

@@ -380,14 +380,9 @@ impl RpcHandler {
                             }
                         }
                         
-                        Some(serde_json::json!({
-                            "transactions": result,
-                            "page": page,
-                            "limit": limit,
-                            "total": total
-                        }))
+                        Some(serde_json::to_value(result).unwrap())
                     },
-                    _ => Some(serde_json::json!({ "transactions": [], "total": 0 }))
+                    _ => Some(serde_json::to_value(Vec::<Value>::new()).unwrap())
                 }
             }
             "eth_getBlockByNumber" => {

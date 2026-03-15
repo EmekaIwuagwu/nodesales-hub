@@ -1,0 +1,181 @@
+﻿Analyzing kortana-mobile-xn...                                  
+
+   info - Sort directive sections alphabetically - lib\app.dart:7:1 - directives_ordering
+   info - Sort directive sections alphabetically - lib\app.dart:9:1 - directives_ordering
+   info - Unnecessary use of a raw string - lib\core\constants\contract_abis.dart:2:34 - unnecessary_raw_strings
+   info - The value of the argument is redundant because it matches the default value - lib\core\theme\app_theme.dart:33:25 - avoid_redundant_argument_values
+   info - 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre - lib\core\theme\app_theme.dart:34:7 - deprecated_member_use
+   info - 'onBackground' is deprecated and shouldn't be used. Use onSurface instead. This feature was deprecated after v3.18.0-0.1.pre - lib\core\theme\app_theme.dart:35:7 - deprecated_member_use
+   info - The value of the argument is redundant because it matches the default value - lib\core\theme\app_theme.dart:35:25 - avoid_redundant_argument_values
+   info - The value of the argument is redundant because it matches the default value - lib\core\theme\app_theme.dart:56:21 - avoid_redundant_argument_values
+   info - 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre - lib\core\theme\app_theme.dart:59:7 - deprecated_member_use
+   info - 'onBackground' is deprecated and shouldn't be used. Use onSurface instead. This feature was deprecated after v3.18.0-0.1.pre - lib\core\theme\app_theme.dart:60:7 - deprecated_member_use
+   info - Use 'const' with the constructor to improve performance - lib\core\theme\app_theme.dart:68:63 - prefer_const_constructors
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\theme\app_theme.dart:108:67 - deprecated_member_use
+   info - Unnecessary use of a 'double' literal - lib\core\theme\radius.dart:4:31 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\core\theme\radius.dart:5:31 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\core\theme\radius.dart:6:31 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\core\theme\radius.dart:7:31 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\core\theme\radius.dart:8:31 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\core\theme\radius.dart:9:31 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\core\theme\radius.dart:10:31 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\core\theme\radius.dart:11:31 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\core\theme\spacing.dart:2:30 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\core\theme\spacing.dart:3:30 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\core\theme\spacing.dart:4:30 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\core\theme\spacing.dart:5:30 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\core\theme\spacing.dart:6:30 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\core\theme\spacing.dart:7:30 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\core\theme\spacing.dart:8:30 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\core\theme\spacing.dart:9:30 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\core\theme\spacing.dart:10:30 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\core\theme\spacing.dart:11:30 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\core\theme\spacing.dart:12:30 - prefer_int_literals
+   info - The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\core\theme\text_styles.dart:1:8 - unnecessary_import
+   info - Unnecessary use of a 'double' literal - lib\core\theme\text_styles.dart:13:50 - prefer_int_literals
+warning - Unused import: 'package:kortana_wallet/core/theme/spacing.dart' - lib\core\widgets\address_badge.dart:5:8 - unused_import
+   info - Constructor declarations should be before non-constructor declarations - lib\core\widgets\address_badge.dart:12:9 - sort_constructors_first
+   info - Required named parameters should be before optional named parameters - lib\core\widgets\address_badge.dart:14:19 - always_put_required_named_parameters_first
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\widgets\address_badge.dart:28:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\widgets\address_badge.dart:30:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\widgets\address_badge.dart:37:80 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\widgets\address_badge.dart:49:75 - deprecated_member_use
+   info - Required named parameters should be before optional named parameters - lib\core\widgets\glass_card.dart:10:19 - always_put_required_named_parameters_first
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\widgets\glass_card.dart:35:36 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\widgets\glass_card.dart:38:41 - deprecated_member_use
+   info - The value of the argument is redundant because it matches the default value - lib\core\widgets\glass_card.dart:39:20 - avoid_redundant_argument_values
+   info - Unnecessary use of a 'double' literal - lib\core\widgets\glass_card.dart:39:20 - prefer_int_literals
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\widgets\glass_card.dart:43:58 - deprecated_member_use
+   info - The value of the argument is redundant because it matches the default value - lib\core\widgets\glass_card.dart:46:29 - avoid_redundant_argument_values
+   info - Required named parameters should be before optional named parameters - lib\core\widgets\kortana_button.dart:11:19 - always_put_required_named_parameters_first
+   info - Required named parameters should be before optional named parameters - lib\core\widgets\kortana_button.dart:12:19 - always_put_required_named_parameters_first
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\widgets\kortana_button.dart:47:49 - deprecated_member_use
+warning - The return type of ' Function(String)?' can't be inferred - lib\core\widgets\kortana_input.dart:31:9 - inference_failure_on_function_return_type
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\widgets\kortana_input.dart:44:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\widgets\kortana_input.dart:54:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\widgets\kortana_input.dart:57:45 - deprecated_member_use
+   info - The value of the argument is redundant because it matches the default value - lib\core\widgets\kortana_input.dart:58:24 - avoid_redundant_argument_values
+   info - Unnecessary use of a 'double' literal - lib\core\widgets\kortana_input.dart:58:24 - prefer_int_literals
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\widgets\kortana_input.dart:73:45 - deprecated_member_use
+   info - Constructor declarations should be before non-constructor declarations - lib\core\widgets\token_row.dart:15:9 - sort_constructors_first
+   info - Required named parameters should be before optional named parameters - lib\core\widgets\token_row.dart:17:19 - always_put_required_named_parameters_first
+   info - Required named parameters should be before optional named parameters - lib\core\widgets\token_row.dart:18:19 - always_put_required_named_parameters_first
+   info - Required named parameters should be before optional named parameters - lib\core\widgets\token_row.dart:19:19 - always_put_required_named_parameters_first
+   info - Required named parameters should be before optional named parameters - lib\core\widgets\token_row.dart:20:19 - always_put_required_named_parameters_first
+   info - Required named parameters should be before optional named parameters - lib\core\widgets\token_row.dart:21:19 - always_put_required_named_parameters_first
+   info - Required named parameters should be before optional named parameters - lib\core\widgets\token_row.dart:22:19 - always_put_required_named_parameters_first
+   info - Required named parameters should be before optional named parameters - lib\core\widgets\token_row.dart:23:19 - always_put_required_named_parameters_first
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\widgets\token_row.dart:38:53 - deprecated_member_use
+   info - The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\features\auth\presentation\screens\lock_screen.dart:1:8 - unnecessary_import
+warning - Unused import: 'package:kortana_wallet/core/theme/spacing.dart' - lib\features\auth\presentation\screens\lock_screen.dart:5:8 - unused_import
+   info - Sort directive sections alphabetically - lib\features\auth\presentation\screens\lock_screen.dart:8:1 - directives_ordering
+   info - Don't use 'BuildContext's across async gaps - lib\features\auth\presentation\screens\lock_screen.dart:44:7 - use_build_context_synchronously
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\auth\presentation\screens\lock_screen.dart:63:45 - deprecated_member_use
+warning - The return type of ' Function(String)' can't be inferred - lib\features\auth\presentation\widgets\numeric_keypad.dart:7:9 - inference_failure_on_function_return_type
+   info - Constructor declarations should be before non-constructor declarations - lib\features\auth\presentation\widgets\numeric_keypad.dart:11:9 - sort_constructors_first
+   info - Required named parameters should be before optional named parameters - lib\features\auth\presentation\widgets\numeric_keypad.dart:13:19 - always_put_required_named_parameters_first
+   info - Required named parameters should be before optional named parameters - lib\features\auth\presentation\widgets\numeric_keypad.dart:14:19 - always_put_required_named_parameters_first
+   info - Use an 'if' element to conditionally add elements - lib\features\auth\presentation\widgets\numeric_keypad.dart:54:15 - prefer_if_elements_to_conditional_expressions
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\auth\presentation\widgets\numeric_keypad.dart:80:33 - deprecated_member_use
+   info - Use a 'SizedBox' to add whitespace to a layout - lib\features\auth\presentation\widgets\numeric_keypad.dart:99:16 - sized_box_for_whitespace
+   info - Use a 'SizedBox' to add whitespace to a layout - lib\features\auth\presentation\widgets\numeric_keypad.dart:116:16 - sized_box_for_whitespace
+   info - Constructor declarations should be before non-constructor declarations - lib\features\auth\presentation\widgets\pin_dot_row.dart:9:9 - sort_constructors_first
+   info - Required named parameters should be before optional named parameters - lib\features\auth\presentation\widgets\pin_dot_row.dart:11:19 - always_put_required_named_parameters_first
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\auth\presentation\widgets\pin_dot_row.dart:35:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\auth\presentation\widgets\pin_dot_row.dart:40:45 - deprecated_member_use
+   info - 'scale' is deprecated and shouldn't be used. Use scaleByVector3, scaleByVector4, or scaleByDouble instead - lib\features\auth\presentation\widgets\pin_dot_row.dart:47:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\dashboard\presentation\screens\home_screen.dart:18:61 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\dashboard\presentation\screens\home_screen.dart:99:36 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\dashboard\presentation\screens\home_screen.dart:116:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\dashboard\presentation\screens\home_screen.dart:139:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\dashboard\presentation\widgets\balance_card.dart:32:84 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\dashboard\presentation\widgets\balance_card.dart:37:45 - deprecated_member_use
+   info - Use a raw string to avoid using escapes - lib\features\dashboard\presentation\widgets\balance_card.dart:46:26 - use_raw_strings
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\dashboard\presentation\widgets\balance_card.dart:54:84 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\dashboard\presentation\widgets\balance_card.dart:60:47 - deprecated_member_use
+   info - Constructor declarations should be before non-constructor declarations - lib\features\dashboard\presentation\widgets\balance_card.dart:96:9 - sort_constructors_first
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\dashboard\presentation\widgets\balance_card.dart:107:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\dashboard\presentation\widgets\balance_card.dart:108:60 - deprecated_member_use
+   info - The imported package 'http' isn't a dependency of the importing package - lib\features\networks\data\datasources\provider_factory.dart:1:8 - depend_on_referenced_packages
+   info - The imported package 'web_socket_channel' isn't a dependency of the importing package - lib\features\networks\data\datasources\provider_factory.dart:3:8 - depend_on_referenced_packages
+   info - Sort directive sections alphabetically - lib\features\networks\data\datasources\provider_factory.dart:4:1 - directives_ordering
+   info - Sort directive sections alphabetically - lib\features\onboarding\presentation\screens\create_wallet_screen.dart:2:1 - directives_ordering
+   info - Unnecessary type annotation on a local variable - lib\features\onboarding\presentation\screens\create_wallet_screen.dart:36:12 - omit_local_variable_types
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\onboarding\presentation\screens\create_wallet_screen.dart:105:94 - deprecated_member_use
+   info - Constructor declarations should be before non-constructor declarations - lib\features\onboarding\presentation\screens\create_wallet_screen.dart:146:9 - sort_constructors_first
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\onboarding\presentation\screens\create_wallet_screen.dart:158:73 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\onboarding\presentation\screens\create_wallet_screen.dart:161:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\onboarding\presentation\screens\import_wallet_screen.dart:45:52 - deprecated_member_use
+   info - Constructor declarations should be before non-constructor declarations - lib\features\onboarding\presentation\screens\import_wallet_screen.dart:68:9 - sort_constructors_first
+   info - Constructor declarations should be before non-constructor declarations - lib\features\onboarding\presentation\screens\import_wallet_screen.dart:104:9 - sort_constructors_first
+   info - Use 'const' with the constructor to improve performance - lib\features\onboarding\presentation\screens\import_wallet_screen.dart:155:21 - prefer_const_constructors
+   info - Sort directive sections alphabetically - lib\features\onboarding\presentation\screens\splash_screen.dart:5:1 - directives_ordering
+warning - The type argument(s) of the constructor 'Future.delayed' can't be inferred - lib\features\onboarding\presentation\screens\splash_screen.dart:37:11 - inference_failure_on_instance_creation
+   info - The value of the argument is redundant because it matches the default value - lib\features\onboarding\presentation\screens\splash_screen.dart:64:25 - avoid_redundant_argument_values
+   info - Unnecessary use of a 'double' literal - lib\features\onboarding\presentation\screens\splash_screen.dart:65:25 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\features\onboarding\presentation\screens\splash_screen.dart:102:42 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\features\onboarding\presentation\screens\splash_screen.dart:110:42 - prefer_int_literals
+   info - The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\features\onboarding\presentation\screens\welcome_screen.dart:1:8 - unnecessary_import
+warning - Unused import: 'package:kortana_wallet/core/theme/radius.dart' - lib\features\onboarding\presentation\screens\welcome_screen.dart:5:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\onboarding\presentation\screens\welcome_screen.dart:92:54 - deprecated_member_use
+   info - Constructor declarations should be before non-constructor declarations - lib\features\onboarding\presentation\screens\welcome_screen.dart:138:3 - sort_constructors_first
+   info - Unnecessary use of a 'double' literal - lib\features\onboarding\presentation\screens\welcome_screen.dart:147:62 - prefer_int_literals
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\onboarding\presentation\screens\welcome_screen.dart:148:38 - deprecated_member_use
+   info - Unnecessary type annotation on a local variable - lib\features\onboarding\presentation\screens\welcome_screen.dart:152:10 - omit_local_variable_types
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\onboarding\presentation\screens\welcome_screen.dart:163:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\onboarding\presentation\screens\welcome_screen.dart:171:30 - deprecated_member_use
+warning - Unused import: 'dart:convert' - lib\features\tokens\data\datasources\erc20_service.dart:1:8 - unused_import
+   info - Sort directive sections alphabetically - lib\features\tokens\data\datasources\erc20_service.dart:3:1 - directives_ordering
+   info - Missing a required trailing comma - lib\features\tokens\data\datasources\erc20_service.dart:8:32 - require_trailing_commas
+   info - Missing a required trailing comma - lib\features\tokens\data\datasources\erc20_service.dart:11:46 - require_trailing_commas
+   info - Missing a required trailing comma - lib\features\tokens\data\datasources\erc20_service.dart:13:53 - require_trailing_commas
+   info - Missing a required trailing comma - lib\features\tokens\data\datasources\erc20_service.dart:34:65 - require_trailing_commas
+   info - Missing a required trailing comma - lib\features\tokens\data\datasources\erc20_service.dart:36:50 - require_trailing_commas
+   info - Constructor declarations should be before non-constructor declarations - lib\features\tokens\domain\entities\token.dart:7:9 - sort_constructors_first
+   info - Multiple variables declared on a single line - lib\features\wallet\data\datasources\gas_service.dart:4:30 - avoid_multiple_declarations_per_line
+   info - Multiple variables declared on a single line - lib\features\wallet\data\datasources\gas_service.dart:6:30 - avoid_multiple_declarations_per_line
+   info - Constructor declarations should be before non-constructor declarations - lib\features\wallet\data\datasources\gas_service.dart:8:9 - sort_constructors_first
+   info - Multiple variables declared on a single line - lib\features\wallet\data\datasources\gas_service.dart:19:25 - avoid_multiple_declarations_per_line
+   info - Constructor declarations should be before non-constructor declarations - lib\features\wallet\data\datasources\gas_service.dart:21:9 - sort_constructors_first
+   info - Missing a required trailing comma - lib\features\wallet\data\datasources\gas_service.dart:31:60 - require_trailing_commas
+warning - The generic type 'Map<dynamic, dynamic>' should have explicit type arguments but doesn't - lib\features\wallet\data\datasources\gas_service.dart:35:26 - strict_raw_type
+   info - Method invocation or property access on a 'dynamic' target - lib\features\wallet\data\datasources\gas_service.dart:42:36 - avoid_dynamic_calls
+   info - Unnecessary use of a 'double' literal - lib\features\wallet\data\datasources\gas_service.dart:54:65 - prefer_int_literals
+  error - The argument type 'dynamic' can't be assigned to the parameter type 'num'.  - lib\features\wallet\data\datasources\gas_service.dart:79:24 - argument_type_not_assignable
+warning - Unused import: 'dart:typed_data' - lib\features\wallet\data\datasources\hd_wallet_service.dart:1:8 - unused_import
+   info - Sort directive sections alphabetically - lib\features\wallet\data\datasources\hd_wallet_service.dart:3:1 - directives_ordering
+   info - Sort directive sections alphabetically - lib\features\wallet\data\datasources\hd_wallet_service.dart:5:1 - directives_ordering
+   info - The value of the argument is redundant because it matches the default value - lib\features\wallet\data\datasources\hd_wallet_service.dart:12:72 - avoid_redundant_argument_values
+   info - Sort directive sections alphabetically - lib\features\wallet\data\datasources\secure_storage_service.dart:4:1 - directives_ordering
+   info - Unnecessary duplication of receiver - lib\features\wallet\data\datasources\secure_storage_service.dart:19:5 - cascade_invocations
+   info - Missing a required trailing comma - lib\features\wallet\data\datasources\secure_storage_service.dart:32:50 - require_trailing_commas
+   info - Missing a required trailing comma - lib\features\wallet\data\datasources\secure_storage_service.dart:34:35 - require_trailing_commas
+   info - Missing a required trailing comma - lib\features\wallet\data\datasources\secure_storage_service.dart:63:77 - require_trailing_commas
+   info - Sort directive sections alphabetically - lib\features\wallet\data\datasources\transaction_service.dart:3:1 - directives_ordering
+   info - Unnecessary 'await' - lib\features\wallet\data\datasources\transaction_service.dart:31:12 - unnecessary_await_in_return
+   info - Missing a required trailing comma - lib\features\wallet\data\datasources\transaction_service.dart:32:48 - require_trailing_commas
+   info - Missing a required trailing comma - lib\features\wallet\data\datasources\transaction_service.dart:36:37 - require_trailing_commas
+warning - The type argument(s) of the constructor 'Future.delayed' can't be inferred - lib\features\wallet\data\datasources\transaction_service.dart:39:13 - inference_failure_on_instance_creation
+   info - Use an if-null operator to convert a 'null' to a 'bool' - lib\features\wallet\data\datasources\transaction_service.dart:43:17 - use_if_null_to_convert_nulls_to_bools
+warning - Unused import: 'package:kortana_wallet/features/wallet/data/datasources/hd_wallet_service.dart' - lib\features\wallet\data\repositories\wallet_repository_impl.dart:1:8 - unused_import
+   info - Constructor declarations should be before non-constructor declarations - lib\features\wallet\domain\entities\account.dart:10:9 - sort_constructors_first
+warning - The type argument(s) of the constructor 'Future.delayed' can't be inferred - lib\features\wallet\presentation\providers\wallet_provider.dart:30:11 - inference_failure_on_instance_creation
+   info - Missing a required trailing comma - lib\main.dart:22:4 - require_trailing_commas
+   info - Required named parameters should be before optional named parameters - lib\shared\widgets\kortana_scaffold.dart:5:51 - always_put_required_named_parameters_first
+   info - Dependencies not sorted alphabetically - pubspec.yaml:18:3 - sort_pub_dependencies
+   info - Dependencies not sorted alphabetically - pubspec.yaml:84:3 - sort_pub_dependencies
+  error - The name 'KortanaApp' isn't a class - test\widget_test.dart:16:35 - creation_with_non_type
+
+flutter : 165 issues found. (ran in 
+13.1s)
+At line:1 char:1
++ flutter analyze > analysis_log.txt 
+2>&1; Get-Content analysis_log.txt ...
++ 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpeci 
+   fied: (165 issues found. (ran in 1  
+  3.1s):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCo 
+   mmandError
+ 
