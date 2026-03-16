@@ -11,6 +11,12 @@ import {
 
 const sectionIds = ['abstract', 'architecture', 'consensus', 'validators', 'execution', 'tokenomics', 'addresses', 'state', 'network'];
 
+/**
+ * WhitepaperContent Component
+ * Renders the full technical documentation for the Kortana blockchain.
+ * Includes a sticky table of contents and responsive layout for mobile/desktop.
+ */
+
 export default function WhitepaperContent() {
     const [activeSection, setActiveSection] = useState('abstract');
     const contentRef = useRef<HTMLDivElement>(null);
@@ -30,6 +36,7 @@ export default function WhitepaperContent() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    // Smooth scroll helper for table of contents
     const scrollToSection = (id: string) => {
         const element = document.getElementById(id);
         if (element) {
@@ -48,6 +55,7 @@ export default function WhitepaperContent() {
                 <Download size={24} className="group-hover:animate-pulse" />
             </a>
 
+            {/* Desktop Sidebar with Sticky Navigation */}
             <div className="hidden lg:block w-72 shrink-0">
                 <div className="sticky top-32 space-y-8">
                     <div className="glass-panel p-6 rounded-2xl border-white/5 bg-white/2">
