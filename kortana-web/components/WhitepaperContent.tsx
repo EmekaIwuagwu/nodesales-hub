@@ -39,8 +39,8 @@ export default function WhitepaperContent() {
     return (
         <div className="max-w-400 mx-auto px-4 py-16 flex flex-col lg:flex-row gap-16 relative z-10">
             <a 
-                href="/kortana_whitepaper_v2.00.pdf"
-                download="kortana_whitepaper_v2.00.pdf"
+                href="/kortana_whitepaper_v2.0.0.pdf"
+                download="kortana_whitepaper_v2.0.0.pdf"
                 className="lg:hidden fixed bottom-6 right-6 z-50 p-4 bg-white text-deep-space rounded-full shadow-2xl shadow-white/20 hover:scale-110 transition-transform flex items-center justify-center group"
                 aria-label="Download PDF"
             >
