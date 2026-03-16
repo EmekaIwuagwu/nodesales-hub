@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
     title: "Whitepaper",
-    description: "Read the Kortana technical whitepaper. Detailed specification of DPoH consensus, Solaris networking, and the 500B DNR industrial tokenomics model.",
+    description: "Read the Kortana technical whitepaper. Detailed specification of DPoH consensus, Solaris networking, and the industrial tokenomics model.",
     alternates: { canonical: "https://kortana.xyz/whitepaper" },
 };
 

@@ -84,7 +84,7 @@ export const metadata: Metadata = {
     creator: "@KortanaChain",
     title: "Kortana | Industrial-Grade Layer 1 Blockchain",
     description:
-      "EVM-compatible L1 with 2s blocks, 50,000+ TPS, and 500B DNR supply. Chain ID 9002. Built for institutional DeFi.",
+      "EVM-compatible L1 with 2s blocks, 50,000+ TPS. Chain ID 9002. Built for institutional DeFi.",
     images: ["/og-image.png"],
   },
   icons: {

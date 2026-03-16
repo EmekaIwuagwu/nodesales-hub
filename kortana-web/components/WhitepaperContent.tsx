@@ -96,15 +96,15 @@ export default function WhitepaperContent() {
                     <p className="text-gray-400 mt-4 leading-relaxed">
                         The network is secured by 50 active validators operating under a delegated staking model with
                         comprehensive slashing conditions — from 1% penalties for downtime to 100% stake burns for proven Byzantine
-                        behavior. The native <strong>DINAR (DNR)</strong> token has a fixed total supply of <strong>500 Billion DNR</strong>,
-                        with <strong>10 Billion DNR</strong> in genesis circulation and the remaining 490 Billion held across two
-                        on-chain treasury accounts with governance-controlled release schedules.
+                        behavior. The native <strong>DINAR (DNR)</strong> token has an initial circulating supply of <strong>10 Billion DNR</strong>
+                        To protect long-term value, the protocol employs a disinflationary emission schedule that reduces new token rewards by 10% annually, 
+                        combined with a <strong>50% base fee burn</strong>that scales with network usage. This structure ensures that while the supply starts broad, the combination of shrinking emissions and high-velocity burns creates a mathematical path toward <strong>permanent scarcity</strong>.
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-10">
                         <StatCard value="2s" label="Block Time" />
                         <StatCard value="< 2s" label="Finality" />
                         <StatCard value="50" label="Validators" />
-                        <StatCard value="500B" label="Total Supply" />
+                        <StatCard value="10B" label="Initial Circulating Supply" />
                     </div>
                 </Section>
 
@@ -309,30 +309,28 @@ export default function WhitepaperContent() {
                             for long-term deflationary pressure while maintaining sufficient liquidity for network operations.
                         </p>
                         <p className="text-gray-400 text-sm mt-4 leading-relaxed">
-                            DNR has a hardcoded fixed supply of <strong>500,000,000,000 tokens (500 Billion DNR)</strong>.
-                            At genesis, <strong>10,000,000,000 DNR (10 Billion, 2% of total supply)</strong> enter active circulation,
-                            distributed across foundation, validator, faucet, and owner accounts. The remaining
-                            <strong> 490 Billion DNR (98%)</strong> is split equally across two on-chain treasury accounts
-                            — the <em>Foundation Treasury</em> and the <em>Ecosystem Growth Treasury</em> — each holding
-                            245 Billion DNR, governed by time-locked release schedules and multi-sig governance.
+                            DNR has a genesis supply of <strong>10,000,000,000 tokens (10 Billion DNR)</strong>.
+                            At genesis, <strong>10,000,000,000 DNR</strong> enter active circulation,
+                            utilizing a <strong>disinflationary emission model</strong> where validator rewards systematically decrease as the network matures. This primary supply is balanced by a burn mechanism that permanently removes 50% of every base transaction fee from circulation, making the net supply change a direct function of on-chain activity.
+                            As the annual emission rate drops and network throughput grows, the model is engineered for the burn rate to eventually exceed emissions, transitioning DNR from a low-inflation asset to a <em>net-deflationary utility token</em>.
                         </p>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
                             <StatCard value="DNR" label="Symbol" />
                             <StatCard value="18" label="Decimals" />
-                            <StatCard value="500B" label="Total Supply" />
-                            <StatCard value="10B" label="Circulating" />
+                            <StatCard value="10B" label="Initial Circulating" />
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                         <div className="space-y-6">
-                            <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Supply Distribution (500B DNR)</h4>
+                            <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest"> Initial Supply Distribution (10B DNR)</h4>
                             <div className="space-y-3">
-                                <DistributionBar label="Foundation Treasury" percent="49%" amount="245,000,000,000 DNR — time-locked, governance-released" color="bg-purple-500" />
-                                <DistributionBar label="Ecosystem Growth Treasury" percent="49%" amount="245,000,000,000 DNR — grants, partnerships, incentives" color="bg-cyan-500" />
-                                <DistributionBar label="Genesis Circulation" percent="2%" amount="10,000,000,000 DNR — validators, faucet, foundation operations" color="bg-neon-green" />
+                                <DistributionBar label="Community and Ecosystem" percent="60%" amount="6,000,000,000 DNR" color="bg-purple-500" />
+                                <DistributionBar label="Foundation Reserve" percent="25%" amount="2,500,000,000 DNR" color="bg-cyan-500" />
+                                <DistributionBar label="Team and Advisors" percent="10%" amount="1,000,000,000 DNR" color="bg-neon-green" />
+                                <DistributionBar label="Developer Ecosytem Fund" percent="5%" amount="500,000,000 DNR" color="bg-yellow-400" />
                             </div>
-                            <p className="text-xs text-gray-500 font-mono mt-4">Total Supply: 500,000,000,000 DNR • Smallest Unit: 1 satoshi = 10⁻¹⁸ DNR</p>
+                            <p className="text-xs text-gray-500 font-mono mt-4">Total Supply: 10,000,000,000 DNR • Smallest Unit: 1 satoshi = 10⁻¹⁸ DNR</p>
                             <div className="p-4 rounded-xl border border-cyan-500/20 bg-cyan-950/20 mt-4">
                                 <p className="text-xs text-cyan-300 font-bold mb-1">🔒 Treasury Release Policy</p>
                                 <p className="text-xs text-gray-400 leading-relaxed">Both treasury accounts are time-locked smart contracts. Release tranches require multi-sig approval from the Foundation Council and a 14-day on-chain governance vote.</p>

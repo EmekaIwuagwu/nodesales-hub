@@ -5,11 +5,11 @@ import { PieChart, Zap, HandCoins, Lock, TrendingUp, AlertCircle } from "lucide-
 export const metadata: Metadata = {
     title: "Tokenomics",
     description:
-        "Kortana DNR token economics: 500 Billion total supply, EIP-1559 deflationary burning, staking rewards, and governance. Chain ID 9002.",
+        "Kortana DNR token economics: 10 Billion initial circulating supply, EIP-1559 deflationary burning, staking rewards, and governance. Chain ID 9002.",
     alternates: { canonical: "https://kortana.xyz/tokenomics" },
     openGraph: {
         title: "Kortana Tokenomics | DNR Token Economics",
-        description: "500B DNR total supply, deflationary burning, staking, governance. Built on Kortana Mainnet Chain ID 9002.",
+        description: "10B DNR initial circulating supply, deflationary burning, staking, governance. Built on Kortana Mainnet Chain ID 9002.",
         url: "https://kortana.xyz/tokenomics",
     },
 };

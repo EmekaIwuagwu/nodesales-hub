@@ -61,11 +61,11 @@ export default function TokenomicsPage() {
                                     <p className="text-gray-400 text-lg leading-relaxed mb-8 font-medium">
                                         Kortana implements a disinflationary model. While there is an initial issuance, the burn mechanism ensures equilibrium.
                                     </p>
-                                    <div className="space-y-6">
+                                    {/* <div className="space-y-6">
                                         <div className="flex justify-between items-center p-6 glass-panel rounded-2xl border-white/5 bg-white/[0.02]">
-                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Supply</span>
-                                            <span className="text-lg font-black text-white">500B DNR</span>
-                                        </div>
+                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Initial Circulating Supply</span>
+                                            <span className="text-lg font-black text-white">10B DNR</span>
+                                        </div> */}
                                         <div className="flex justify-between items-center p-6 glass-panel rounded-2xl border-white/5 bg-white/[0.02]">
                                             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Initial Circulation</span>
                                             <span className="text-lg font-black text-neon-green">10B DNR</span>

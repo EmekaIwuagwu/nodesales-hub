@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
     title: "DNR Tokenomics | Docs",
-    description: "DNR token utility, fixed 500B supply, genesis circulation, and deflationary burn mechanisms.",
+    description: "DNR token utility, genesis circulation, and deflationary burn mechanisms.",
     alternates: { canonical: "https://kortana.xyz/docs/tokenomics" },
 };
 

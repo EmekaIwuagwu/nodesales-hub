@@ -9,7 +9,7 @@ export const NETWORK = {
         symbol: "DNR",
         decimals: 18,
         blockTime: 2,         // seconds
-        totalSupply: "500,000,000,000", // 500B DNR
+        initialSupply: "10,000,000,000", // 10B DNR
         status: "🟢 LIVE",
     },
     testnet: {

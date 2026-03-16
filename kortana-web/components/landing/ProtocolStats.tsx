@@ -40,7 +40,7 @@ export default function ProtocolStats() {
                     <StatItem label="AVG BLOCK TIME" value="2.0s" color="cyan" />
                     <StatItem label="TOTAL STAKED" value="45,000,000,000 DNR" />
                     <StatItem label="CHAIN ID" value="9002" color="green" />
-                    <StatItem label="TOTAL SUPPLY" value="500B DNR" />
+                    <StatItem label="INITIAL SUPPLY" value="10B DNR" />
                     <StatItem label="FINALITY" value="< 2s BFT" color="cyan" />
                 </div>
             </div>

@@ -97,7 +97,7 @@ export default function KeyMetrics() {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 blur-[80px] -mr-32 -mt-32 group-hover:bg-cyan-500/10 transition-colors"></div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center relative z-10">
-                    <SecondaryStat label="Total Supply" value="500B" icon={<Coins />} unit="DNR" />
+                    <SecondaryStat label="Initial Supply" value="10B" icon={<Coins />} unit="DNR" />
                     <SecondaryStat label="Global Capacity" value="50,000+" icon={<Activity />} unit="TPS" color="cyan" />
                     <SecondaryStat label="Staking APY" value="12.4%" icon={<Shield />} unit="ANNUAL" color="cyan" />
                     <SecondaryStat label="Gas Cost" value="< 0.001" icon={<Zap />} unit="DNR" color="green" />

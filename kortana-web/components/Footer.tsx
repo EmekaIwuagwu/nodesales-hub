@@ -90,7 +90,7 @@ export default function Footer() {
                             <StatusItem label="Block Height" value={blockHeight} />
                             <StatusItem label="Block Time" value="2.0s" color="cyan" />
                             <StatusItem label="Chain ID" value="9002" color="green" />
-                            <StatusItem label="Total Supply" value="500B DNR" />
+                            <StatusItem label="Initial Circulating Supply" value="10B DNR" />
                             <StatusItem label="Symbol" value="DNR" color="cyan" />
                             <StatusItem label="Finality" value="< 2s BFT" color="green" />
                         </div>
