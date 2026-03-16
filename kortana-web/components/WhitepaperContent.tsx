@@ -48,11 +48,12 @@ export default function WhitepaperContent() {
         <div className="max-w-400 mx-auto px-4 py-16 flex flex-col lg:flex-row gap-16 relative z-10">
             <a 
                 href="/kortana_whitepaper_v2.0.0.pdf"
-                download="kortana_whitepaper_v2.0.0.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="lg:hidden fixed bottom-6 right-6 z-50 p-4 bg-white text-deep-space rounded-full shadow-2xl shadow-white/20 hover:scale-110 transition-transform flex items-center justify-center group"
-                aria-label="Download PDF"
+                aria-label="View PDF"
             >
-                <Download size={24} className="group-hover:animate-pulse" />
+                <FileText size={24} className="group-hover:animate-pulse" />
             </a>
 
             {/* Desktop Sidebar with Sticky Navigation */}
@@ -72,12 +73,21 @@ export default function WhitepaperContent() {
                             <NavItem id="network" label="Network & Storage" icon={<Server size={14} />} active={activeSection === 'network'} onClick={() => scrollToSection('network')} />
                         </nav>
                     </div>
-                    <a href="/kortana_whitepaper_v2.00.pdf"
-                        download="kortana_whitepaper_2.00.pdf"
-                        className="w-full py-4 bg-white text-deep-space font-black uppercase tracking-widest text-[10px] rounded-xl flex items-center justify-center gap-3 hover:scale-[1.02] transition-transform shadow-xl shadow-white/5 group"
-                    >
-                        <Download size={14} /> Download PDF
-                    </a>
+                    <div className="flex flex-col gap-3">
+                        <a href="/kortana_whitepaper_v2.0.0.pdf"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full py-4 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-black uppercase tracking-widest text-[10px] rounded-xl flex items-center justify-center gap-3 hover:bg-cyan-500/20 transition-all group"
+                        >
+                            <FileText size={14} /> View Whitepaper
+                        </a>
+                        <a href="/kortana_whitepaper_v2.0.0.pdf"
+                            download="kortana_whitepaper_v2.0.0.pdf"
+                            className="w-full py-4 bg-white text-deep-space font-black uppercase tracking-widest text-[10px] rounded-xl flex items-center justify-center gap-3 hover:scale-[1.02] transition-transform shadow-xl shadow-white/5 group"
+                        >
+                            <Download size={14} /> Download PDF
+                        </a>
+                    </div>
                     <div className="text-center">
                         <p className="text-[10px] text-gray-600 font-mono">Version 2.0.0 • Production Ready</p>
                     </div>
