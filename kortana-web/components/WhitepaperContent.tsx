@@ -1,4 +1,5 @@
 'use client';
+// Triggering production build for Whitepaper updates
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
