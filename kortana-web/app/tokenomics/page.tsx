@@ -25,8 +25,8 @@ export default function TokenomicsPage() {
             <div className="max-w-7xl mx-auto px-4 py-16">
                 {/* Key Metric Highlight */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-20">
-                    <StatBox label="Total Supply" value="500,000,000,000" sub="DNR" />
-                    <StatBox label="Foundation Reserve" value="245,000,000,000" sub="DNR" />
+                    <StatBox label="Genesis Circulating Supply" value="10,000,000,000" sub="DNR" />
+                    <StatBox label="Emission Halving" value="-10%" sub="per year" />
                     <StatBox label="Inflation Rate" value="4.2%" sub="Decreasing" />
                     <StatBox label="Burned (Total)" value="2,400,129" sub="DNR" color="orange" />
                 </div>
@@ -38,9 +38,10 @@ export default function TokenomicsPage() {
                             Initial Distribution
                         </h2>
                         <div className="space-y-4">
-                            <DistributionItem color="bg-purple-500" percent="49%" label="Foundation Treasury (245B DNR — time-locked)" />
-                            <DistributionItem color="bg-cyan-500" percent="49%" label="Ecosystem Growth Treasury (245B DNR — grants & incentives)" />
-                            <DistributionItem color="bg-neon-green" percent="2%" label="Genesis Circulation (10B DNR — validators, faucet, ops)" />
+                            <DistributionItem color="bg-purple-500" percent="60%" label="Community and Ecosystem (6B DNR)" />
+                            <DistributionItem color="bg-cyan-500" percent="25%" label="Foundation Reserve (2.5B DNR)" />
+                            <DistributionItem color="bg-neon-green" percent="10%" label="Team and Advisors (1B DNR)" />
+                            <DistributionItem color="bg-neon-green" percent="5%" label="Developer Ecosytem Fund (500M DNR)" />
                         </div>
 
                         <div className="mt-12 p-6 rounded-xl bg-white/5 border border-white/10">
@@ -48,7 +49,7 @@ export default function TokenomicsPage() {
                                 <Lock className="text-gray-400 w-5 h-5" /> Vesting Schedule
                             </h3>
                             <p className="text-gray-400 text-sm leading-relaxed">
-                                Team and Investor tokens are subject to a strict linear vesting schedule over 4 years with a 1-year cliff. This ensures long-term alignment with the protocol's success.
+                              Investor tokens are subject to a strict linear vesting schedule over 4 years with a 1-year cliff. This ensures long-term alignment with the protocol's success.
                             </p>
                         </div>
                     </div>
