@@ -1,5 +1,7 @@
 'use client';
-// Triggering production build for Whitepaper updates
+// Triggering production build for Whitepaper and Tokenomics updates
+// This component manages the dynamic rendering of the Kortana Whitepaper content.
+// Last update: March 17, 2026 - Syncing with latest mainnet specs.
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
