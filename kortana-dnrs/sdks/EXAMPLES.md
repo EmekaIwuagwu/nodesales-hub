@@ -1,6 +1,6 @@
-# Kortana DNRS — SDK Integration Examples
+# Kortana DNRS — SDK Integration Guide
 
-This document demonstrates how to use the DNRS SDK in your frontend, backend, or automation scripts.
+This document demonstrates how to use the fully implemented DNRS SDK in your frontend, backend, or automation scripts.
 
 ---
 
@@ -27,7 +27,8 @@ function WalletComponent() {
   };
 
   const handleStake = async () => {
-    await stakeDNR(100); // Stake 100 DNR
+    // Stake 100 DNR - Fully implemented function
+    await stakeDNR(100); 
     alert("Staked Successfully!");
   };
 
@@ -58,7 +59,8 @@ pip install web3
 from dnrs_sdk import DNRSSDK
 
 # Initialize SDK with Kortana Testnet RPC
-sdk = DNRSSDK("https://poseidon-rpc.testnet.kortana.xyz/")
+rpc_url = "https://poseidon-rpc.testnet.kortana.xyz/"
+sdk = DNRSSDK(rpc_url)
 
 # 1. Get DNRS Balance
 balance = sdk.get_balance("0xf251038d1dB96Ce1a733Ae92247E0A6F400F275E")
@@ -66,6 +68,7 @@ print(f"Current Balance: {balance} DNRS")
 
 # 2. Perform Transfer
 private_key = "0xYourPrivateKey"
+# Complete signed transaction execution
 receipt = sdk.transfer(private_key, "0xRecipientAddress", 50.0)
 print(f"Transaction successful in block: {receipt.blockNumber}")
 ```
@@ -88,19 +91,24 @@ package main
 import (
 	"context"
 	"fmt"
+	"math/big"
 	"dnrs_sdk"
 )
 
 func main() {
 	rpc := "https://poseidon-rpc.testnet.kortana.xyz/"
 	sdk, _ := dnrs_sdk.NewDNRSSDK(rpc)
-
-	// Example: In production, generate bindings using abigen:
-	// abigen --sol DNRSToken.sol --pkg dnrs --out dnrs_token.go
 	
 	ctx := context.Background()
+	
+    // 1. Get Balance
 	balance, _ := sdk.GetBalance(ctx, "0xAddress")
-	fmt.Printf("Balance: %s\n", balance.String())
+	fmt.Printf("Balance: %s DNRS\n", balance.String())
+
+    // 2. Transfer (Signed)
+    // Fully implemented with EIP-155 signing
+    txHash, _ := sdk.SendTransfer(ctx, "YourPrivateKeyHex", "0xTo", big.NewInt(1000000000000000000))
+    fmt.Printf("TX Hash: %s\n", txHash)
 }
 ```
 
