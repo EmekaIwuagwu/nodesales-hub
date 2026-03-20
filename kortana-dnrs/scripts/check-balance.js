@@ -1,0 +1,13 @@
+import hre from "hardhat";
+
+async function main() {
+  const [deployer] = await hre.ethers.getSigners();
+  const balance = await hre.ethers.provider.getBalance(deployer.address);
+  console.log("Deployer Address:", deployer.address);
+  console.log("Deployer Balance:", hre.ethers.formatEther(balance), "DNR");
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

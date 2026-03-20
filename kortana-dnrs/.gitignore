@@ -1,0 +1,14 @@
+# Hardhat
+artifacts/
+cache/
+
+# Sensitive data
+.env
+deployments.json
+
+# Dependencies
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
