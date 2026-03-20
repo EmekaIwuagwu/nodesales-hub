@@ -6,13 +6,9 @@
 
 **Kortana Dinar Stable (DNRS)** is a decentralized, 100% algorithmic stablecoin system built on the **Kortana Blockchain**. Inspired by the Neo-Seigniorage model, DNRS is designed to maintain a 1:1 peg with the US Dollar WITHOUT the need for over-collateralized assets. 
 
-The system leverages a unique triple-token architecture (DNRS, DNRB) and advanced circuit breakers to ensure long-term stability and protocol health.
-
 ---
 
 ## 🏗 System Architecture
-
-The DNRS ecosystem consists of several interconnected smart contracts that manage the peg through expansion and contraction epochs.
 
 ```mermaid
 graph TD
@@ -22,45 +18,11 @@ graph TD
     Treasury["Treasury (The Brain)"] -->|Expansion: Mint DNRS| Boardroom
     Treasury -->|Contraction: Mint DNRB| User
     Treasury -->|Reads Price| Oracle["TWAP Price Oracle"]
-    
-    Oracle -->|12h / 24h Windows| Treasury
-    
-    Paymaster -->|Converts DNRS to DNR| StabilityModule["Stability Module"]
-    StabilityModule -->|Provides Native Gas| Paymaster
 ```
 
 ---
 
-## 💎 Core Components
-
-### 1. DNRS Token (`DNRSToken.sol`)
-*   **Role**: The primary stablecoin.
-*   **Mechanism**: Elastic supply driven by the Treasury.
-*   **Protection**: Implements a **Transfer Tax** (up to 2%) during heavy contraction phases to discourage panic dumping.
-
-### 2. DNR Bond (`DNRBond.sol`)
-*   **Role**: The stability asset used to contract supply.
-*   **Mechanism**: When DNRS is below $1.00, users can burn DNRS to receive DNRB at a discount. Bonds can be redeemed for 1.1x DNRS when the price recovers.
-*   **Redemption**: Uses a **FIFO (First-In-First-Out)** lotting system to ensure orderly recovery.
-
-### 3. Treasury (`Treasury.sol`)
-*   **Role**: The "Governor" of the protocol.
-*   **Logic**:
-    *   **IF Price > $1.01**: Expand supply by minting DNRS for stakers.
-    *   **IF Price < $1.00**: Issue bonds to lock/burn DNRS.
-    *   **IF Price < $0.80**: **EMERGENCY HALT** (Death Spiral Circuit Breaker).
-
-### 4. Boardroom Staking (`BoardroomStaking.sol`)
-*   **Role**: Rewards the DAO and DNR holders.
-*   **Mechanism**: DNR stakers receive the majority of seigniorage (newly minted DNRS) during expansion epochs. Includes a **6-epoch withdrawal lockup**.
-
-### 5. Account Abstraction & Paymaster (`DNRSPaymaster.sol`)
-*   **Innovation**: Part of the **BelloMundo** and **MyHealthFriend** ecosystem.
-*   **Feature**: Allows users to pay ALL gas fees on the Kortana blockchain using DNRS. No native DNR is required in the user's wallet.
-
----
-
-## 🚀 Testnet Deployment Alpha
+## 💎 Testnet Addresses (Alpha)
 
 | Contract | Address (Kortana Testnet) |
 | :--- | :--- |
@@ -70,61 +32,55 @@ graph TD
 | **BoardroomStaking**| `0x216E22FbBC3f891B38434bC92F3512B55Fd02C3f` |
 | **Treasury** | `0x22769e2f36Aa95B5F111484030b7D3b8eF6C2F8b` |
 | **DNRSPaymaster** | `0xb73548Fa9F311523D461Fb745aFBD57259E44790` |
+| **StabilityModule** | `0x249B9149a86faC2E9E0d34c56e82E543fab1E8f0` |
 
 ---
 
-## 📈 Economic Cycles
+## 📦 SDK Deployment & Integration
 
-### Expansion Phase (Peg > $1.01)
-1. Treasury detects expansion.
-2. New DNRS tokens are minted.
-3. 80% go to Boardroom stakers, 18% to the Stability Module (for Paymaster), and 2% to the Dev fund.
+The DNRS ecosystem provides off-the-shelf SDKs for 5 major languages.
 
-### Contraction Phase (Peg < $1.00)
-1. Treasury enables Bond purchasing.
-2. Users swap DNRS for DNRB (Stablecoin is burned).
-3. The supply decreases until the peg is restored.
+### ⚛ React JS (npm)
+*   **Install**: `npm install @kortana/dnrs-sdk`
+*   **Publish**: `npm publish --access public`
+*   **Library**: [sdks/react/](sdks/react/)
 
----
+### 🐍 Python (pypi)
+*   **Install**: `pip install kortana-dnrs`
+*   **Publish**: `twine upload dist/*`
+*   **Library**: [sdks/python/](sdks/python/)
 
-## 🛠 Developer Guide
+### 🐹 Golang (go modules)
+*   **Install**: `go get github.com/kortana/dnrs-sdk-go`
+*   **Publish**: `git tag v1.0.0; git push origin v1.0.0`
+*   **Library**: [sdks/golang/](sdks/golang/)
 
-### Prerequisites
-*   Node.js v18+
-*   Hardhat
-*   A wallet with Kortana Testnet DNR
+### 🔷 C# (NuGet)
+*   **Install**: `dotnet add package Kortana.DNRS.SDK`
+*   **Publish**: `dotnet nuget push bin/Release/*.nupkg`
+*   **Library**: [sdks/csharp/](sdks/csharp/)
 
-### Setup & Compilation
-```bash
-git clone https://github.com/kortanablockchain/kortana-dnrs.git
-cd kortana-dnrs
-npm install
-npx hardhat compile
-```
-
-### Deployment Sequence
-See the `scripts/` directory for the ordered deployment flow:
-1. `01-deploy-oracle.js`
-2. `02-deploy-dnrs-token.js`
-3. ...
-10. `09-fund-paymaster.js`
-
-### Running Simulations
-Run the deep simulations to test circuit breakers:
-```bash
-npx hardhat test test/DeathSpiralSimulation.test.js
-```
+### 💎 Ruby (RubyGems)
+*   **Install**: `gem install kortana_dnrs`
+*   **Publish**: `gem build kortana_dnrs.gemspec; gem push *.gem`
+*   **Library**: [sdks/ruby/](sdks/ruby/)
 
 ---
 
-## 🛡 Security First
-*   **Anti-Manipulation**: Includes TWAP windows to prevent flash-loan oracle attacks.
-*   **Block Limits**: Hard-capped minting amounts per block to prevent hyper-inflationary exploits.
-*   **Governance**: Guardian roles can trigger pauses during suspicious activity.
+## 🛠 Usage Examples (Transfers & Balances)
+
+Every SDK follows a unified pattern:
+1.  **Initialize** with a Kortana RPC URL.
+2.  **Get Balance** using `getBalance()`.
+3.  **Transfer** using `transfer()` (requires a private key).
+
+For full language-specific code snippets, view the **[EXAMPLES.md](sdks/EXAMPLES.md)** file.
 
 ---
 
-## 🌐 Vision
-DNRS is not just a stablecoin; it is the financial backbone for the **Kortana Ecosystem**. By enabling gasless transactions and a stable unit of account, it paves the way for the **MyHealthFriend** telemedicine platform and the broader **BelloMundo** vision of accessible blockchain services.
+## 🛡 Security & Safety
+*   **Death Spiral Circuit Breaker**: Treasury halts if peg below $0.80 for 3 epochs.
+*   **TWAP Oracle**: Prevents oracle manipulation via 12-hour TWAP windows.
+*   **Account Abstraction**: Native Paymaster support for gasless user experiences.
 
 **Powered by Kortana Blockchain** | *Neo-Seigniorage for the Neo-World*

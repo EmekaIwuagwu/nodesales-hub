@@ -1,124 +1,101 @@
-# Kortana DNRS — SDK Integration Guide
+# Kortana DNRS — Final SDK Unified Examples
 
-This document demonstrates how to use the fully implemented DNRS SDK in your frontend, backend, or automation scripts.
+This document demonstrates how to perform **Balance Checks** and **Transfers** using the 100% implemented DNRS SDKs across all 5 languages.
 
 ---
 
-## ⚛ React JS (Frontend)
-
-The React SDK provides a custom hook `useDNRS` for easy integration with Metamask.
-
-### Installation
-```bash
-npm install ethers
-```
-
-### Usage
+## ⚛ React JS (npm)
+### Balance Check & Transfer
 ```javascript
-import { useDNRS } from './hooks/useDNRS';
+import { useDNRS } from '@kortana/dnrs-sdk';
 
-function WalletComponent() {
-  const { getBalance, stakeDNR, loading } = useDNRS();
-  const [balance, setBalance] = useState("0");
+const { getBalance, transferDNRS } = useDNRS();
 
-  const refreshBalance = async () => {
-    const bal = await getBalance("0xYourAddress");
-    setBalance(ethers.formatEther(bal));
-  };
+// Check Balance
+const bal = await getBalance("0xYourAddress");
+console.log(`Balance: ${ethers.formatEther(bal)} DNRS`);
 
-  const handleStake = async () => {
-    // Stake 100 DNR - Fully implemented function
-    await stakeDNR(100); 
-    alert("Staked Successfully!");
-  };
-
-  return (
-    <div>
-      <p>DNRS Balance: {balance}</p>
-      <button onClick={handleStake} disabled={loading}>
-        Stake 100 DNR
-      </button>
-    </div>
-  );
-}
+// Transfer (Requires Metamask/Browser Signer)
+const tx = await transferDNRS("0xRecipient", 10.5); // 10.5 DNRS
+await tx.wait();
 ```
 
 ---
 
-## 🐍 Python (Automation / Scripts)
-
-The Python SDK is ideal for trading bots or monitoring scripts for **MyHealthFriend**.
-
-### Installation
-```bash
-pip install web3
-```
-
-### Usage
+## 🐍 Python (pip)
+### Balance Check & Transfer
 ```python
 from dnrs_sdk import DNRSSDK
 
-# Initialize SDK with Kortana Testnet RPC
-rpc_url = "https://poseidon-rpc.testnet.kortana.xyz/"
-sdk = DNRSSDK(rpc_url)
+sdk = DNRSSDK("https://poseidon-rpc.testnet.kortana.xyz/")
 
-# 1. Get DNRS Balance
-balance = sdk.get_balance("0xf251038d1dB96Ce1a733Ae92247E0A6F400F275E")
-print(f"Current Balance: {balance} DNRS")
+# Check Balance
+bal = sdk.get_balance("0xAddress")
+print(f"Current Balance: {bal} DNRS")
 
-# 2. Perform Transfer
-private_key = "0xYourPrivateKey"
-# Complete signed transaction execution
-receipt = sdk.transfer(private_key, "0xRecipientAddress", 50.0)
-print(f"Transaction successful in block: {receipt.blockNumber}")
+# Signed Transfer
+private_key = "0x..." 
+receipt = sdk.transfer(private_key, "0xRecipient", 50.0)
 ```
 
 ---
 
-## 🐹 Golang (Backend / Microservices)
-
-The Golang SDK uses `go-ethereum` for high-performance blockchain interactions.
-
-### Installation
-```bash
-go get github.com/ethereum/go-ethereum
-```
-
-### Usage
+## 🐹 Golang (go get)
+### Balance Check & Transfer
 ```go
-package main
-
 import (
-	"context"
-	"fmt"
-	"math/big"
-	"dnrs_sdk"
+    "context"
+    "dnrs_sdk"
 )
 
-func main() {
-	rpc := "https://poseidon-rpc.testnet.kortana.xyz/"
-	sdk, _ := dnrs_sdk.NewDNRSSDK(rpc)
-	
-	ctx := context.Background()
-	
-    // 1. Get Balance
-	balance, _ := sdk.GetBalance(ctx, "0xAddress")
-	fmt.Printf("Balance: %s DNRS\n", balance.String())
+sdk, _ := dnrs_sdk.NewDNRSSDK("https://poseidon-rpc.testnet.kortana.xyz/")
+ctx := context.Background()
 
-    // 2. Transfer (Signed)
-    // Fully implemented with EIP-155 signing
-    txHash, _ := sdk.SendTransfer(ctx, "YourPrivateKeyHex", "0xTo", big.NewInt(1000000000000000000))
-    fmt.Printf("TX Hash: %s\n", txHash)
-}
+// 1. Get Balance
+balance, _ := sdk.GetBalance(ctx, "0xAddress")
+
+// 2. Full Signed Transfer (EIP-155)
+txHash, _ := sdk.SendTransfer(ctx, "YourPrivateKey", "0xRecipient", amountBigInt)
 ```
 
 ---
 
-## 🌐 Network Configuration
+## 🔷 C# (.NET / NuGet)
+### Balance Check & Transfer
+```csharp
+using Kortana.DNRS.SDK;
 
-Always ensure you connect to the primary **Kortana Testnet** nodes:
+// Initialize with Private Key for transfers
+var sdk = new DNRSSDK("https://poseidon-rpc.testnet.kortana.xyz/", "0xYourPrivateKey");
 
-*   **RPC URL**: `https://poseidon-rpc.testnet.kortana.xyz/`
-*   **Chain ID**: `72511`
-*   **Symbol**: `DNR`
-*   **Explorer**: `https://explorer.testnet.kortana.xyz/`
+// 1. Get Balance
+decimal balance = await sdk.GetBalanceAsync("0xAddress");
+
+// 2. Transfer
+string txHash = await sdk.TransferAsync("0xRecipient", 100.0m);
+```
+
+---
+
+## 💎 Ruby (Gem)
+### Balance Check & Transfer
+```ruby
+require 'dnrs_sdk'
+
+sdk = Kortana::DNRS::SDK.new("https://poseidon-rpc.testnet.kortana.xyz/", "YourPrivateKey")
+
+# 1. Get Balance
+balance = sdk.get_balance("0xAddress")
+
+# 2. Transfer
+sdk.transfer("0xRecipient", 25.0)
+```
+
+---
+
+## 📂 SDK Directory Structure
+*   `sdks/react/`: React Context & Hooks
+*   `sdks/python/`: Python Web3 Wrapper
+*   `sdks/golang/`: Go ethclient Wrapper
+*   `sdks/csharp/`: Nethereum SDK
+*   `sdks/ruby/`: Ruby Eth Gem SDK
