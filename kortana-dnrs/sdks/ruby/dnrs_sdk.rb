@@ -9,13 +9,15 @@ module Kortana
           'rpc_url' => "https://poseidon-rpc.testnet.kortana.xyz/",
           'dnrs' => "0xa1E9679c7AE524a09AbE34464A99d8D5daaEA92B",
           'boardroom' => "0x216E22FbBC3f891B38434bC92F3512B55Fd02C3f",
-          'chain_id' => 72511
+          'chain_id' => 72511,
+          'explorer' => "https://explorer.testnet.kortana.xyz"
         },
         'KORTANA_MAINNET' => {
-          'rpc_url' => "https://rpc.kortana.xyz/",
+          'rpc_url' => "https://zeus-rpc.mainnet.kortana.xyz",
           'dnrs' => "0x0000000000000000000000000000000000000000",
           'boardroom' => "0x0000000000000000000000000000000000000000",
-          'chain_id' => 9002
+          'chain_id' => 9002,
+          'explorer' => "https://explorer.mainnet.kortana.xyz"
         }
       }
 

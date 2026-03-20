@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "dgSpecHash": "PF9V76i3/ss=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dnrs\\sdks\\csharp\\KortanaDNRS\\KortanaDNRS.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\emi\\.nuget\\packages\\adraffy.ensnormalize\\0.3.1\\adraffy.ensnormalize.0.3.1.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\bouncycastle.cryptography\\2.5.1\\bouncycastle.cryptography.2.5.1.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\6.0.0\\microsoft.extensions.logging.abstractions.6.0.0.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\nbitcoin.secp256k1\\3.1.1\\nbitcoin.secp256k1.3.1.1.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\nethereum.abi\\6.0.4\\nethereum.abi.6.0.4.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\nethereum.accounts\\6.0.4\\nethereum.accounts.6.0.4.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\nethereum.blockchainprocessing\\6.0.4\\nethereum.blockchainprocessing.6.0.4.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\nethereum.contracts\\6.0.4\\nethereum.contracts.6.0.4.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\nethereum.hex\\6.0.4\\nethereum.hex.6.0.4.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\nethereum.jsonrpc.client\\6.0.4\\nethereum.jsonrpc.client.6.0.4.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\nethereum.jsonrpc.rpcclient\\6.0.4\\nethereum.jsonrpc.rpcclient.6.0.4.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\nethereum.keystore\\6.0.4\\nethereum.keystore.6.0.4.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\nethereum.merkle.patricia\\6.0.4\\nethereum.merkle.patricia.6.0.4.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\nethereum.model\\6.0.4\\nethereum.model.6.0.4.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\nethereum.rlp\\6.0.4\\nethereum.rlp.6.0.4.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\nethereum.rpc\\6.0.4\\nethereum.rpc.6.0.4.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\nethereum.signer\\6.0.4\\nethereum.signer.6.0.4.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\nethereum.signer.eip712\\6.0.4\\nethereum.signer.eip712.6.0.4.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\nethereum.util\\6.0.4\\nethereum.util.6.0.4.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\nethereum.util.rest\\6.0.4\\nethereum.util.rest.6.0.4.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\nethereum.web3\\6.0.4\\nethereum.web3.6.0.4.nupkg.sha512",
+    "C:\\Users\\emi\\.nuget\\packages\\newtonsoft.json\\11.0.2\\newtonsoft.json.11.0.2.nupkg.sha512"
+  ],
+  "logs": []
+}

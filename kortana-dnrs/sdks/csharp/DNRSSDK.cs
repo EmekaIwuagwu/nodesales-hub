@@ -32,7 +32,7 @@ namespace Kortana.DNRS.SDK
                 ChainID = 72511
             }},
             { "KORTANA_MAINNET", new NetworkConfig {
-                RPCUrl = "https://rpc.kortana.xyz/",
+                RPCUrl = "https://zeus-rpc.mainnet.kortana.xyz",
                 DNRSAddr = "0x0000000000000000000000000000000000000000",
                 Boardroom = "0x0000000000000000000000000000000000000000",
                 ChainID = 9002

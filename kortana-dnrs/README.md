@@ -64,19 +64,19 @@ graph TD
 | :--- | :--- | :--- |
 | **Network Name** | Kortana Testnet | Kortana Mainnet |
 | **Chain ID** | `72511` | `9002` |
-| **RPC URL** | `https://poseidon-rpc.testnet.kortana.xyz/` | `https://rpc.kortana.xyz/` |
+| **RPC URL** | `https://poseidon-rpc.testnet.kortana.xyz/` | `https://zeus-rpc.mainnet.kortana.xyz` |
 | **Native Token** | `DNR` | `DNR` |
-| **Block Explorer** | `https://explorer.testnet.kortana.xyz/` | `https://explorer.kortana.xyz/` |
+| **Block Explorer** | `https://explorer.testnet.kortana.xyz/` | `https://explorer.mainnet.kortana.xyz` |
 
 ### Metamask/Wallet Setup
 
 | Field | Testnet | Mainnet |
 | :--- | :--- | :--- |
 | Network Name | Kortana Testnet | Kortana Mainnet |
-| RPC URL | `https://poseidon-rpc.testnet.kortana.xyz/` | `https://rpc.kortana.xyz/` |
+| RPC URL | `https://poseidon-rpc.testnet.kortana.xyz/` | `https://zeus-rpc.mainnet.kortana.xyz` |
 | Chain ID | `72511` | `9002` |
 | Symbol | `DNR` | `DNR` |
-| Explorer | `https://explorer.testnet.kortana.xyz/` | `https://explorer.kortana.xyz/` |
+| Explorer | `https://explorer.testnet.kortana.xyz/` | `https://explorer.mainnet.kortana.xyz` |
 
 ---
 
