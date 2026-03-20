@@ -328,6 +328,7 @@ contract Treasury is AccessControl, ReentrancyGuard, Pausable {
 
         uint256 dnrsTWAP = oracle.getDNRSTWAP();
         require(dnrsTWAP < CONTRACTION_THRESHOLD, "Treasury: DNRS not below peg");
+        require(dnrsTWAP > 10e16, "Treasury: price too low for bonds, halt imminent"); // $0.10 floor
 
         // Bond ceiling check
         uint256 currentSupply = dnrs.totalSupply();

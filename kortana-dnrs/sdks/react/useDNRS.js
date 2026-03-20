@@ -4,26 +4,27 @@
  */
 import { ethers } from 'ethers';
 import { useState, useCallback } from 'react';
-import { DNRS_ABI, BOARDROOM_ABI } from './abi';
+import { DNRS_ABI, BOARDROOM_ABI, NETWORKS } from './abi';
 
-// Testnet addresses from deployments.json
-const DNRS_ADDRESS = "0xa1E9679c7AE524a09AbE34464A99d8D5daaEA92B";
-const BOARDROOM_ADDRESS = "0x216E22FbBC3f891B38434bC92F3512B55Fd02C3f";
-
-export function useDNRS() {
+export function useDNRS(networkName = 'KORTANA_TESTNET') {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const network = NETWORKS[networkName] || NETWORKS.KORTANA_TESTNET;
 
   const getProvider = useCallback(() => {
     if (!window.ethereum) throw new Error("Metamask not found");
     return new ethers.BrowserProvider(window.ethereum);
   }, []);
 
+  const getDNRSAddress = () => network.dnrs;
+  const getBoardroomAddress = () => network.boardroom;
+
   // -- DNRS Actions --
 
   const getBalance = async (address) => {
     const provider = getProvider();
-    const contract = new ethers.Contract(DNRS_ADDRESS, DNRS_ABI, provider);
+    const contract = new ethers.Contract(getDNRSAddress(), DNRS_ABI, provider);
     return await contract.balanceOf(address);
   };
 
@@ -32,8 +33,8 @@ export function useDNRS() {
     try {
       const provider = getProvider();
       const signer = await provider.getSigner();
-      const contract = new ethers.Contract(DNRS_ADDRESS, DNRS_ABI, signer);
-      const tx = await contract.transfer(to, ethers.parseEther(amount.toString()));
+      const contract = new ethers.Contract(getDNRSAddress(), DNRS_ABI, signer);
+      const tx = await contract.transfer(to, ethers.parseUnits(amount.toString(), 18));
       return await tx.wait();
     } catch (err) {
       setError(err.message);
@@ -50,9 +51,9 @@ export function useDNRS() {
     try {
       const provider = getProvider();
       const signer = await provider.getSigner();
-      const boardroom = new ethers.Contract(BOARDROOM_ADDRESS, BOARDROOM_ABI, signer);
+      const boardroom = new ethers.Contract(getBoardroomAddress(), BOARDROOM_ABI, signer);
       
-      const tx = await boardroom.stake(ethers.parseEther(amount.toString()));
+      const tx = await boardroom.stake(ethers.parseUnits(amount.toString(), 18));
       return await tx.wait();
     } catch (err) {
       setError(err.message);
@@ -65,7 +66,7 @@ export function useDNRS() {
   const claimRewards = async () => {
     const provider = getProvider();
     const signer = await provider.getSigner();
-    const boardroom = new ethers.Contract(BOARDROOM_ADDRESS, BOARDROOM_ABI, signer);
+    const boardroom = new ethers.Contract(getBoardroomAddress(), BOARDROOM_ABI, signer);
     const tx = await boardroom.claimReward();
     return await tx.wait();
   };
@@ -76,6 +77,7 @@ export function useDNRS() {
     stakeDNR,
     claimRewards,
     loading,
-    error
+    error,
+    currentNetwork: network
   };
 }

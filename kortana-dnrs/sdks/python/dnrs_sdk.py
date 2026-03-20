@@ -1,8 +1,18 @@
 from web3 import Web3
 
-# Testnet Addresses
-DNRS_ADDRESS = "0xa1E9679c7AE524a09AbE34464A99d8D5daaEA92B"
-BOARDROOM_ADDRESS = "0x216E22FbBC3f891B38434bC92F3512B55Fd02C3f"
+# Network Configuration
+NETWORKS = {
+    'KORTANA_TESTNET': {
+        'rpc_url': "https://poseidon-rpc.testnet.kortana.xyz/",
+        'dnrs': "0xa1E9679c7AE524a09AbE34464A99d8D5daaEA92B",
+        'boardroom': "0x216E22FbBC3f891B38434bC92F3512B55Fd02C3f"
+    },
+    'KORTANA_MAINNET': {
+        'rpc_url': "https://rpc.kortana.xyz/",
+        'dnrs': "0x0000000000000000000000000000000000000000", # Mainnet address
+        'boardroom': "0x0000000000000000000000000000000000000000"
+    }
+}
 
 # Simple ERC20 ABI Subset
 DNRS_ABI = [
@@ -11,9 +21,11 @@ DNRS_ABI = [
 ]
 
 class DNRSSDK:
-    def __init__(self, rpc_url):
-        self.w3 = Web3(Web3.HTTPProvider(rpc_url))
-        self.dnrs = self.w3.eth.contract(address=DNRS_ADDRESS, abi=DNRS_ABI)
+    def __init__(self, network_name='KORTANA_TESTNET', rpc_url=None):
+        config = NETWORKS.get(network_name, NETWORKS['KORTANA_TESTNET'])
+        self.rpc_url = rpc_url or config['rpc_url']
+        self.w3 = Web3(Web3.HTTPProvider(self.rpc_url))
+        self.dnrs = self.w3.eth.contract(address=config['dnrs'], abi=DNRS_ABI)
 
     def get_balance(self, account_address):
         """Get the DNRS balance of a wallet."""
@@ -28,7 +40,7 @@ class DNRSSDK:
         tx = self.dnrs.functions.transfer(to_address, amount_wei).build_transaction({
             'from': account.address,
             'nonce': self.w3.eth.get_transaction_count(account.address),
-            'gas': 100000,
+            'gas': 120000,
             'gasPrice': self.w3.eth.gas_price
         })
         
@@ -37,11 +49,8 @@ class DNRSSDK:
         return self.w3.eth.wait_for_transaction_receipt(tx_hash)
 
 if __name__ == "__main__":
-    # Example usage:
-    rpc = "https://poseidon-rpc.testnet.kortana.xyz/"
-    sdk = DNRSSDK(rpc)
-    
-    # Check balance
+    # Internal Audit Test check
+    sdk = DNRSSDK(network_name='KORTANA_TESTNET')
     addr = "0xf251038d1dB96Ce1a733Ae92247E0A6F400F275E"
     bal = sdk.get_balance(addr)
-    print(f"DNRS Balance of {addr}: {bal} DNRS")
+    print(f"Verified DNRS Balance on Testnet: {bal} DNRS")
