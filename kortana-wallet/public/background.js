@@ -83,6 +83,26 @@ async function waitForAccountAccess(timeoutMs = 120000) {
     return { error: { code: 4001, message: 'Login request timed out. Please unlock the wallet.' } };
 }
 
+// Polling helper for explicit site connection approval (like MetaMask's "Connect" popup)
+async function waitForConnect(timeoutMs = 120000) {
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+        await new Promise(r => setTimeout(r, 500));
+        const data = await chrome.storage.session.get('pendingConnect');
+        if (data.pendingConnect?.status === 'approved') {
+            const addr = data.pendingConnect.address;
+            await chrome.storage.session.remove('pendingConnect');
+            return { result: [addr] };
+        }
+        if (data.pendingConnect?.status === 'rejected') {
+            await chrome.storage.session.remove('pendingConnect');
+            return { error: { code: 4001, message: 'User rejected the connection request.' } };
+        }
+    }
+    await chrome.storage.session.remove('pendingConnect');
+    return { error: { code: 4001, message: 'Connection request timed out.' } };
+}
+
 // Polling helper for signatures
 async function waitForSignature(timeoutMs = 120000) {
     const start = Date.now();
@@ -139,12 +159,18 @@ async function handleRequest(request) {
             return { result: [address] };
 
         case 'eth_requestAccounts':
-            // If locked, open the wallet and WAIT for the user to unlock
+            // If locked or no address, open the wallet and WAIT for the user to unlock
             if (isLocked || !address) {
                 await openPopup();
                 return await waitForAccountAccess(180000); // 3 minute window to unlock
             }
-            return { result: [address] };
+            // Wallet is unlocked — ALWAYS require explicit connection approval (MetaMask behaviour).
+            // Store a pending connection request and open the popup so the user can approve/reject.
+            await chrome.storage.session.set({
+                pendingConnect: { address, status: 'pending', reqId: Date.now().toString() }
+            });
+            await openPopup();
+            return await waitForConnect(120000);
 
         case 'eth_chainId':
             return { result: '0x' + network.chainId.toString(16) };

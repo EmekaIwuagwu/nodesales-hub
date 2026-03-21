@@ -79,11 +79,13 @@ const KORTANA_CHAIN_HEX = `0x${KORTANA_CHAIN_ID.toString(16)}`;
 export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
     const [connecting, setConnecting] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [kortanaHint, setKortanaHint] = useState(false);
     const router = useRouter();
 
     const handleConnect = async (walletOption: typeof WALLET_OPTIONS[0]) => {
         setConnecting(walletOption.id);
         setError(null);
+        setKortanaHint(false);
 
         try {
             // 1. Get the raw EIP-1193 wallet provider
@@ -95,26 +97,24 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                 return;
             }
 
-            // 2. Request accounts
-            // For Kortana Wallet: use wallet_requestPermissions to ALWAYS trigger
-            // the extension popup — even when the site was previously approved.
-            // eth_requestAccounts alone silently returns without any popup if already trusted.
+            // 2. Get the wallet address
+            // Kortana Wallet (current extension): eth_requestAccounts returns silently when
+            // already unlocked — no popup. personal_sign is the step that ALWAYS opens the
+            // extension popup. So for Kortana we use eth_accounts (zero UI, no error) to
+            // read the address and let the signing step be the explicit user action.
+            // For MetaMask / others: eth_requestAccounts shows the normal connect popup.
             let accounts: string[];
             if (walletOption.id === 'kortana') {
-                try {
-                    await provider.request({
-                        method: 'wallet_requestPermissions',
-                        params: [{ eth_accounts: {} }],
-                    });
-                    accounts = await provider.request({ method: 'eth_accounts' });
-                } catch (permErr: any) {
-                    // User rejected the popup
-                    if (permErr?.code === 4001 || permErr?.message?.toLowerCase().includes('user rejected')) {
-                        throw permErr;
-                    }
-                    // wallet_requestPermissions not supported — fall back gracefully
+                // Silent address read — no popup at this step
+                accounts = await provider.request({ method: 'eth_accounts' });
+
+                if (!accounts || accounts.length === 0) {
+                    // Wallet is locked — eth_requestAccounts will open the unlock popup
                     accounts = await provider.request({ method: 'eth_requestAccounts' });
                 }
+
+                // Show the hint BEFORE personal_sign so the user knows to look for the popup
+                setKortanaHint(true);
             } else {
                 accounts = await provider.request({ method: 'eth_requestAccounts' });
             }
@@ -128,26 +128,30 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
             const rawAddress = accounts[0];
 
             // 3. Switch / add Kortana network if not already on it
-            try {
-                await provider.request({
-                    method: 'wallet_switchEthereumChain',
-                    params: [{ chainId: KORTANA_CHAIN_HEX }],
-                });
-            } catch (switchErr: any) {
-                // Chain not added yet — add it
-                if (switchErr.code === 4902 || switchErr.code === -32603) {
+            // Kortana Wallet handles its own network internally, so we only attempt this
+            // for non-Kortana wallets (MetaMask etc.) that need an explicit chain switch.
+            if (walletOption.id !== 'kortana') {
+                try {
                     await provider.request({
-                        method: 'wallet_addEthereumChain',
-                        params: [{
-                            chainId: KORTANA_CHAIN_HEX,
-                            chainName: 'Kortana Testnet',
-                            nativeCurrency: { name: 'Dinar', symbol: 'DNR', decimals: 18 },
-                            rpcUrls: [process.env.NEXT_PUBLIC_KORTANA_RPC_URL || 'https://poseidon-rpc.testnet.kortana.xyz/'],
-                            blockExplorerUrls: [process.env.NEXT_PUBLIC_KORTANA_EXPLORER || 'https://explorer.testnet.kortana.xyz'],
-                        }],
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: KORTANA_CHAIN_HEX }],
                     });
+                } catch (switchErr: any) {
+                    // Chain not added yet — add it
+                    if (switchErr.code === 4902 || switchErr.code === -32603) {
+                        await provider.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [{
+                                chainId: KORTANA_CHAIN_HEX,
+                                chainName: 'Kortana Testnet',
+                                nativeCurrency: { name: 'Dinar', symbol: 'DNR', decimals: 18 },
+                                rpcUrls: [process.env.NEXT_PUBLIC_KORTANA_RPC_URL || 'https://poseidon-rpc.testnet.kortana.xyz/'],
+                                blockExplorerUrls: [process.env.NEXT_PUBLIC_KORTANA_EXPLORER || 'https://explorer.testnet.kortana.xyz'],
+                            }],
+                        });
+                    }
+                    // If the user rejected the switch, continue anyway — signature still works
                 }
-                // If the user rejected the switch, continue anyway — signature still works
             }
 
             // 4. Normalize address to EIP-55 checksum format
@@ -157,9 +161,8 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
             const timestamp = Date.now();
             const message = `Welcome to BelloMundo.\n\nSign this message to authenticate your sovereign identity.\n\nAddress: ${checksumAddress}\nTimestamp: ${timestamp}`;
 
-            // 6. Sign via personal_sign (raw EIP-1193, no Wagmi)
-            // Pass the human-readable plaintext — wallets encode it internally.
-            // viem.verifyMessage on the server side uses the same encoding.
+            // 6. Sign via personal_sign — this is the step that pops up the Kortana Wallet
+            // extension window for the user to explicitly approve authentication.
             const signature: string = await provider.request({
                 method: 'personal_sign',
                 params: [message, rawAddress],
@@ -177,6 +180,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
             if (result?.ok) {
                 // Persist which wallet was used — transactions will use this same wallet
                 setActiveWalletId(walletOption.id as 'kortana' | 'metamask' | 'injected');
+                setKortanaHint(false);
                 router.push("/dashboard");
                 onClose();
             } else {
@@ -184,6 +188,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
             }
         } catch (e: any) {
             console.error("Metropolis Authentication Failed:", e);
+            setKortanaHint(false);
             const msg: string = e?.message || '';
             if (e?.code === 4001 || msg.includes("User rejected") || msg.includes("user rejected") || e?.name === 'UserRejectedRequestError') {
                 setError("CONNECTION REJECTED: USER DENIED ACCESS.");
@@ -239,7 +244,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                             </button>
                         </div>
 
-                        {/* Error Banner */}
+                        {/* Banners */}
                         <div className="grid gap-6">
                             <AnimatePresence>
                                 {error && (
@@ -250,6 +255,16 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                                         className="p-6 rounded-3xl bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-black uppercase tracking-widest text-center"
                                     >
                                         {error}
+                                    </motion.div>
+                                )}
+                                {kortanaHint && !error && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -10, height: 0 }}
+                                        animate={{ opacity: 1, y: 0, height: "auto" }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="p-6 rounded-3xl bg-primary-bright/5 border border-primary-bright/20 text-primary-bright text-[10px] font-black uppercase tracking-widest text-center"
+                                    >
+                                        Check your Kortana Wallet — approve the sign request in the extension popup
                                     </motion.div>
                                 )}
                             </AnimatePresence>
