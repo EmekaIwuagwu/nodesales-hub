@@ -70,37 +70,42 @@ const kortanaWallet = (): Wallet => ({
   },
   createConnector: (walletDetails) =>
     createConnector((config) => {
+      // Use window.kortana directly as the target — same as the original
       const base = injected({
-        target: () => ({
-          id: "kortana",
-          name: "Kortana Wallet",
-          provider: resolveKortanaProvider(),
-        }),
+        target: () =>
+          typeof window !== "undefined"
+            ? (window as any).kortana
+            : undefined,
       })(config);
 
       return {
         ...base,
-        // Spread RainbowKit metadata so the modal renders name/icon correctly
         ...(walletDetails as any),
 
         connect: async (params?: {
           chainId?: number;
           isReconnecting?: boolean;
         }) => {
-          const provider = (await base.getProvider()) as any;
+          // Page refresh / session restore — silent, no popup
+          if (params?.isReconnecting) {
+            return base.connect(params);
+          }
+
+          // Resolve directly so we never depend on Wagmi's internal getProvider
+          const provider = resolveKortanaProvider();
           if (!provider) {
             throw new Error(
               "Kortana Wallet not found. Please install the extension."
             );
           }
 
-          // Step 1 — silent address read (no popup at all)
+          // Step 1 — silent read, no popup
           let accounts: string[] =
             (await provider
               .request({ method: "eth_accounts" })
               .catch(() => [])) ?? [];
 
-          // Step 2 — if locked, eth_requestAccounts opens the unlock popup
+          // Step 2 — wallet locked: shows unlock popup
           if (!accounts.length) {
             accounts = await provider.request({
               method: "eth_requestAccounts",
@@ -109,23 +114,17 @@ const kortanaWallet = (): Wallet => ({
 
           const address = accounts[0];
 
-          // Step 3 — personal_sign ALWAYS opens the Kortana extension popup.
-          // The user must explicitly approve here before the DEX connection
-          // completes — same behaviour as BelloMundo's WalletModal.
+          // Step 3 — personal_sign ALWAYS opens the Kortana extension popup
           const timestamp = Date.now();
-          const message =
-            `Kortana DEX\n\n` +
-            `Sign to connect your wallet.\n` +
-            `This does not cost gas or send any transaction.\n\n` +
-            `Address: ${address}\n` +
-            `Timestamp: ${timestamp}`;
-
           await provider.request({
             method: "personal_sign",
-            params: [message, address],
+            params: [
+              `Kortana DEX\n\nSign to connect your wallet.\nThis does not cost gas or send any transaction.\n\nAddress: ${address}\nTimestamp: ${timestamp}`,
+              address,
+            ],
           });
 
-          // Step 4 — let Wagmi finish the connection handshake
+          // Step 4 — Wagmi finalises connection state
           return base.connect(params);
         },
       };
