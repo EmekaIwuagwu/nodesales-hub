@@ -20,20 +20,31 @@ interface WalletModalProps {
 function getProvider(walletId: string): any | null {
     if (typeof window === 'undefined') return null;
     const w = window as any;
+    const providers: any[] = w.ethereum?.providers || [];
 
     if (walletId === 'kortana') {
-        return w.kortana || null;
+        // Priority 1: Dedicated window.kortana injection point
+        if (w.kortana) return w.kortana;
+
+        // Priority 2: EIP-5164 providers[] array — Kortana flagged entries
+        const k = providers.find((p: any) => p.isKortana || p.isKortanaWallet || p.kortana);
+        if (k) return k;
+
+        // Priority 3: window.ethereum itself is the Kortana wallet
+        if (w.ethereum?.isKortana || w.ethereum?.isKortanaWallet) return w.ethereum;
+
+        return null;
     }
 
     if (walletId === 'metamask') {
         // EIP-5164: some browsers expose window.ethereum.providers[] when
         // multiple wallets are installed. Find MetaMask specifically.
-        if (w.ethereum?.providers?.length) {
-            const mm = w.ethereum.providers.find((p: any) => p.isMetaMask && !p.isKortana);
+        if (providers.length) {
+            const mm = providers.find((p: any) => p.isMetaMask && !p.isKortana && !p.isKortanaWallet);
             if (mm) return mm;
         }
         // Fallback: if only MetaMask is installed, window.ethereum IS MetaMask
-        if (w.ethereum?.isMetaMask) return w.ethereum;
+        if (w.ethereum?.isMetaMask && !w.ethereum?.isKortana) return w.ethereum;
         return null;
     }
 
@@ -84,10 +95,29 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                 return;
             }
 
-            // 2. Request accounts (triggers wallet popup if needed)
-            const accounts: string[] = await provider.request({
-                method: 'eth_requestAccounts',
-            });
+            // 2. Request accounts
+            // For Kortana Wallet: use wallet_requestPermissions to ALWAYS trigger
+            // the extension popup — even when the site was previously approved.
+            // eth_requestAccounts alone silently returns without any popup if already trusted.
+            let accounts: string[];
+            if (walletOption.id === 'kortana') {
+                try {
+                    await provider.request({
+                        method: 'wallet_requestPermissions',
+                        params: [{ eth_accounts: {} }],
+                    });
+                    accounts = await provider.request({ method: 'eth_accounts' });
+                } catch (permErr: any) {
+                    // User rejected the popup
+                    if (permErr?.code === 4001 || permErr?.message?.toLowerCase().includes('user rejected')) {
+                        throw permErr;
+                    }
+                    // wallet_requestPermissions not supported — fall back gracefully
+                    accounts = await provider.request({ method: 'eth_requestAccounts' });
+                }
+            } else {
+                accounts = await provider.request({ method: 'eth_requestAccounts' });
+            }
 
             if (!accounts || accounts.length === 0) {
                 setError("NO ACCOUNT FOUND IN WALLET.");
