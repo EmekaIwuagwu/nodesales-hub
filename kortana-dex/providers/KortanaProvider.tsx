@@ -87,6 +87,12 @@ const kortanaWallet = (): Wallet => ({
           chainId?: number;
           isReconnecting?: boolean;
         }) => {
+          // On auto-reconnect (page refresh / session restore) skip the popup
+          // and let Wagmi silently restore the existing session.
+          if (params?.isReconnecting) {
+            return base.connect(params);
+          }
+
           const provider = (await base.getProvider()) as any;
           if (!provider) {
             throw new Error(
