@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "CallbackValidation",
+  "sourceName": "contracts/libraries/CallbackValidation.sol",
+  "abi": [],
+  "bytecode": "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea2646970667358221220b865c945c6d18c4d0a7982d8d3bc834375b6a1d1746af0abf5c6843231ba6c9464736f6c63430008140033",
+  "deployedBytecode": "0x600080fdfea2646970667358221220b865c945c6d18c4d0a7982d8d3bc834375b6a1d1746af0abf5c6843231ba6c9464736f6c63430008140033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

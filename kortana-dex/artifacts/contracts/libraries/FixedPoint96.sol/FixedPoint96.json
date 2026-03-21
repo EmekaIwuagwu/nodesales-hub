@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "FixedPoint96",
+  "sourceName": "contracts/libraries/FixedPoint96.sol",
+  "abi": [],
+  "bytecode": "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea2646970667358221220ecc87cf3b21feec71a9e0857bd4ad3a1245a3c5dd87e14fb2993b16f9777a2e464736f6c63430008140033",
+  "deployedBytecode": "0x600080fdfea2646970667358221220ecc87cf3b21feec71a9e0857bd4ad3a1245a3c5dd87e14fb2993b16f9777a2e464736f6c63430008140033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}
