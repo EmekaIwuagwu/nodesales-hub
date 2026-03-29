@@ -28,7 +28,7 @@ ABI = [
     }
 ]
 
-nft_contract = w3.eth.contract(address=w3.toChecksumAddress(NFT_ADDRESS)) if NFT_ADDRESS else None
+nft_contract = w3.eth.contract(address=w3.to_checksum_address(NFT_ADDRESS)) if NFT_ADDRESS else None
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -130,7 +130,7 @@ HTML_TEMPLATE = """
 
 @app.route("/", methods=["GET", "POST"])
 def home():
-    is_configured = bool(PRIVATE_KEY and NFT_ADDRESS and w3.isConnected())
+    is_configured = bool(PRIVATE_KEY and NFT_ADDRESS and w3.is_connected())
     return render_template_string(HTML_TEMPLATE, configured=is_configured, rpc=RPC_URL, address=NFT_ADDRESS)
 
 @app.route("/api/mint", methods=["POST"])
@@ -142,30 +142,30 @@ def mint_node():
     
     if auth_pass != ADMIN_PASSWORD:
         return jsonify({"success": False, "error": "Unauthorized. Incorrect admin password."}), 401
-    if not w3.isConnected() or not nft_contract:
+    if not w3.is_connected() or not nft_contract:
         return jsonify({"success": False, "error": "Blockchain RPC disconnected or NFT_ADDRESS unset."}), 500
         
     try:
-        checksummed_buyer = w3.toChecksumAddress(buyer)
+        checksummed_buyer = w3.to_checksum_address(buyer)
         account = w3.eth.account.from_key(PRIVATE_KEY)
-        nonce = w3.eth.getTransactionCount(account.address)
+        nonce = w3.eth.get_transaction_count(account.address)
         
         tx = nft_contract.functions.mintLicense(
             checksummed_buyer, int(tier)
-        ).buildTransaction({
+        ).build_transaction({
             'chainId': w3.eth.chain_id,
             'gas': 2000000,
-            'gasPrice': w3.toWei('1', 'gwei'),
+            'gasPrice': w3.to_wei('1', 'gwei'),
             'nonce': nonce,
         })
         
         signed_tx = w3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
-        tx_hash = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+        tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
         
         return jsonify({
             "success": True, 
             "message": f"License (Tier {tier}) successfully broadcasted to {buyer}.",
-            "txHash": w3.toHex(tx_hash)
+            "txHash": w3.to_hex(tx_hash)
         })
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 400
