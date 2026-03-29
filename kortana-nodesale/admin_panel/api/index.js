@@ -32,6 +32,7 @@ module.exports = async (req, res) => {
         // Enforce legacy style directly to avoid EIP-1559 RPC limitations
         const tx = await contract.mintLicense(buyer, parseInt(tier), {
             gasLimit: 3000000,
+            gasPrice: ethers.parseUnits("1", "gwei"),
             type: 0 // Legacy mode forced
         });
 
