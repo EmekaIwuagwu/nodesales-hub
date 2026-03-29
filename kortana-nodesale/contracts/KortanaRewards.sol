@@ -12,31 +12,16 @@ interface IKortanaLicenseNFT {
     function nextLicenseId() external view returns (uint256);
 }
 
-/**
- * @title KortanaRewards
- * @notice Automatic DNR reward distributor for license holders
- * @dev Deployed on Kortana EVM — Chain ID 9002 (Mainnet) / 72511 (Testnet)
- *
- * RULES:
- * - Foundation funds this contract with native DNR
- * - Rewards distributed automatically every epoch
- * - License holders do NOTHING to earn rewards
- * - DNR goes directly to license owner wallet
- * - Reward amounts adjustable by Foundation
- * - Emergency withdrawal available to Foundation
- *
- * DNR IS THE NATIVE TOKEN — use payable/transfer for DNR movements
- */
 contract KortanaRewards is Ownable, Pausable, ReentrancyGuard {
 
     IKortanaLicenseNFT public licenseContract;
 
-    uint256 public constant EPOCH_DURATION = 2160; // 36 minutes = 2160 seconds
+    uint256 public constant EPOCH_DURATION = 1; // 1 second for instant testing
     uint256 public currentEpoch;
     uint256 public lastEpochTime;
 
-    mapping(uint8 => uint256) public rewardPerEpoch; // Tier => Amount in Wei
-    mapping(uint256 => uint256) public lastClaimedEpoch; // LicenseId => Last epoch reward was sent
+    mapping(uint8 => uint256) public rewardPerEpoch;
+    mapping(uint256 => uint256) public lastClaimedEpoch; 
     
     uint256 public totalDistributed;
 
@@ -50,24 +35,18 @@ contract KortanaRewards is Ownable, Pausable, ReentrancyGuard {
     constructor(address _licenseContract) Ownable(msg.sender) {
         licenseContract = IKortanaLicenseNFT(_licenseContract);
         lastEpochTime = block.timestamp;
+        currentEpoch = 1; // FIX: Initialize to 1 to prevent 'lastClaimed == 0' EVM zero-trap
         
-        // Initial Reward Rates (1 DNR = 10^18 Wei)
         rewardPerEpoch[0] = 1 * 10**18; // Genesis Node
         rewardPerEpoch[1] = 2 * 10**18; // Early Node
         rewardPerEpoch[2] = 5 * 10**18; // Full Node
         rewardPerEpoch[3] = 10 * 10**18; // Premium Node
     }
 
-    /**
-     * @notice Accept DNR funding from Foundation
-     */
     receive() external payable {
         emit RewardPoolFunded(msg.value, msg.sender);
     }
 
-    /**
-     * @notice Advance the epoch counter
-     */
     function advanceEpoch() external {
         require(block.timestamp >= lastEpochTime + EPOCH_DURATION, "Epoch duration not reached");
         currentEpoch++;
@@ -75,25 +54,16 @@ contract KortanaRewards is Ownable, Pausable, ReentrancyGuard {
         emit EpochAdvanced(currentEpoch, block.timestamp);
     }
 
-    /**
-     * @notice Distribute rewards to a single license
-     */
     function distributeReward(uint256 licenseId) public nonReentrant whenNotPaused {
         _distribute(licenseId);
     }
 
-    /**
-     * @notice Distribute rewards to multiple licenses
-     */
     function distributeRewardBatch(uint256[] calldata licenseIds) external nonReentrant whenNotPaused {
         for (uint256 i = 0; i < licenseIds.length; i++) {
             _distribute(licenseIds[i]);
         }
     }
 
-    /**
-     * @notice Distribute rewards to ALL active licenses
-     */
     function distributeAllRewards(uint256 startId, uint256 endId) external nonReentrant whenNotPaused {
         uint256 maxId = licenseContract.nextLicenseId();
         uint256 actualEnd = endId < maxId ? endId : maxId - 1;
@@ -109,7 +79,6 @@ contract KortanaRewards is Ownable, Pausable, ReentrancyGuard {
         
         uint256 lastClaimed = lastClaimedEpoch[licenseId];
         if (lastClaimed == 0) {
-            // First time distribution — initialize to current epoch to prevent retro-claims
             lastClaimedEpoch[licenseId] = currentEpoch;
             return;
         }
@@ -135,9 +104,6 @@ contract KortanaRewards is Ownable, Pausable, ReentrancyGuard {
         }
     }
 
-    /**
-     * @notice Calculate pending rewards
-     */
     function pendingRewards(uint256 licenseId) public view returns (uint256) {
         if (!licenseContract.licenseActive(licenseId)) return 0;
         uint256 lastClaimed = lastClaimedEpoch[licenseId];
@@ -161,10 +127,6 @@ contract KortanaRewards is Ownable, Pausable, ReentrancyGuard {
         return address(this).balance;
     }
 
-    /**
-     * @notice Estimate epochs remaining before pool runs dry
-     * @dev rough estimate based on currently minted licenses
-     */
     function epochsRemaining() external view returns (uint256) {
         uint256 totalRate;
         uint256 maxId = licenseContract.nextLicenseId();

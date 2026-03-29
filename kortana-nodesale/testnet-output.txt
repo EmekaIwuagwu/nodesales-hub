@@ -1,0 +1,16 @@
+﻿Using Foundation Wallet: 0xf251038d1dB96Ce1a733Ae92247E0A6F400F275E
+Balance: 606027.474765865972535053 DNR
+
+≡ƒôª 1. MINTING A TEST NODE TO 0x5A0f90EB1CC1154b237EE7c0941391Ee1757051D...
+Γ£à Successfully minted Tier 0 (Genesis) Node to your test wallet!
+
+≡ƒÆ░ 2. FUNDING THE REWARD POOL...
+Γ£à Reward pool already has 10.0 DNR.
+
+ΓÅ░ 3. EXECUTING DAILY/EPOCH PAYOUT...
+Γ£à Advanced to the NEXT Epoch natively!
+
+≡ƒæë Your wallet's current balance: 0.0 DNR
+≡ƒÜÇ Calling distributeAllRewards()...
+
+Γ¥î Distribution error: You might need to wait exactly 36 minutes from deployment before the first epoch unlocks! (Or run advanceEpoch again later).

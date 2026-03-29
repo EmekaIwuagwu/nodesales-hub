@@ -1,0 +1,84 @@
+﻿===========================================
+Γ¼í EXECUTING 60-EPOCH (1 HOUR) LIVE SIMULATION
+===========================================
+
+≡ƒÆ░ FUNDING THE REWARDS POOL WITH 100 NATIVE DNR...
+
+≡ƒôª MINTING TIER 0 GENESIS NODE TO: 0x5A0f90EB1CC1154b237EE7c0941391Ee1757051D...
+Γ£à Node #1 minted!
+
+≡ƒöÆ SECURING ANTI-RETROACTIVE SNAPSHOT...
+
+≡ƒÜÇ SIMULATING CONTINUOUS NATIVE DISTRIBUTION (60 ITERATIONS)...
+
+
+ΓÜá∩╕Å Epoch 1/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 2/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 3/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 4/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 5/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 6/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 7/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 8/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 9/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 10/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 11/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 12/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 13/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 14/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 15/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 16/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 17/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 18/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 19/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 20/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 21/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 22/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 23/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 24/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 25/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 26/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 27/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 28/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 29/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 30/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 31/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 32/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 33/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 34/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 35/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 36/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 37/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 38/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 39/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 40/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 41/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 42/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 43/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 44/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 45/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 46/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 47/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 48/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 49/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 50/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 51/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 52/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 53/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 54/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 55/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 56/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 57/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 58/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 59/60 Skipped (Temporal Tick Missed)
+ΓÜá∩╕Å Epoch 60/60 Skipped (Temporal Tick Missed)
+
+ΓÅ│ WAITING 10 SECONDS FOR TESTNET PUBLIC RPC TO CACHE BALANCES...
+
+≡ƒÄë=======================================≡ƒÄë
+≡ƒÆ│ 1 HOUR SMART CONTRACT SIMULATION OVER!
+≡ƒôí Contract strictly routed exactly: 1.0 DNR to target!
+≡ƒôê Enclave Balance Net Delta: +0.0 DNR registered public RPC!
+≡ƒÆ░ New True Testnet Balance for 0x5A0f90EB1CC1154b237EE7c0941391Ee1757051D is fully updated: 510.0 DNR
+≡ƒÄë=======================================≡ƒÄë
+

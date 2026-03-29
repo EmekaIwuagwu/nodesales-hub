@@ -6,27 +6,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-/**
- * @title KortanaLicenseNFT
- * @notice Node License NFT for Kortana Blockchain
- * @dev Deployed on Kortana EVM — Chain ID 9002 (Mainnet) / 72511 (Testnet)
- *
- * RULES:
- * - Only Foundation wallet can mint
- * - Payment verified off-chain
- * - Foundation calls mintLicense() after verifying USDT payment
- * - License holders receive DNR rewards automatically
- * - Licenses are transferable between wallets
- * - Supply caps enforced per tier
- */
 contract KortanaLicenseNFT is ERC721, Ownable, Pausable, ReentrancyGuard {
     
-    enum Tier {
-        GenesisNode,      // Tier 0 — $300
-        EarlyNode,        // Tier 1 — $500
-        FullNode,         // Tier 2 — $1,000
-        PremiumNode       // Tier 3 — $2,000
-    }
+    enum Tier { GenesisNode, EarlyNode, FullNode, PremiumNode }
 
     struct License {
         Tier tier;
@@ -41,28 +23,48 @@ contract KortanaLicenseNFT is ERC721, Ownable, Pausable, ReentrancyGuard {
     mapping(Tier => uint256) public totalMinted;
     mapping(address => uint256[]) private _ownerLicenses;
 
+    // ============ REWARDS ARCHITECTURE ============
+    uint256 public constant EPOCH_DURATION = 86400; // 24 hours = 86400 seconds
+    uint256 public currentEpoch;
+    uint256 public lastEpochTime;
+
+    mapping(uint8 => uint256) public rewardPerEpoch;
+    mapping(uint256 => uint256) public lastClaimedEpoch; 
+    uint256 public totalDistributed;
+
     event LicenseMinted(address indexed buyer, uint256 indexed licenseId, Tier tier, uint256 timestamp);
     event LicenseRevoked(uint256 indexed licenseId);
+    
+    event RewardDistributed(address indexed holder, uint256 indexed licenseId, uint256 dnrAmount, uint256 epoch);
+    event EpochAdvanced(uint256 newEpoch, uint256 timestamp);
+    event RewardPoolFunded(uint256 dnrAmount, address funder);
+    event RewardRateUpdated(uint8 tier, uint256 newRate);
+    event EmergencyWithdraw(uint256 amount);
+    event InsufficientBalance(uint256 licenseId, uint256 requiredAmount);
 
     constructor() ERC721("Kortana Node License", "KNL") Ownable(msg.sender) {
         maxSupply[Tier.GenesisNode] = 1000;
         maxSupply[Tier.EarlyNode] = 2000;
         maxSupply[Tier.FullNode] = 1000;
         maxSupply[Tier.PremiumNode] = 500;
+
+        lastEpochTime = block.timestamp;
+        currentEpoch = 1; // Fixes 0-Epoch snapshot loop natively
+        
+        rewardPerEpoch[0] = 40 * 10**18;  // Genesis Node - 40 DNR
+        rewardPerEpoch[1] = 80 * 10**18;  // Early Node - 80 DNR
+        rewardPerEpoch[2] = 200 * 10**18; // Full Node - 200 DNR
+        rewardPerEpoch[3] = 400 * 10**18; // Premium Node - 400 DNR
     }
 
-    /**
-     * @notice Mint new license NFT to buyer
-     * @param buyer Kortana wallet address of the buyer
-     * @param tier The license tier being purchased
-     */
+    receive() external payable {
+        emit RewardPoolFunded(msg.value, msg.sender);
+    }
+
     function mintLicense(address buyer, Tier tier) external onlyOwner nonReentrant {
         _performMint(buyer, tier);
     }
 
-    /**
-     * @notice Batch mint multiple licenses at once
-     */
     function batchMintLicense(address[] calldata buyers, Tier[] calldata tiers) external onlyOwner nonReentrant {
         require(buyers.length == tiers.length, "Array lengths must match");
         for (uint256 i = 0; i < buyers.length; i++) {
@@ -88,10 +90,6 @@ contract KortanaLicenseNFT is ERC721, Ownable, Pausable, ReentrancyGuard {
         emit LicenseMinted(buyer, licenseId, tier, block.timestamp);
     }
 
-    /**
-     * @notice Transfer license to new owner
-     * @dev Overriding to track owner's licenses
-     */
     function _update(address to, uint256 tokenId, address auth) internal virtual override returns (address) {
         address from = super._update(to, tokenId, auth);
         
@@ -101,7 +99,6 @@ contract KortanaLicenseNFT is ERC721, Ownable, Pausable, ReentrancyGuard {
         if (to != address(0)) {
             _ownerLicenses[to].push(tokenId);
         }
-        
         return from;
     }
 
@@ -116,76 +113,70 @@ contract KortanaLicenseNFT is ERC721, Ownable, Pausable, ReentrancyGuard {
         }
     }
 
-    /**
-     * @notice Get all licenses owned by address
-     */
-    function getLicenses(address holder) external view returns (uint256[] memory) {
-        return _ownerLicenses[holder];
+    // ============ REWARDS LOGIC ============
+    function advanceEpoch() external {
+        require(block.timestamp >= lastEpochTime + EPOCH_DURATION, "Epoch duration not reached");
+        currentEpoch++;
+        lastEpochTime = block.timestamp;
+        emit EpochAdvanced(currentEpoch, block.timestamp);
     }
 
-    /**
-     * @notice Get remaining supply for a tier
-     */
-    function getRemainingSupply(Tier tier) external view returns (uint256) {
-        return maxSupply[tier] - totalMinted[tier];
+    function distributeReward(uint256 licenseId) public nonReentrant whenNotPaused {
+        _distribute(licenseId);
     }
 
-    /**
-     * @notice Get full license details
-     */
-    function getLicenseDetails(uint256 licenseId) external view 
-        returns (address owner, Tier tier, bool active, uint256 mintedAt) 
-    {
-        require(_licenseDetails[licenseId].mintedAt > 0, "License does not exist");
-        return (ownerOf(licenseId), _licenseDetails[licenseId].tier, _licenseDetails[licenseId].active, _licenseDetails[licenseId].mintedAt);
+    function distributeAllRewards(uint256 startId, uint256 endId) external nonReentrant whenNotPaused {
+        uint256 maxId = nextLicenseId;
+        uint256 actualEnd = endId < maxId ? endId : maxId - 1;
+        
+        for (uint256 i = startId; i <= actualEnd; i++) {
+            if (i == 0) continue;
+            _distribute(i);
+        }
     }
 
-    function tierOf(uint256 licenseId) external view returns (uint8) {
-        require(_licenseDetails[licenseId].mintedAt > 0, "License does not exist");
-        return uint8(_licenseDetails[licenseId].tier);
+    function _distribute(uint256 licenseId) internal {
+        if (!_licenseDetails[licenseId].active) return;
+        
+        uint256 lastClaimed = lastClaimedEpoch[licenseId];
+        if (lastClaimed == 0) {
+            lastClaimedEpoch[licenseId] = currentEpoch;
+            return;
+        }
+
+        if (currentEpoch <= lastClaimed) return;
+
+        uint256 epochsToClaim = currentEpoch - lastClaimed;
+        uint8 tier = uint8(_licenseDetails[licenseId].tier);
+        uint256 amount = epochsToClaim * rewardPerEpoch[tier];
+
+        if (address(this).balance < amount) {
+            emit InsufficientBalance(licenseId, amount);
+            return;
+        }
+
+        address nodeOwner = ownerOf(licenseId);
+        lastClaimedEpoch[licenseId] = currentEpoch;
+        totalDistributed += amount;
+
+        (bool success, ) = payable(nodeOwner).call{value: amount}("");
+        require(success, "DNR Transfer Failed");
+        emit RewardDistributed(nodeOwner, licenseId, amount, currentEpoch);
     }
 
-    function licenseActive(uint256 licenseId) external view returns (bool) {
-        return _licenseDetails[licenseId].active;
-    }
+    function getLicenses(address holder) external view returns (uint256[] memory) { return _ownerLicenses[holder]; }
+    function getRemainingSupply(Tier tier) external view returns (uint256) { return maxSupply[tier] - totalMinted[tier]; }
+    function licenseActive(uint256 licenseId) external view returns (bool) { return _licenseDetails[licenseId].active; }
+    function tierOf(uint256 licenseId) external view returns (uint8) { return uint8(_licenseDetails[licenseId].tier); }
 
-    /**
-     * @notice Emergency revocation of license
-     */
     function revokeLicense(uint256 licenseId) external onlyOwner {
         _licenseDetails[licenseId].active = false;
         emit LicenseRevoked(licenseId);
     }
 
-    /**
-     * @notice Update foundation wallet address
-     */
-    function updateFoundation(address newFoundation) external onlyOwner {
-        transferOwnership(newFoundation);
-    }
-
     string private _baseTokenURI;
-
-    /**
-     * @dev Overriding baseURI to return the metadata endpoint
-     */
-    function _baseURI() internal view virtual override returns (string memory) {
-        return _baseTokenURI;
-    }
-
-    /**
-     * @notice Set base URI for NFT metadata
-     * @param baseURI_ The new base URI (e.g., ipfs://CID/)
-     */
-    function setBaseURI(string calldata baseURI_) external onlyOwner {
-        _baseTokenURI = baseURI_;
-    }
-
-    function pause() external onlyOwner {
-        _pause();
-    }
-
-    function unpause() external onlyOwner {
-        _unpause();
-    }
+    function _baseURI() internal view virtual override returns (string memory) { return _baseTokenURI; }
+    function setBaseURI(string calldata baseURI_) external onlyOwner { _baseTokenURI = baseURI_; }
+    function pause() external onlyOwner { _pause(); }
+    function unpause() external onlyOwner { _unpause(); }
 }

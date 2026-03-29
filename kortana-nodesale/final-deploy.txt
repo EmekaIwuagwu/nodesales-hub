@@ -1,0 +1,19 @@
+﻿Compiled 1 Solidity file successfully (evm target: paris).
+===========================================
+Γ¼í EXECUTING OFFICIAL MAINNET LAUNCH PROTOCOL
+===========================================
+≡ƒÆ│ Deploying Unified Architecture with Foundation account: 0xf251038d1dB96Ce1a733Ae92247E0A6F400F275E
+≡ƒÆ░ Foundation Balance: 605232.400120543949425619
+
+≡ƒÜÇ DEPLOYING MONOLITHIC SMART CONTRACT...
+
+≡ƒÄë=======================================≡ƒÄë
+≡ƒôí KORTANA UNIFIED SMART CONTRACT DEPLOYED!
+≡ƒÄ» Official Mainnet Address: 0xF8C55806737454064Ef62531a99B047DeE81f5e5
+≡ƒÄë=======================================≡ƒÄë
+
+ΓÜá∩╕Å IMPORTANT ACTIONS REQUIRED NEXT ΓÜá∩╕Å
+1. Copy the Official Address above.
+2. Paste it into your 'admin_panel/.env' as 'NFT_ADDRESS=0xF8C55806737454064Ef62531a99B047DeE81f5e5'.
+3. Paste it inside 'scripts/daily-airdrop.js' as 'CONTRACT_ADDRESS'.
+4. Send some Mainnet DNR to '0xF8C55806737454064Ef62531a99B047DeE81f5e5' to fuel your daily payouts!

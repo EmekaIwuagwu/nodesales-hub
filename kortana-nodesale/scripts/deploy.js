@@ -3,29 +3,33 @@ const { ethers } = pkg;
 
 async function main() {
     const [deployer] = await ethers.getSigners();
-    console.log("Deploying contracts with account:", deployer.address);
+    
+    console.log(`===========================================`);
+    console.log(`⬡ EXECUTING OFFICIAL MAINNET LAUNCH PROTOCOL`);
+    console.log(`===========================================`);
+    console.log("💳 Deploying Unified Architecture with Foundation account:", deployer.address);
 
     const balance = await deployer.provider.getBalance(deployer.address);
-    console.log("Account balance:", ethers.formatEther(balance));
+    console.log("💰 Foundation Balance:", ethers.formatEther(balance));
 
-    // Deploy NFT
+    // Deploy Unified Ecosystem Monolith
+    console.log("\n🚀 DEPLOYING MONOLITHIC SMART CONTRACT...");
     const NFT = await ethers.getContractFactory("KortanaLicenseNFT");
-    const nft = await NFT.deploy({ gasLimit: 5000000, gasPrice: ethers.parseUnits("1", "gwei") });
+    // Explicit Legacy type overrides for Mainnet Zeus-RPC compatibilities
+    const nft = await NFT.deploy({ type: 0, gasLimit: 5000000, gasPrice: ethers.parseUnits("1", "gwei") });
     await nft.waitForDeployment();
-    const nftAddress = await nft.getAddress();
-    console.log("KortanaLicenseNFT deployed to:", nftAddress);
-
-    // Deploy Rewards
-    const Rewards = await ethers.getContractFactory("KortanaRewards");
-    const rewards = await Rewards.deploy(nftAddress, { gasLimit: 5000000, gasPrice: ethers.parseUnits("1", "gwei") });
-    await rewards.waitForDeployment();
-    const rewardsAddress = await rewards.getAddress();
-    console.log("KortanaRewards deployed to:", rewardsAddress);
-
-    console.log("\nDeployment Summary:");
-    console.log("-------------------");
-    console.log("NFT Address:", nftAddress);
-    console.log("Rewards Address:", rewardsAddress);
+    
+    const targetAddress = await nft.getAddress();
+    console.log(`\n🎉=======================================🎉`);
+    console.log(`📡 KORTANA UNIFIED SMART CONTRACT DEPLOYED!`);
+    console.log(`🎯 Official Mainnet Address: ${targetAddress}`);
+    console.log(`🎉=======================================🎉\n`);
+    
+    console.log(`⚠️ IMPORTANT ACTIONS REQUIRED NEXT ⚠️`);
+    console.log(`1. Copy the Official Address above.`);
+    console.log(`2. Paste it into your 'admin_panel/.env' as 'NFT_ADDRESS=${targetAddress}'.`);
+    console.log(`3. Paste it inside 'scripts/daily-airdrop.js' as 'CONTRACT_ADDRESS'.`);
+    console.log(`4. Send some Mainnet DNR to '${targetAddress}' to fuel your daily payouts!`);
 }
 
 main()
