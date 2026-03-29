@@ -1,9 +1,13 @@
 import os
 from flask import Flask, request, render_template, jsonify
 from web3 import Web3
-from web3.middleware import ExtraDataToPOAMiddleware
+from web3.middleware import geth_poa_middleware
 
-app = Flask(__name__, template_folder="../templates", static_folder="../static")
+# Resolve dynamic paths for Vercel's Serverless Build output
+current_dir = os.path.dirname(os.path.abspath(__file__))
+app = Flask(__name__, 
+            template_folder=os.path.join(current_dir, "../templates"), 
+            static_folder=os.path.join(current_dir, "../static"))
 
 # Environment variables injected by Vercel
 PRIVATE_KEY = os.getenv("PRIVATE_KEY")
@@ -15,7 +19,7 @@ ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "kortana123")
 # Connect Web3
 w3 = Web3(Web3.HTTPProvider(RPC_URL))
 # Inject PoA middleware required for Kortana blocks
-w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
+w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
 # Minimal ABI for KortanaLicenseNFT mintLicense function
 ABI = [
