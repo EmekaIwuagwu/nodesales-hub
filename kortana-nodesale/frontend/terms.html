@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Sale | Kortana Node Licenses</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .page-header { text-align: center; padding: 120px 20px 40px; }
+        .page-title { font-family: 'Syne', sans-serif; font-size: 48px; color: #fff; margin-bottom: 20px; }
+        .page-subtitle { color: #0ea5e9; font-family: 'JetBrains Mono', monospace; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
+        .content-container { max-width: 800px; margin: 0 auto 100px; background: rgba(14, 165, 233, 0.03); border: 1px solid rgba(14, 165, 233, 0.1); border-radius: 24px; padding: 60px; color: #cbd5e1; line-height: 1.8; font-family: 'DM Sans', sans-serif; backdrop-filter: blur(10px); }
+        .content-container h2 { color: #fff; font-family: 'Syne', sans-serif; margin-top: 40px; margin-bottom: 20px; }
+        .content-container p { margin-bottom: 20px; }
+        .content-container ul { margin-bottom: 20px; padding-left: 20px; }
+        .content-container li { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <canvas id="starfield"></canvas>
+    
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <a href="index.html" style="text-decoration:none;"><img src="logo.png" alt="Kortana" style="height:32px;"></a>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Back to Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <div class="page-subtitle">LEGAL AGREEMENT</div>
+        <h1 class="page-title">Terms of Sale</h1>
+    </div>
+
+    <div class="content-container">
+        <p>Last Updated: March 2026</p>
+        
+        <h2>1. Acceptance of Terms</h2>
+        <p>By purchasing a Kortana Node License (the "License") from the Kortana Foundation ("we", "us", or "our"), you ("Purchaser") agree to be bound by these Terms of Sale. If you do not agree to these terms, do not purchase a License.</p>
+        
+        <h2>2. Node License Specifications</h2>
+        <p>A Kortana Node License grants the holder the exclusive right to earn programmatic network rewards distributed native in DNR via Smart Contract execution. Licenses are represented exactly as cryptographic Non-Fungible Tokens (NFTs) deployed on the Kortana Blockchain.</p>
+        <ul>
+            <li>Reward yields are mathematically calculated based on the Tier of the purchased License.</li>
+            <li>DNR allocations are distributed globally every 24 Hours explicitly to the holding wallet.</li>
+            <li>Holding multiple Licenses compounds daily rewards algorithmically.</li>
+        </ul>
+
+        <h2>3. Payment and Transfer</h2>
+        <p>Purchases must be remitted strictly via USDT on the supported network protocols specified on the official Kortana ecosystem frontend. Once payment is mathematically confirmed on the block explorer, the corresponding NFT will be minted directly to your specified Enclave wallet.</p>
+        <p>Because Blockchain ledgers are securely immutable, refunds are strictly <strong>not provided</strong> under any circumstance once the NFT has been broadcasted to the Purchaser's wallet.</p>
+
+        <h2>4. Transferability and Resale</h2>
+        <p>Node Licenses are fully sovereign and completely transferable cryptographic assets. You may securely sell, trade, or transfer your Node License to any other Kortana Network wallet holder without seeking permission. Upon transfer, all future automated DNR airdrops are immediately re-routed to the new receiving wallet.</p>
+        
+        <h2>5. Risk Disclaimer</h2>
+        <p>DNR is a volatile cryptographic asset. The Foundation makes absolutely no guarantees or representations regarding the future fiat-currency price, valuation, or liquidity of DNR rewards. Purchasers should only deploy capital they can afford to lose and should strictly evaluate their own local regulatory jurisdictions before engaging with cryptocurrency protocols.</p>
+
+        <h2>6. Smart Contract Security</h2>
+        <p>Wait times and yield generation are executed autonomously by audited Smart Contracts. While our engineers employ robust industry security standards, software operations inherently carry execution risks.</p>
+    </div>
+
+    <footer>
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <img src="logo.png" alt="Kortana" style="height: 48px;">
+                <p>The infrastructure layer for the next generation of decentralized finance.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Kortana</h4>
+                <a href="https://kortana.network/technology" target="_blank">About</a>
+                <a href="index.html">Node Sale</a>
+                <a href="https://explorer.mainnet.kortana.xyz/" target="_blank">Block Explorer</a>
+                <a href="terms.html">Terms of Sale</a>
+            </div>
+            <div class="footer-links">
+                <h4>Resources</h4>
+                <a href="https://kortana.network/whitepaper" target="_blank">Whitepaper</a>
+                <a href="https://kortana.network/docs" target="_blank">Documentation</a>
+                <a href="https://kortana.network/tokenomics" target="_blank">Tokenomics</a>
+                <a href="privacy.html">Privacy Policy</a>
+            </div>
+            <div class="footer-links">
+                <h4>Community</h4>
+                <a href="https://kortana.network/community" target="_blank">Global Community</a>
+                <a href="https://kortana.network/developers" target="_blank">Developers</a>
+                <a href="https://t.me/KortanaNetwork" target="_blank">Telegram</a>
+            </div>
+        </div>
+        <div class="footer-bottom container">
+            <p>© 2026 Kortana Group LLC. All rights reserved. Wyoming, USA</p>
+        </div>
+    </footer>
+    <script src="nodesale.js"></script>
+</body>
+</html>
