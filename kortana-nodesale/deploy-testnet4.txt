@@ -1,0 +1,9 @@
+﻿Deploying contracts with account: 0xf251038d1dB96Ce1a733Ae92247E0A6F400F275E
+Account balance: 606027.474999999972841518
+KortanaLicenseNFT already deployed at: 0x53A816C9961131B778475664CAF2D318B30eC596
+KortanaRewards deployed to: 0x763e4f9537c6bEd74F8AB1134a2283F12F043FAa
+
+Deployment Summary:
+-------------------
+NFT Address: 0x53A816C9961131B778475664CAF2D318B30eC596
+Rewards Address: 0x763e4f9537c6bEd74F8AB1134a2283F12F043FAa

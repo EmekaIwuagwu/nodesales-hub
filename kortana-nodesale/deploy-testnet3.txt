@@ -1,0 +1,37 @@
+﻿Deploying contracts with account: 0xf251038d1dB96Ce1a733Ae92247E0A6F400F275E
+Account balance: 606027.474999999972841518
+KortanaLicenseNFT already deployed at: 0x53A816C9961131B778475664CAF2D318B30eC596
+node.exe : ProviderError: Eth error: 
+Invalid signature component length; 
+Kortana error: RlpExpectedToBeList
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" 
+"C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecif 
+   ied: (ProviderError: ...xpectedToBe  
+  List:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCom 
+   mandError
+ 
+    at HttpProvider.request (C:\Users\em
+i\Desktop\blockchains\kortanablockchain-
+devhub\kortana-nodesale\node_modules\har
+dhat\src\internal\core\providers\http.ts
+:116:21)
+    at processTicksAndRejections (node:i
+nternal/process/task_queues:103:5)
+    at 
+HardhatEthersSigner.sendTransaction (C:\
+Users\emi\Desktop\blockchains\kortanablo
+ckchain-devhub\kortana-nodesale\node_mod
+ules\@nomicfoundation\hardhat-ethers\src
+\signers.ts:185:18)
+    at ContractFactory.deploy (C:\Users\
+emi\Desktop\blockchains\kortanablockchai
+n-devhub\kortana-nodesale\node_modules\e
+thers\src.ts\contract\factory.ts:111:24)
+    at main (file:///C:/Users/emi/Deskto
+p/blockchains/kortanablockchain-devhub/k
+ortana-nodesale/scripts/deploy.js:17:21)

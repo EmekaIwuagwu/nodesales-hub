@@ -1,0 +1,10 @@
+{
+  "name": "Kortana Genesis Node",
+  "description": "The founding tier of Kortana Node Licenses. Earns 1 DNR per epoch automatically.",
+  "image": "ipfs://CID_GENESIS/image.png",
+  "attributes": [
+    { "trait_type": "Tier", "value": "Genesis" },
+    { "trait_type": "Rewards", "value": "1 DNR/Epoch" },
+    { "trait_type": "Governance", "value": "Founding Member" }
+  ]
+}

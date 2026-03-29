@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kortana Genesis Node License | Build the Future</title>
+    <!-- SEO -->
+    <meta name="description" content="Own a piece of the Kortana Blockchain. Secure your Genesis Node License and earn automatic DNR rewards every 36 minutes. Limited supply, high-end rewards.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.11.1/dist/ethers.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+</head>
+<body>
+    <!-- Background Canvas -->
+    <canvas id="starfield"></canvas>
+    <div class="nebula-blob"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <img src="logo.png" alt="Kortana">
+            </div>
+            <div class="nav-links">
+                <a href="#about">About</a>
+                <a href="#tiers">Tiers</a>
+                <a href="#how">How to Buy</a>
+                <a href="#faq">FAQ</a>
+                <button class="btn btn-connect" id="connectWalletBtn" onclick="connectWallet()">Connect Wallet</button>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" id="home">
+            <div class="container">
+                <div class="badge-pill" id="heroBadge">
+                    <span>⬡ KORTANA MAINNET IS LIVE ⬡</span>
+                </div>
+                <h1 class="hero-title">
+                    <span class="line">Own the</span>
+                    <span class="line gradient-text">Infrastructure.</span>
+                    <span class="line">Earn Forever.</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Kortana Genesis Node Licenses — the first and only way to earn native DNR rewards automatically. 
+                    No setup. No maintenance. Just passive income.
+                </p>
+                <div class="hero-ctas">
+                    <a href="#tiers" class="btn btn-primary">Buy A Node License</a>
+                    <a href="https://explorer.mainnet.kortana.xyz" target="_blank" class="btn btn-ghost">View Live Network</a>
+                </div>
+                
+                <div class="live-stats-bar">
+                    <div class="stat-item">
+                        <span class="stat-value" id="statBlocks">---</span>
+                        <span class="stat-label">Blocks</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="statValidators">50</span>
+                        <span class="stat-label">Validators</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-value">5 sec</span>
+                        <span class="stat-label">Block Time</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-value">$0.0001</span>
+                        <span class="stat-label">Gas Fee</span>
+                    </div>
+                </div>
+            </div>
+            <div class="scroll-indicator">
+                <div class="mouse"></div>
+            </div>
+        </section>
+
+        <!-- What is a Node License -->
+        <section class="about section" id="about">
+            <div class="container split-layout">
+                <div class="content-left">
+                    <div class="section-label">WHAT YOU'RE BUYING</div>
+                    <h2 class="section-title">A License That Pays You Automatically</h2>
+                    <p class="section-body">
+                        A Kortana Node License is your registered right to earn DNR rewards from the network. 
+                        Once you hold the license NFT in your wallet, rewards flow to you every 36 minutes. 
+                        Automatically. Forever. Without doing anything.
+                    </p>
+                    <ul class="feature-pills">
+                        <li>◆ Zero Technical Knowledge Required</li>
+                        <li>◆ DNR Rewards Every 36 Minutes</li>
+                        <li>◆ Transferable NFT — Sell Anytime</li>
+                    </ul>
+                </div>
+                <div class="content-right" id="rewardsVisual">
+                    <!-- SVG Animation Placeholder -->
+                    <div class="rewards-anim-container">
+                        <div class="node-icon network">KORTANA</div>
+                        <div class="particles-flow"></div>
+                        <div class="node-icon wallet">WALLET <span class="dnr-ticking">0.00 DNR</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tiers Section -->
+        <section class="tiers section" id="tiers">
+            <div class="container">
+                <div class="centered-header">
+                    <h2 class="section-title">Choose Your License Tier</h2>
+                    <p class="section-subtitle">All tiers earn automatic DNR rewards. Higher tiers earn more per epoch.</p>
+                </div>
+                <div class="tiers-grid">
+                    <!-- Genesis Node -->
+                    <div class="tier-card tier-genesis" data-tier="0">
+                        <div class="tier-badge">MOST POPULAR</div>
+                        <div class="tier-icon">⬡</div>
+                        <h3 class="tier-name">GENESIS NODE</h3>
+                        <div class="tier-price">$300 USDT</div>
+                        <div class="tier-divider"></div>
+                        <div class="tier-reward">
+                            <span class="reward-main">1 DNR per epoch</span>
+                            <span class="reward-annual">~14,600 DNR / year</span>
+                        </div>
+                        <ul class="tier-features">
+                            <li>✓ DNR Rewards Automatic</li>
+                            <li>✓ License NFT in Wallet</li>
+                            <li>✓ Governance Voting</li>
+                            <li>✓ Founding Member Status</li>
+                            <li>✓ Transferable Anytime</li>
+                        </ul>
+                        <div class="supply-tracker">
+                            <div class="supply-bar"><div class="supply-fill" id="supplyFill0" style="width: 0%"></div></div>
+                            <div class="supply-info" id="supplyInfo0">0 / 1000 minted</div>
+                        </div>
+                        <button class="btn btn-tier" onclick="selectTier(0)">Buy Genesis Node</button>
+                    </div>
+
+                    <!-- Early Node -->
+                    <div class="tier-card tier-early" data-tier="1">
+                        <div class="tier-icon">◈</div>
+                        <h3 class="tier-name">EARLY NODE</h3>
+                        <div class="tier-price">$500 USDT</div>
+                        <div class="tier-divider"></div>
+                        <div class="tier-reward">
+                            <span class="reward-main">2 DNR per epoch</span>
+                            <span class="reward-annual">~29,200 DNR / year</span>
+                        </div>
+                        <ul class="tier-features">
+                            <li>✓ DNR Rewards Automatic</li>
+                            <li>✓ License NFT in Wallet</li>
+                            <li>✓ Governance Voting</li>
+                            <li>✓ Early Access Perks</li>
+                            <li>✓ Transferable Anytime</li>
+                        </ul>
+                        <div class="supply-tracker">
+                            <div class="supply-bar"><div class="supply-fill" id="supplyFill1" style="width: 0%"></div></div>
+                            <div class="supply-info" id="supplyInfo1">0 / 2000 minted</div>
+                        </div>
+                        <button class="btn btn-tier" onclick="selectTier(1)">Buy Early Node</button>
+                    </div>
+
+                    <!-- Full Node -->
+                    <div class="tier-card tier-full" data-tier="2">
+                        <div class="tier-icon">○</div>
+                        <h3 class="tier-name">FULL NODE</h3>
+                        <div class="tier-price">$1,000 USDT</div>
+                        <div class="tier-divider"></div>
+                        <div class="tier-reward">
+                            <span class="reward-main">5 DNR per epoch</span>
+                            <span class="reward-annual">~73,000 DNR / year</span>
+                        </div>
+                        <ul class="tier-features">
+                            <li>✓ DNR Rewards Automatic</li>
+                            <li>✓ License NFT in Wallet</li>
+                            <li>✓ Higher Voting Weight</li>
+                            <li>✓ Priority Support</li>
+                            <li>✓ Transferable Anytime</li>
+                        </ul>
+                        <div class="supply-tracker">
+                            <div class="supply-bar"><div class="supply-fill" id="supplyFill2" style="width: 0%"></div></div>
+                            <div class="supply-info" id="supplyInfo2">0 / 1000 minted</div>
+                        </div>
+                        <button class="btn btn-tier" onclick="selectTier(2)">Buy Full Node</button>
+                    </div>
+
+                    <!-- Premium Node -->
+                    <div class="tier-card tier-premium" data-tier="3">
+                        <div class="tier-badge">LIMITED</div>
+                        <div class="tier-icon">✦</div>
+                        <h3 class="tier-name">PREMIUM NODE</h3>
+                        <div class="tier-price">$2,000 USDT</div>
+                        <div class="tier-divider"></div>
+                        <div class="tier-reward">
+                            <span class="reward-main">10 DNR per epoch</span>
+                            <span class="reward-annual">~146,000 DNR / year</span>
+                        </div>
+                        <ul class="tier-features">
+                            <li>✓ DNR Rewards Automatic</li>
+                            <li>✓ License NFT in Wallet</li>
+                            <li>✓ Max Governance Power</li>
+                            <li>✓ VIP Network Status</li>
+                            <li>✓ Transferable Anytime</li>
+                        </ul>
+                        <div class="supply-tracker">
+                            <div class="supply-bar"><div class="supply-fill" id="supplyFill3" style="width: 0%"></div></div>
+                            <div class="supply-info" id="supplyInfo3">0 / 500 minted</div>
+                        </div>
+                        <button class="btn btn-tier" onclick="selectTier(3)">Buy Premium Node</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ROI Calculator -->
+        <section class="calculator section">
+            <div class="container">
+                <div class="centered-header">
+                    <h2 class="section-title">Calculate Your Returns</h2>
+                </div>
+                <div class="calc-card glass-card">
+                    <div class="calc-inputs">
+                        <div class="input-group">
+                            <label>Select Your Tier:</label>
+                            <select id="calcTier" onchange="calculateROI()">
+                                <option value="0">Genesis Node ($300)</option>
+                                <option value="1">Early Node ($500)</option>
+                                <option value="2">Full Node ($1,000)</option>
+                                <option value="3">Premium Node ($2,000)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Projected DNR Listing Price:</label>
+                            <select id="calcPrice" onchange="calculateROI()">
+                                <option value="0.001">$0.001</option>
+                                <option value="0.005" selected>$0.005</option>
+                                <option value="0.01">$0.01</option>
+                                <option value="0.05">$0.05</option>
+                                <option value="0.10">$0.10</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="calc-results">
+                        <div class="result-box">
+                            <span class="res-value" id="resInvestment">$300</span>
+                            <span class="res-label">Investment</span>
+                        </div>
+                        <div class="result-box">
+                            <span class="res-value" id="resDNR">14,600 DNR</span>
+                            <span class="res-label">Annual DNR</span>
+                        </div>
+                        <div class="result-box">
+                            <span class="res-value highlight" id="resUSD">$73</span>
+                            <span class="res-label">Ann. Value</span>
+                        </div>
+                        <div class="result-box">
+                            <span class="res-value highlight" id="resROI">24.3%</span>
+                            <span class="res-label">ROI</span>
+                        </div>
+                    </div>
+                    <p class="disclaimer">Projections based on selected listing price. Not financial advice. Past performance does not guarantee future results.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- How to Buy -->
+        <section class="how section" id="how">
+            <div class="container">
+                <div class="centered-header">
+                    <h2 class="section-title">How To Get Your Node License</h2>
+                </div>
+                <div class="steps-container">
+                    <div class="step-card" data-step="1">
+                        <div class="step-number">01</div>
+                        <div class="step-content">
+                            <h3>CHOOSE YOUR TIER</h3>
+                            <p>Browse the license tiers above. Select the tier that fits your budget. Higher tiers earn more DNR per epoch.</p>
+                        </div>
+                    </div>
+                    <div class="step-card" data-step="2">
+                        <div class="step-number">02</div>
+                        <div class="step-content">
+                            <h3>SEND USDT</h3>
+                            <p>Send exact USDT amount to the foundation wallet. Choose your protocol below.</p>
+                            
+                            <div class="wallet-option">
+                                <span class="protocol-badge">TRC20</span>
+                                <div class="address-copy">
+                                    <span class="address mono">TX5tekNYLZXaVtje6QUMKjEsx9RxteSzC4</span>
+                                    <button class="btn-copy" onclick="copyAddress('TX5tekNYLZXaVtje6QUMKjEsx9RxteSzC4')">Copy</button>
+                                </div>
+                            </div>
+                            
+                            <div class="wallet-option" style="margin-top: 15px;">
+                                <span class="protocol-badge">BEP-20</span>
+                                <div class="address-copy">
+                                    <span class="address mono">0xe4a6fa2022c1c8432d8f1162f7bb080aef650e74</span>
+                                    <button class="btn-copy" onclick="copyAddress('0xe4a6fa2022c1c8432d8f1162f7bb080aef650e74')">Copy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step-card" data-step="3">
+                        <div class="step-number">03</div>
+                        <div class="step-content">
+                            <h3>SUBMIT YOUR APPLICATION</h3>
+                            <p>Fill in the form below with your Tron transaction hash and your Kortana wallet address.</p>
+                        </div>
+                    </div>
+                    <div class="step-card" data-step="4">
+                        <div class="step-number">04</div>
+                        <div class="step-content">
+                            <h3>RECEIVE YOUR LICENSE NFT</h3>
+                            <p>Within 24 hours we verify payment and mint your License NFT directly to your Kortana wallet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Application Form -->
+        <section class="application section" id="apply">
+            <div class="container">
+                <div class="form-container glass-card">
+                    <h2 class="section-title centered">Apply For Your License</h2>
+                    <p class="section-subtitle centered">Fill in your details after sending payment</p>
+                    
+                    <form id="applyForm">
+                        <div class="form-group">
+                            <label>Which tier are you purchasing?</label>
+                            <div class="radio-grid">
+                                <label class="radio-item">
+                                    <input type="radio" name="tier" value="Genesis" checked>
+                                    <span>Genesis — $300</span>
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="tier" value="Early">
+                                    <span>Early — $500</span>
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="tier" value="Full">
+                                    <span>Full — $1,000</span>
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="tier" value="Premium">
+                                    <span>Premium — $2,000</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Tron Transaction Hash</label>
+                            <input type="text" name="tron_hash" placeholder="Paste your TronScan transaction hash" required id="tronHash">
+                        </div>
+                        <div class="form-group">
+                            <label>Your Kortana Wallet Address</label>
+                            <input type="text" name="kortana_address" placeholder="0x..." required id="kortanaAddress">
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" name="email" placeholder="For confirmation email" required id="email">
+                        </div>
+                        <div class="form-group">
+                            <label>Any questions or notes? (Optional)</label>
+                            <textarea name="message" placeholder="Your message..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-submit">SUBMIT APPLICATION</button>
+                    </form>
+                    
+                    <div id="successMessage" class="hidden">
+                        <div class="success-icon">✓</div>
+                        <h3>Application received!</h3>
+                        <p>We'll verify your payment and mint your NFT within 24 hours. Check your email.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MetaMask Integration -->
+        <section class="metamask section">
+            <div class="container">
+                <div class="metamask-card glass-card">
+                    <div class="metamask-header">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="MetaMask" class="mm-logo">
+                        <h2>Add Kortana To MetaMask</h2>
+                    </div>
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="mainnet">Mainnet</button>
+                        <button class="tab-btn" data-tab="testnet">Testnet</button>
+                    </div>
+                    <div class="tab-content active" id="mainnetTab">
+                        <ul class="network-details">
+                            <li><span>Network Name:</span> <strong>Kortana Mainnet</strong></li>
+                            <li><span>RPC URL:</span> <strong>https://zeus-rpc.mainnet.kortana.xyz</strong></li>
+                            <li><span>Chain ID:</span> <strong>9002</strong></li>
+                            <li><span>Currency Symbol:</span> <strong>DNR</strong></li>
+                            <li><span>Explorer:</span> <strong>https://explorer.mainnet.kortana.xyz</strong></li>
+                        </ul>
+                        <button class="btn btn-metamask" onclick="addNetwork(9002)">🦊 Add Kortana Mainnet To MetaMask</button>
+                    </div>
+                    <div class="tab-content" id="testnetTab">
+                        <ul class="network-details">
+                            <li><span>Network Name:</span> <strong>Kortana Testnet</strong></li>
+                            <li><span>RPC URL:</span> <strong>https://poseidon-rpc.testnet.kortana.xyz/</strong></li>
+                            <li><span>Chain ID:</span> <strong>72511</strong></li>
+                            <li><span>Currency Symbol:</span> <strong>DNR</strong></li>
+                            <li><span>Explorer:</span> <strong>https://explorer.testnet.kortana.xyz</strong></li>
+                        </ul>
+                        <button class="btn btn-metamask" onclick="addNetwork(72511)">🦊 Add Kortana Testnet To MetaMask</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="faq section" id="faq">
+            <div class="container">
+                <div class="centered-header">
+                    <h2 class="section-title">Frequently Asked Questions</h2>
+                </div>
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <div class="faq-question">Do I need technical knowledge to earn rewards? <span>+</span></div>
+                        <div class="faq-answer">No. Zero technical knowledge required. Once you hold the License NFT in your Kortana wallet, DNR rewards flow automatically every 36 minutes. You do nothing.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">How do I receive my DNR rewards? <span>+</span></div>
+                        <div class="faq-answer">Rewards are sent automatically to the Kortana wallet address you provide at purchase. Add Kortana Mainnet to MetaMask (Chain ID: 9002) to see your growing DNR balance.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">Can I sell my node license? <span>+</span></div>
+                        <div class="faq-answer">Yes. Your license is an NFT and fully transferable. You can sell it to anyone at any time. Rewards will automatically go to the new owner.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">What is DNR? <span>+</span></div>
+                        <div class="faq-answer">DNR (DINAR) is the native token of Kortana Blockchain. It powers all transactions, staking, and governance on the network. It is not an ERC20 token — it is native to Kortana like ETH is native to Ethereum.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <img src="logo.png" alt="Kortana" style="height: 48px;">
+                <p>The infrastructure layer for the next generation of decentralized finance.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Kortana</h4>
+                <a href="#">About</a>
+                <a href="#">Node Sale</a>
+                <a href="#">Block Explorer</a>
+            </div>
+            <div class="footer-links">
+                <h4>Resources</h4>
+                <a href="#">Whitepaper</a>
+                <a href="#">Documentation</a>
+                <a href="#">GitHub</a>
+            </div>
+            <div class="footer-links">
+                <h4>Community</h4>
+                <a href="#">Twitter / X</a>
+                <a href="#">Telegram</a>
+                <a href="#">Discord</a>
+            </div>
+        </div>
+        <div class="footer-bottom container">
+            <p>© 2026 Kortana Group LLC. All rights reserved. Wyoming, USA</p>
+            <p class="disclaimer">Node license purchases involve risk. DNR token values are not guaranteed. This is not financial advice.</p>
+        </div>
+    </footer>
+
+    <script src="nodesale.js"></script>
+</body>
+</html>
