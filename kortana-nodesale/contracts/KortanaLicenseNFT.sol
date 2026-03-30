@@ -24,7 +24,7 @@ contract KortanaLicenseNFT is ERC721, Ownable, Pausable, ReentrancyGuard {
     mapping(address => uint256[]) private _ownerLicenses;
 
     // ============ REWARDS ARCHITECTURE ============
-    uint256 public constant EPOCH_DURATION = 86400; // 24 hours = 86400 seconds
+    uint256 public EPOCH_DURATION = 2160; // 36 minutes
     uint256 public currentEpoch;
     uint256 public lastEpochTime;
 
@@ -85,7 +85,6 @@ contract KortanaLicenseNFT is ERC721, Ownable, Pausable, ReentrancyGuard {
         });
         
         totalMinted[tier]++;
-        _ownerLicenses[buyer].push(licenseId);
         
         emit LicenseMinted(buyer, licenseId, tier, block.timestamp);
     }

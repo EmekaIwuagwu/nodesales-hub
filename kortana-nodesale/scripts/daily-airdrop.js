@@ -5,7 +5,7 @@ async function main() {
     const [deployer] = await ethers.getSigners();
     
     // MAINNET OFFICIAL CONTRACT ADDRESS (Replace after you run deploy.js on mainnet)
-    const CONTRACT_ADDRESS = "0xYourMainnetAddressHere"; // <-- TO DO
+    const CONTRACT_ADDRESS = "0xd31303e73A0601D6785E9516692D4A8eB8fA0A99B";
     
     console.log(`===========================================`);
     console.log(`⬡ KORTANA OFFICIAL DAILY AIRDROP BOT`);

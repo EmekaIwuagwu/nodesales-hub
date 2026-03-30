@@ -5,7 +5,7 @@ async function main() {
     const [deployer] = await ethers.getSigners();
     
     // The exact Live Testnet Smart Contract
-    const CONTRACT_ADDRESS = "0xF8C55806737454064Ef62531a99B047DeE81f5e5";
+    const CONTRACT_ADDRESS = "0x60dD3Caa3Cf48C786f8bb6DD18946e18564bF7F2";
 
     console.log(`===========================================`);
     console.log(`⬡ FUNDING THE TESTNET MASTER TREASURY`);
