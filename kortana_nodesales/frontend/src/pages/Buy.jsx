@@ -161,9 +161,18 @@ export default function Buy() {
       {/* ── Minimal header ──────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 bg-kortana-900/80 backdrop-blur-md border-b border-kortana-700/60 px-6 py-3">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <button onClick={() => navigate("/")} className="flex items-center">
-            <Logo size="sm" />
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate(-1)}
+              className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-kortana-700 transition-colors"
+              aria-label="Go back"
+            >
+              ← Back
+            </button>
+            <button onClick={() => navigate("/")} className="flex items-center">
+              <Logo size="sm" />
+            </button>
+          </div>
           {walletAddress && (
             <div className="flex items-center gap-2 text-sm text-gray-400 font-mono">
               <span className="w-1.5 h-1.5 rounded-full bg-green-400" />

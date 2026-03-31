@@ -17,11 +17,16 @@ export function useWallet() {
 
   // ── Chain guard ────────────────────────────────────────────────────────────
   const checkChain = useCallback(async () => {
-    if (!window.ethereum) return;
+    if (!window.ethereum) { setChainOk(true); return; }
+    // Kortana Wallet manages its own network internally — skip chain check
+    if (window.kortana || window.ethereum?.isKortana || window.ethereum?.isKortanaWallet) {
+      setChainOk(true);
+      return;
+    }
     try {
       const chainId = await window.ethereum.request({ method: "eth_chainId" });
       setChainOk(parseInt(chainId, 16) === KORTANA_CHAIN_ID);
-    } catch {}
+    } catch { setChainOk(true); }
   }, []);
 
   useEffect(() => {

@@ -36,7 +36,12 @@ export const ERC20_ABI = [
 
 export function getProvider() {
   if (!window.ethereum) throw new Error("No wallet detected");
-  return new ethers.BrowserProvider(window.ethereum);
+  const eip1193 = window.ethereum;
+  // MetaMask exposes .on() but not .addListener() — shim it for ethers v6
+  if (!eip1193.addListener && eip1193.on) {
+    eip1193.addListener = eip1193.on.bind(eip1193);
+  }
+  return new ethers.BrowserProvider(eip1193);
 }
 
 export async function getSigner() {
