@@ -36,12 +36,18 @@ export const ERC20_ABI = [
 
 export function getProvider() {
   if (!window.ethereum) throw new Error("No wallet detected");
-  const eip1193 = window.ethereum;
-  // MetaMask exposes .on() but not .addListener() — shim it for ethers v6
-  if (!eip1193.addListener && eip1193.on) {
-    eip1193.addListener = eip1193.on.bind(eip1193);
-  }
-  return new ethers.BrowserProvider(eip1193);
+  const raw = window.ethereum;
+  // Wrap in a Proxy so ethers v6 BrowserProvider can call addListener/removeListener
+  // even when the underlying provider (MetaMask) only exposes .on()/.off()
+  const wrapped = new Proxy(raw, {
+    get(target, prop, receiver) {
+      if (prop === "addListener") return (typeof target.addListener === "function" ? target.addListener : target.on ?? (() => {})).bind(target);
+      if (prop === "removeListener") return (typeof target.removeListener === "function" ? target.removeListener : target.off ?? (() => {})).bind(target);
+      const val = Reflect.get(target, prop, receiver);
+      return typeof val === "function" ? val.bind(target) : val;
+    },
+  });
+  return new ethers.BrowserProvider(wrapped);
 }
 
 export async function getSigner() {
