@@ -33,6 +33,7 @@ export const ERC20_ABI = [
   "function approve(address spender, uint256 amount) external returns (bool)",
   "function balanceOf(address account) external view returns (uint256)",
   "function decimals() external view returns (uint8)",
+  "function faucet(address to, uint256 amount) external",
 ];
 
 export function getProvider() {
@@ -82,16 +83,28 @@ export async function getUSDTContract(signerOrProvider) {
   return new ethers.Contract(addr, ERC20_ABI, signerOrProvider);
 }
 
-/** Switch or add the Kortana network in MetaMask */
+// Read-only provider always pointed at Kortana RPC — used for balance reads.
+// This ensures MetaMask users (who may be on Ethereum mainnet) still see their
+// correct Kortana testnet USDT balance.
+export function getKortanaReadProvider() {
+  const rpc = import.meta.env.VITE_RPC_URL || "https://poseidon-rpc.testnet.kortana.xyz/";
+  return new ethers.JsonRpcProvider(rpc);
+}
+
+/** Switch or add the Kortana network — uses the active login provider */
 export async function switchToKortana() {
+  const raw = getActiveProvider();
+  if (!raw) return;
+  // Kortana Wallet manages its own network internally
+  if (raw.isKortana || raw.isKortanaWallet) return;
   try {
-    await window.ethereum.request({
+    await raw.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: KORTANA_NETWORK.chainId }],
     });
   } catch (err) {
-    if (err.code === 4902) {
-      await window.ethereum.request({
+    if (err.code === 4902 || err.code === -32603) {
+      await raw.request({
         method: "wallet_addEthereumChain",
         params: [KORTANA_NETWORK],
       });

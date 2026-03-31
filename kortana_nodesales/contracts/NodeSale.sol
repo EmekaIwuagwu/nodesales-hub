@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./interfaces/INodeLicense.sol";
 
@@ -15,7 +14,6 @@ import "./interfaces/INodeLicense.sol";
  *         and records purchases on-chain for backend indexing.
  */
 contract NodeSale is Ownable, Pausable, ReentrancyGuard {
-    using SafeERC20 for IERC20;
 
     // ─── Structs ─────────────────────────────────────────────────────────────
 
@@ -135,8 +133,11 @@ contract NodeSale is Ownable, Pausable, ReentrancyGuard {
 
         uint256 totalCost = tier.priceUSDT * quantity;
 
-        // Pull USDT from buyer → treasury (SafeERC20)
-        usdtToken.safeTransferFrom(msg.sender, treasury, totalCost);
+        // Pull USDT from buyer → treasury (direct transferFrom — Kortana EVM)
+        require(
+            usdtToken.transferFrom(msg.sender, treasury, totalCost),
+            "NodeSale: USDT transfer failed"
+        );
 
         // Update state before external mint call (CEI)
         tier.sold += quantity;
@@ -201,7 +202,7 @@ contract NodeSale is Ownable, Pausable, ReentrancyGuard {
     function withdrawStuckTokens(address token) external onlyOwner {
         require(token != address(usdtToken), "NodeSale: cannot recover USDT");
         uint256 balance = IERC20(token).balanceOf(address(this));
-        IERC20(token).safeTransfer(owner(), balance);
+        require(IERC20(token).transfer(owner(), balance), "NodeSale: withdraw failed");
     }
 
     function pause()   external onlyOwner { _pause(); }
