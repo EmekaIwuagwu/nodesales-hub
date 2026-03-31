@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -v node_modules grep -n \"createWalletFromMnemonic\\\\|derivationPath\\\\|HDNodeWallet\\\\|fromMnemonic\" c:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-wallet/src/lib/*.ts)",
+      "Bash(ls -la c:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana_nodesales/.env*)",
+      "Bash(node -e \"require\\(''./backend/src/routes/user.js''\\); require\\(''./backend/src/routes/rewards.js''\\); require\\(''./backend/src/routes/nodes.js''\\); console.log\\(''Routes load OK''\\)\")",
+      "Bash(node -e \":*)",
+      "Bash(node scripts/inject-addresses.js)",
+      "Bash(node scripts/fund-vault.js)",
+      "Bash(npm install:*)",
+      "Bash(node scripts/seed.js)"
+    ]
+  }
+}

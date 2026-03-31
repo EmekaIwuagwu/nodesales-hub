@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 300" fill="none">
+  <defs>
+    <linearGradient id="mainGrad" x1="130" y1="10" x2="130" y2="258" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#00D8FF"/>
+      <stop offset="42%"  stop-color="#6050EE"/>
+      <stop offset="100%" stop-color="#EE20D4"/>
+    </linearGradient>
+    <linearGradient id="sideDark" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.32"/>
+    </linearGradient>
+    <linearGradient id="topLight" x1="0" y1="0" x2="0" y2="1" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#fff" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ── Left stem (front face) ─────────────────────────── -->
+  <polygon points="24,16 78,16 78,254 24,254"        fill="url(#mainGrad)"/>
+  <!-- stem right-side face (darker) -->
+  <polygon points="78,16 94,28 94,264 78,254"         fill="url(#mainGrad)" opacity="0.55"/>
+  <!-- stem top edge highlight -->
+  <polygon points="24,16 78,16 94,28 40,28"           fill="url(#topLight)"/>
+
+  <!-- ── Upper arm ──────────────────────────────────────── -->
+  <!-- front face -->
+  <polygon points="78,128 78,60 212,16 240,16 155,128" fill="url(#mainGrad)"/>
+  <!-- top highlight -->
+  <polygon points="78,60 94,72 226,28 212,16"          fill="url(#topLight)"/>
+
+  <!-- ── Lower arm ──────────────────────────────────────── -->
+  <!-- front face -->
+  <polygon points="78,140 155,140 240,246 212,258 78,200" fill="url(#mainGrad)"/>
+  <!-- bottom-right shadow face -->
+  <polygon points="155,140 171,152 256,258 240,246"    fill="url(#mainGrad)" opacity="0.5"/>
+
+  <!-- ── Hexagon cutout (white) ─────────────────────────── -->
+  <!-- pointy-top hexagon, center ≈ (112,134), r=22 -->
+  <polygon points="112,112 131,123 131,145 112,156 93,145 93,123" fill="white"/>
+
+  <!-- ── "kortana" wordmark ─────────────────────────────── -->
+  <text
+    x="130" y="292"
+    text-anchor="middle"
+    font-family="'Segoe UI', Arial, sans-serif"
+    font-size="30"
+    font-weight="300"
+    letter-spacing="7"
+    fill="rgba(255,255,255,0.65)"
+  >kortana</text>
+</svg>

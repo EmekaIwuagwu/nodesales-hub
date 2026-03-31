@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+
+  body {
+    @apply bg-kortana-900 text-white font-sans;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::-webkit-scrollbar        { width: 6px; }
+  ::-webkit-scrollbar-track  { @apply bg-kortana-800; }
+  ::-webkit-scrollbar-thumb  { @apply bg-kortana-600 rounded-full; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-kortana-accent text-kortana-900 font-bold py-3 px-6 rounded-xl
+           hover:brightness-110 active:scale-95 transition-all duration-200
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-outline {
+    @apply border border-kortana-accent text-kortana-accent font-semibold py-3 px-6
+           rounded-xl hover:bg-kortana-accent/10 active:scale-95 transition-all duration-200;
+  }
+
+  .card {
+    @apply bg-kortana-800 border border-kortana-700 rounded-2xl p-6;
+  }
+
+  .stat-value {
+    @apply text-3xl font-bold text-kortana-accent;
+  }
+
+  .stat-label {
+    @apply text-sm text-gray-400 mt-1;
+  }
+
+  .tier-badge {
+    @apply text-xs font-bold px-2 py-0.5 rounded-full;
+  }
+}

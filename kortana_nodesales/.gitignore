@@ -1,0 +1,13 @@
+node_modules/
+artifacts/
+cache/
+.env
+.env.deployed
+.env.vercel
+*.txt
+backend/node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Keep .env.production (only has public contract addresses, no secrets)
+!frontend/.env.production

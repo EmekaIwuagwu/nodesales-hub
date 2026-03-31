@@ -1,0 +1,50 @@
+{
+  "name": "kortana_nodesales",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "compile":          "hardhat compile",
+    "test:contracts":   "hardhat test",
+    "deploy:testnet":   "hardhat run scripts/deploy.js --network kortana_testnet",
+    "deploy:mainnet":   "hardhat run scripts/deploy.js --network kortana_mainnet",
+    "deploy:local":     "hardhat run scripts/deploy.js --network hardhat",
+    "inject":           "node scripts/inject-addresses.js",
+    "deploy:testnet:full": "npm run deploy:testnet && npm run inject",
+    "node:local":       "hardhat node",
+    "backend:dev":      "cd backend && npm run dev",
+    "backend:install":  "cd backend && npm install",
+    "frontend:dev":     "cd frontend && npm run dev",
+    "frontend:build":   "cd frontend && npm run build",
+    "frontend:install": "cd frontend && npm install",
+    "seed":             "node scripts/seed.js",
+    "backend:test":     "cd backend && npm test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.2",
+    "dotenv": "^17.3.1",
+    "hardhat": "^2.28.6"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.6.1",
+    "express":            "^4.19.2",
+    "mongoose":           "^8.4.0",
+    "ethers":             "^6.12.1",
+    "jsonwebtoken":       "^9.0.2",
+    "bcryptjs":           "^2.4.3",
+    "dotenv":             "^16.4.5",
+    "cors":               "^2.8.5",
+    "helmet":             "^7.1.0",
+    "express-rate-limit": "^7.3.1",
+    "node-cron":          "^3.0.3",
+    "winston":            "^3.13.0",
+    "zod":                "^3.23.8",
+    "axios":              "^1.7.2",
+    "siwe":               "^2.3.2",
+    "node-telegram-bot-api": "^0.66.0"
+  }
+}
