@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { KORTANA_CHAIN_ID } from "../utils/contracts";
-import { useStore } from "../store/useStore";
+import { useStore, getActiveProvider } from "../store/useStore";
 
 const API = import.meta.env.VITE_API_URL || "";
 
@@ -17,14 +17,15 @@ export function useWallet() {
 
   // ── Chain guard ────────────────────────────────────────────────────────────
   const checkChain = useCallback(async () => {
-    if (!window.ethereum) { setChainOk(true); return; }
-    // Kortana Wallet manages its own network internally — skip chain check
-    if (window.kortana || window.ethereum?.isKortana || window.ethereum?.isKortanaWallet) {
+    const p = getActiveProvider();
+    if (!p) { setChainOk(true); return; }
+    // Kortana Wallet manages its own network — skip chain check for it
+    if (p.isKortana || p.isKortanaWallet || window.kortana === p) {
       setChainOk(true);
       return;
     }
     try {
-      const chainId = await window.ethereum.request({ method: "eth_chainId" });
+      const chainId = await p.request({ method: "eth_chainId" });
       setChainOk(parseInt(chainId, 16) === KORTANA_CHAIN_ID);
     } catch { setChainOk(true); }
   }, []);
@@ -32,20 +33,27 @@ export function useWallet() {
   useEffect(() => {
     checkChain();
 
-    const handleChainChange = () => checkChain();
+    const handleChainChange   = () => checkChain();
     const handleAccountChange = (accounts) => {
       if (accounts.length === 0) logout();
       else setWallet(accounts[0]);
     };
 
-    if (window.ethereum) {
-      window.ethereum.on("chainChanged",    handleChainChange);
-      window.ethereum.on("accountsChanged", handleAccountChange);
+    // Use the specific provider the user logged in with, not window.ethereum.
+    // window.ethereum is a composite wrapper when multiple wallets are installed
+    // and its internal event system may be broken (MetaMask #S addListener bug).
+    const p = getActiveProvider();
+    if (p && typeof p.on === "function") {
+      try { p.on("chainChanged",    handleChainChange); }   catch {}
+      try { p.on("accountsChanged", handleAccountChange); } catch {}
     }
     return () => {
-      if (window.ethereum) {
-        window.ethereum.removeListener("chainChanged",    handleChainChange);
-        window.ethereum.removeListener("accountsChanged", handleAccountChange);
+      const p = getActiveProvider();
+      if (!p) return;
+      const off = p.removeListener || p.off;
+      if (typeof off === "function") {
+        try { off.call(p, "chainChanged",    handleChainChange); }   catch {}
+        try { off.call(p, "accountsChanged", handleAccountChange); } catch {}
       }
     };
   }, [checkChain, logout, setWallet]);

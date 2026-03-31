@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import { getActiveProvider } from "../store/useStore";
 
 export const KORTANA_CHAIN_ID = parseInt(import.meta.env.VITE_CHAIN_ID || "9002");
 
@@ -35,20 +36,17 @@ export const ERC20_ABI = [
 ];
 
 export function getProvider() {
-  if (!window.ethereum) throw new Error("No wallet detected");
-  const raw = window.ethereum;
-  // Minimal EIP-1193 adapter for ethers v6 BrowserProvider.
-  //
-  // Root cause: MetaMask's provider uses ES2022 private class fields (#S).
-  // When BrowserProvider calls ethereum.on("accountsChanged", ...) during
-  // construction, MetaMask's own .on() internally invokes addListener on a
-  // sub-provider that doesn't support it → "this[#S].addListener is not a
-  // function". This happens inside MetaMask's inpage.js, not in our code.
-  //
-  // Fix: expose no-op stubs for ALL event methods so ethers never touches
-  // MetaMask's broken internal event chain. Only request() needs to be real.
-  // Chain/account events are already handled in useWallet.js via window.ethereum.on()
-  // directly (which calls MetaMask's .on() synchronously in the right context).
+  // Use the specific provider the user logged in with (set in WalletModal).
+  // This avoids the broken composite window.ethereum wrapper that MetaMask
+  // creates when multiple wallet extensions are installed, which has a broken
+  // internal event system ("this[#S].addListener is not a function").
+  const raw = getActiveProvider();
+  if (!raw) throw new Error("No wallet detected");
+
+  // No-op event adapter: ethers v6 BrowserProvider calls provider.on() during
+  // construction. For MetaMask this triggers broken internal addListener calls.
+  // We only need request() to work — chain/account events are handled directly
+  // in useWallet.js on the raw provider in the correct execution context.
   const noop = () => {};
   const adapter = {
     request:        (args) => raw.request(args),

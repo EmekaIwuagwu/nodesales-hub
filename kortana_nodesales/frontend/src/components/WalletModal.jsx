@@ -10,7 +10,7 @@ import { useState } from "react";
 import { ethers }   from "ethers";
 import axios from "axios";
 import { KORTANA_NETWORK } from "../utils/contracts";
-import { useStore } from "../store/useStore";
+import { useStore, setActiveProvider } from "../store/useStore";
 
 const API = import.meta.env.VITE_API_URL || "";
 
@@ -93,6 +93,10 @@ export default function WalletModal({ isOpen, onClose }) {
     try {
       // 1 — Resolve the raw EIP-1193 provider
       const raw = detectProvider(wallet.id);
+
+      // Store this specific provider so getProvider() uses it everywhere,
+      // avoiding the broken composite window.ethereum wrapper.
+      if (raw) setActiveProvider(raw);
 
       if (!raw) {
         setError(
