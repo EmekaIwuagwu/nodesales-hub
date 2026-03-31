@@ -37,17 +37,19 @@ export const ERC20_ABI = [
 export function getProvider() {
   if (!window.ethereum) throw new Error("No wallet detected");
   const raw = window.ethereum;
-  // Wrap in a Proxy so ethers v6 BrowserProvider can call addListener/removeListener
-  // even when the underlying provider (MetaMask) only exposes .on()/.off()
-  const wrapped = new Proxy(raw, {
-    get(target, prop, receiver) {
-      if (prop === "addListener") return (typeof target.addListener === "function" ? target.addListener : target.on ?? (() => {})).bind(target);
-      if (prop === "removeListener") return (typeof target.removeListener === "function" ? target.removeListener : target.off ?? (() => {})).bind(target);
-      const val = Reflect.get(target, prop, receiver);
-      return typeof val === "function" ? val.bind(target) : val;
-    },
-  });
-  return new ethers.BrowserProvider(wrapped);
+  // Build a plain EIP-1193 adapter — NOT a Proxy.
+  // A Proxy breaks MetaMask because MetaMask uses private class fields (#S).
+  // Private fields are only accessible on the original object; when `this`
+  // becomes the Proxy, `this[#S]` throws "addListener is not a function".
+  // A plain adapter delegates every call to `raw` so `this` stays correct.
+  const adapter = {
+    request:        (args)        => raw.request(args),
+    on:             (evt, fn)     => { raw.on(evt, fn); return adapter; },
+    addListener:    (evt, fn)     => { raw.on(evt, fn); return adapter; },
+    removeListener: (evt, fn)     => { (raw.removeListener || raw.off || (() => {})).call(raw, evt, fn); return adapter; },
+    off:            (evt, fn)     => { (raw.off || raw.removeListener || (() => {})).call(raw, evt, fn); return adapter; },
+  };
+  return new ethers.BrowserProvider(adapter);
 }
 
 export async function getSigner() {

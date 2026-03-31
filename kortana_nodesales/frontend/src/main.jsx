@@ -7,27 +7,6 @@ import App from "./App";
 import ErrorBoundary from "./components/ErrorBoundary";
 import "./index.css";
 
-// ── Global MetaMask / ethers v6 compatibility shim ────────────────────────────
-// ethers v6 BrowserProvider calls provider.addListener() internally, but
-// MetaMask only exposes .on(). Patch every injected provider at boot so any
-// BrowserProvider instantiation — regardless of call site — works with MetaMask.
-(function shimEthereumProviders() {
-  try {
-    function patchProvider(p) {
-      if (p && typeof p.on === "function" && typeof p.addListener !== "function") {
-        p.addListener    = p.on.bind(p);
-        p.removeListener = (p.removeListener || p.off || function () {}).bind(p);
-      }
-    }
-    if (window.ethereum) {
-      patchProvider(window.ethereum);
-      // also patch every provider in the multi-wallet providers array
-      if (Array.isArray(window.ethereum.providers)) {
-        window.ethereum.providers.forEach(patchProvider);
-      }
-    }
-  } catch {}
-})();
 
 const queryClient = new QueryClient({
   defaultOptions: {
