@@ -23,11 +23,16 @@ async function connectDB() {
   mongoose.connection.on("disconnected", () => { isConnected = false; logger.warn("MongoDB disconnected"); });
   mongoose.connection.on("error",        (err) => logger.error("MongoDB error:", err));
 
-  await mongoose.connect(uri, {
-    maxPoolSize:              10,
-    serverSelectionTimeoutMS: 5000,
-    socketTimeoutMS:          45000,
-  });
+  try {
+    await mongoose.connect(uri, {
+      maxPoolSize:              10,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS:          45000,
+    });
+  } catch (err) {
+    logger.error("MongoDB connection failed — falling back to NO-DB mode:", err.message);
+    noDb = true;
+  }
 }
 
 function isDbConnected() { return isConnected; }

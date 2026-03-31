@@ -196,7 +196,8 @@ export default function WalletModal({ isOpen, onClose }) {
       ) {
         setError("Connection rejected — you denied the request.");
       } else if (err?.response?.data?.error) {
-        setError(err.response.data.error);
+        const serverErr = err.response.data.error;
+        setError(typeof serverErr === "string" ? serverErr : "Server error. Please try again.");
       } else {
         setError(msg || "Connection failed. Please try again.");
       }

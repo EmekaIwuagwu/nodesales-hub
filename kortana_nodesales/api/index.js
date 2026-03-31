@@ -110,6 +110,11 @@ async function ensureDb() {
 // ─── Vercel handler ───────────────────────────────────────────────────────────
 
 module.exports = async (req, res) => {
-  await ensureDb();
+  try {
+    await ensureDb();
+  } catch (err) {
+    // DB failure is non-fatal — routes degrade gracefully via isNoDbMode()
+    console.error("[Vercel] ensureDb error:", err.message);
+  }
   return app(req, res);
 };
