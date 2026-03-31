@@ -37,17 +37,26 @@ export const ERC20_ABI = [
 export function getProvider() {
   if (!window.ethereum) throw new Error("No wallet detected");
   const raw = window.ethereum;
-  // Build a plain EIP-1193 adapter — NOT a Proxy.
-  // A Proxy breaks MetaMask because MetaMask uses private class fields (#S).
-  // Private fields are only accessible on the original object; when `this`
-  // becomes the Proxy, `this[#S]` throws "addListener is not a function".
-  // A plain adapter delegates every call to `raw` so `this` stays correct.
+  // Minimal EIP-1193 adapter for ethers v6 BrowserProvider.
+  //
+  // Root cause: MetaMask's provider uses ES2022 private class fields (#S).
+  // When BrowserProvider calls ethereum.on("accountsChanged", ...) during
+  // construction, MetaMask's own .on() internally invokes addListener on a
+  // sub-provider that doesn't support it → "this[#S].addListener is not a
+  // function". This happens inside MetaMask's inpage.js, not in our code.
+  //
+  // Fix: expose no-op stubs for ALL event methods so ethers never touches
+  // MetaMask's broken internal event chain. Only request() needs to be real.
+  // Chain/account events are already handled in useWallet.js via window.ethereum.on()
+  // directly (which calls MetaMask's .on() synchronously in the right context).
+  const noop = () => {};
   const adapter = {
-    request:        (args)        => raw.request(args),
-    on:             (evt, fn)     => { raw.on(evt, fn); return adapter; },
-    addListener:    (evt, fn)     => { raw.on(evt, fn); return adapter; },
-    removeListener: (evt, fn)     => { (raw.removeListener || raw.off || (() => {})).call(raw, evt, fn); return adapter; },
-    off:            (evt, fn)     => { (raw.off || raw.removeListener || (() => {})).call(raw, evt, fn); return adapter; },
+    request:        (args) => raw.request(args),
+    on:             noop,
+    off:            noop,
+    addListener:    noop,
+    removeListener: noop,
+    emit:           noop,
   };
   return new ethers.BrowserProvider(adapter);
 }
