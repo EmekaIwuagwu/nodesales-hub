@@ -124,7 +124,8 @@ export default function Buy() {
       const signer = await getProvider().getSigner();
       const usdt   = await getUSDTContract(signer);
       toast("Requesting test USDT…", { icon: "⏳" });
-      const tx = await usdt.faucet(walletAddress, 10_000n * 1_000_000n); // 10,000 USDT
+      // Kortana testnet estimateGas is broken — explicit gasLimit required
+      const tx = await usdt.faucet(walletAddress, 10_000n * 1_000_000n, { gasLimit: 300_000 });
       await tx.wait();
       toast.success("10,000 test USDT added to your wallet!");
       // re-trigger balance refresh

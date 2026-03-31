@@ -28,7 +28,8 @@ export function useRewards(token) {
       await switchToKortana();
       const signer = await getSigner();
       const vault  = await getRewardVaultContract(signer);
-      const tx     = await vault.claimRewards();
+      // Kortana testnet estimateGas is broken — explicit gasLimit required
+      const tx     = await vault.claimRewards({ gasLimit: 300_000 });
       toast("Claiming DNR rewards...", { icon: "⏳" });
       const receipt = await tx.wait();
       toast.success("DNR rewards claimed!");

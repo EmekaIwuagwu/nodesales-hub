@@ -26,11 +26,15 @@ export function useNodePurchase() {
       const buyer    = await signer.getAddress();
       const nodeSaleAddr = await nodeSale.getAddress();
 
+      // Kortana testnet eth_estimateGas always returns 21576 (bare transfer
+      // cost) — every contract call needs an explicit gasLimit or it reverts.
+      const GAS = { gasLimit: 300_000 };
+
       // Check allowance — approve exact amount only
       const allowance = await usdt.allowance(buyer, nodeSaleAddr);
       if (allowance < totalCost) {
         toast("Approving USDT spend...", { icon: "⏳" });
-        const approveTx = await usdt.approve(nodeSaleAddr, totalCost);
+        const approveTx = await usdt.approve(nodeSaleAddr, totalCost, GAS);
         setTxHash(approveTx.hash);
         await approveTx.wait();
         toast.success("USDT approved!");
@@ -39,7 +43,7 @@ export function useNodePurchase() {
       // Purchase
       setStep("purchasing");
       toast("Confirming purchase...", { icon: "⏳" });
-      const purchaseTx = await nodeSale.purchaseNode(tierId, quantity);
+      const purchaseTx = await nodeSale.purchaseNode(tierId, quantity, GAS);
       setTxHash(purchaseTx.hash);
       const rec = await purchaseTx.wait();
       setReceipt(rec);
