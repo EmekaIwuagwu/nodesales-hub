@@ -222,6 +222,38 @@ router.post("/purchase", async (req, res) => {
   }
 });
 
+// ─── POST /faucet ─────────────────────────────────────────────────────────────
+// Backend mints 10,000 test USDT to the caller's wallet.
+// Distributor EOA pays gas — user needs zero native token.
+
+router.post("/faucet", async (req, res) => {
+  const schema = z.object({ walletAddress: z.string().min(42).max(42) });
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: "Invalid wallet address" });
+
+  const { walletAddress } = parsed.data;
+
+  try {
+    const USDT_ABI = ["function faucet(address to, uint256 amount) external"];
+    const provider = getProvider();
+    const signer   = new ethers.Wallet(process.env.DISTRIBUTOR_PRIVATE_KEY, provider);
+    const usdt     = new ethers.Contract(process.env.USDT_ADDRESS, USDT_ABI, signer);
+
+    const tx = await usdt.faucet(walletAddress, 10_000n * 1_000_000n, {
+      gasLimit: 300_000,
+      gasPrice: 1,
+    });
+    await tx.wait();
+
+    logger.info(`[Faucet] Sent 10,000 USDT → ${walletAddress}  tx=${tx.hash}`);
+    return res.json({ ok: true, txHash: tx.hash, amount: "10000" });
+
+  } catch (err) {
+    logger.error("[Faucet] Error:", err);
+    return res.status(500).json({ error: err?.reason || err?.message || "Faucet failed" });
+  }
+});
+
 // ─── POST /verify-purchase ────────────────────────────────────────────────────
 
 router.post("/verify-purchase", async (req, res) => {

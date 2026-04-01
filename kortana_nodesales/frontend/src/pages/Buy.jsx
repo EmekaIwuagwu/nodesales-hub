@@ -9,11 +9,8 @@ import { useWallet } from "../hooks/useWallet";
 import { useNodePurchase } from "../hooks/useNodePurchase";
 import {
   getKortanaReadProvider,
-  getProvider,
   getUSDTContract,
   formatUSDT,
-  switchToKortana,
-  KORTANA_NETWORK,
   KORTANA_CHAIN_ID,
 } from "../utils/contracts";
 import Logo from "../components/Logo";
@@ -124,20 +121,17 @@ export default function Buy() {
     if (!walletAddress) return;
     setFauceting(true);
     try {
-      await switchToKortana();
-      const signer = await getProvider().getSigner();
-      const usdt   = await getUSDTContract(signer);
       toast("Requesting test USDT…", { icon: "⏳" });
-      // gasPrice: 1 required on Kortana testnet
-      const tx = await usdt.faucet(walletAddress, 10_000n * 1_000_000n, { gasLimit: 300_000, gasPrice: 1 });
-      const receipt = await tx.wait();
-      if (receipt.status === 0) throw new Error("Transaction reverted on-chain");
+      // Backend distributor EOA pays gas — user needs zero native DNR
+      const { data } = await axios.post(`${API}/api/nodes/faucet`, { walletAddress });
+      if (!data?.ok) throw new Error(data?.error || "Faucet failed");
       toast.success("10,000 test USDT added to your wallet!");
       // Explicit refresh — do not rely on state-triggered useEffect
       await refreshBalance(walletAddress);
     } catch (err) {
       console.error("[Faucet] error:", err);
-      toast.error(err?.reason || err?.shortMessage || err?.message || "Faucet failed");
+      const msg = err?.response?.data?.error || err?.reason || err?.shortMessage || err?.message || "Faucet failed";
+      toast.error(msg);
     } finally {
       setFauceting(false);
     }

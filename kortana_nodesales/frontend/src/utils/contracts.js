@@ -1,16 +1,17 @@
 import { ethers } from "ethers";
 import { getActiveProvider } from "../store/useStore";
 
-// Chain ID — hardcoded fallback, overridden by /api/config at runtime
-export const KORTANA_CHAIN_ID = parseInt(import.meta.env.VITE_CHAIN_ID || "72511");
+export const KORTANA_CHAIN_ID = 72511;
 
 export const KORTANA_NETWORK = {
-  chainId:   `0x${KORTANA_CHAIN_ID.toString(16)}`,
-  chainName: KORTANA_CHAIN_ID === 9002 ? "Kortana Mainnet" : "Kortana Testnet",
-  nativeCurrency: { name: "DNR", symbol: "DNR", decimals: 18 },
-  rpcUrls:          [import.meta.env.VITE_RPC_URL || "https://poseidon-rpc.testnet.kortana.xyz/"],
-  blockExplorerUrls:[import.meta.env.VITE_EXPLORER_URL || "https://explorer.testnet.kortana.xyz"],
+  chainId:          "0x11b3f",   // 72511 in hex
+  chainName:        "Kortana Testnet",
+  nativeCurrency:   { name: "DNR", symbol: "DNR", decimals: 18 },
+  rpcUrls:          ["https://poseidon-rpc.testnet.kortana.xyz/"],
+  blockExplorerUrls:["https://explorer.testnet.kortana.xyz"],
 };
+
+// ─── ABIs ────────────────────────────────────────────────────────────────────
 
 export const NODE_SALE_ABI = [
   "function purchaseNode(uint256 tierId, uint256 quantity) external",
@@ -39,29 +40,39 @@ export const ERC20_ABI = [
   "function faucet(address to, uint256 amount) external",
 ];
 
-// ─── Runtime config fetched from /api/config ─────────────────────────────────
-// Addresses come from backend env vars, not from VITE_ build args.
-// This means no Docker rebuild is needed when addresses change.
+// ─── Runtime config ───────────────────────────────────────────────────────────
+// Addresses are served from /api/config (backend reads its own env vars).
+// This works regardless of Vite build args.
+// Hardcoded known testnet values are the guaranteed fallback.
 
-let _config = null;
+const TESTNET_FALLBACK = {
+  usdtAddress:        "0xE18cD71068Ed8dB03A5d19cE7eB232483F0F276C",
+  nodeSaleAddress:    "0xdBA784A27D6B49325BF9c0ecB16350fB14fD9769",
+  rewardVaultAddress: "0xCaA2D19d61605380703125EaC6E1a5018c12c88b",
+  rpcUrl:             "https://poseidon-rpc.testnet.kortana.xyz/",
+  explorerUrl:        "https://explorer.testnet.kortana.xyz",
+  chainId:            72511,
+};
+
+let _config = null;   // null = not yet loaded; set to object once loaded
 
 export async function getConfig() {
   if (_config) return _config;
   try {
     const API = import.meta.env.VITE_API_URL || "";
-    const res = await fetch(`${API}/api/config`);
-    _config = await res.json();
-  } catch {
-    // Fallback to VITE_ build-time vars if API unreachable
-    _config = {
-      usdtAddress:        import.meta.env.VITE_USDT_ADDRESS        || "",
-      nodeSaleAddress:    import.meta.env.VITE_NODE_SALE_ADDRESS    || "",
-      rewardVaultAddress: import.meta.env.VITE_REWARD_VAULT_ADDRESS || "",
-      rpcUrl:             import.meta.env.VITE_RPC_URL              || "https://poseidon-rpc.testnet.kortana.xyz/",
-      explorerUrl:        import.meta.env.VITE_EXPLORER_URL         || "https://explorer.testnet.kortana.xyz",
-    };
+    const res  = await fetch(`${API}/api/config`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    // Only cache if server returned a real USDT address
+    if (data?.usdtAddress) {
+      _config = data;
+      return _config;
+    }
+  } catch (err) {
+    console.warn("[Config] /api/config fetch failed, using hardcoded fallback:", err.message);
   }
-  return _config;
+  // Use hardcoded fallback — do NOT cache so next call retries API
+  return TESTNET_FALLBACK;
 }
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
@@ -85,7 +96,7 @@ export async function getSigner() {
   return getProvider().getSigner();
 }
 
-// ─── Contract getters (use runtime config) ────────────────────────────────────
+// ─── Contract getters ─────────────────────────────────────────────────────────
 
 export async function getNodeSaleContract(signerOrProvider) {
   const { nodeSaleAddress } = await getConfig();
@@ -105,14 +116,15 @@ export async function getUSDTContract(signerOrProvider) {
   return new ethers.Contract(usdtAddress, ERC20_ABI, signerOrProvider);
 }
 
-// Read-only provider always on Kortana RPC — balance reads work regardless of
-// which network the user's MetaMask is currently set to.
+// Always points to Kortana RPC — balance reads work regardless of which
+// network the user's MetaMask is on.
 export async function getKortanaReadProvider() {
   const { rpcUrl } = await getConfig();
-  return new ethers.JsonRpcProvider(rpcUrl || "https://poseidon-rpc.testnet.kortana.xyz/");
+  return new ethers.JsonRpcProvider(
+    rpcUrl || "https://poseidon-rpc.testnet.kortana.xyz/"
+  );
 }
 
-/** Switch MetaMask to Kortana network */
 export async function switchToKortana() {
   const raw = getActiveProvider();
   if (!raw) return;

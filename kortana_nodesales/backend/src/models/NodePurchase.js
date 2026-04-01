@@ -8,6 +8,7 @@ const NodePurchaseSchema = new mongoose.Schema({
   pricePerNode:        { type: Number, required: true },   // USDT (6-dec integer)
   totalPaid:           { type: Number, required: true },   // USDT (6-dec integer)
   txHash:              { type: String, required: true, unique: true },
+  mintTxHash:          { type: String },
   blockNumber:         { type: Number },
   licenseTokenAddress: { type: String },
   status:              { type: String, enum: ["pending","confirmed","failed"], default: "pending" },
