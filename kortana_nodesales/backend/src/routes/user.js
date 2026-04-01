@@ -14,7 +14,6 @@ const UserReward   = require("../models/UserReward");
 const User         = require("../models/User");
 const { requireAuth } = require("../middleware/auth");
 const { isNoDbMode } = require("../config/database");
-const NodePurchase = require("../models/NodePurchase");
 const logger       = require("../utils/logger");
 
 const router = express.Router();
