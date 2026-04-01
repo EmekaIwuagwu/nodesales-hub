@@ -95,17 +95,23 @@ export default function Buy() {
   const tiers = tiersData?.tiers ?? [];
   const tier  = tiers[selectedTier];
 
+  // Dedicated balance reader — called on mount, tier change, and after faucet
+  async function refreshBalance(addr) {
+    if (!addr) return;
+    try {
+      const readProvider = await getKortanaReadProvider();
+      const usdt = await getUSDTContract(readProvider);
+      const bal  = await usdt.balanceOf(addr);
+      setUsdtBalance(bal);
+    } catch (err) {
+      console.error("[Balance] read failed:", err.message);
+      setUsdtBalance(0n);
+    }
+  }
+
   useEffect(() => {
-    if (!walletAddress) return;
-    (async () => {
-      try {
-        const readProvider = await getKortanaReadProvider();
-        const usdt = await getUSDTContract(readProvider);
-        const bal  = await usdt.balanceOf(walletAddress);
-        setUsdtBalance(bal);
-      } catch { setUsdtBalance(0n); }
-    })();
-  }, [walletAddress, selectedTier, fauceting]);
+    refreshBalance(walletAddress);
+  }, [walletAddress, selectedTier]);
 
   const totalCost  = tier ? BigInt(tier.priceUSDT) * BigInt(quantity) : 0n;
   const hasBalance = usdtBalance !== null && usdtBalance >= totalCost;
@@ -122,12 +128,16 @@ export default function Buy() {
       const signer = await getProvider().getSigner();
       const usdt   = await getUSDTContract(signer);
       toast("Requesting test USDT…", { icon: "⏳" });
-      const tx = await usdt.faucet(walletAddress, 10_000n * 1_000_000n, { gasLimit: 300_000 });
-      await tx.wait();
+      // gasPrice: 1 required on Kortana testnet
+      const tx = await usdt.faucet(walletAddress, 10_000n * 1_000_000n, { gasLimit: 300_000, gasPrice: 1 });
+      const receipt = await tx.wait();
+      if (receipt.status === 0) throw new Error("Transaction reverted on-chain");
       toast.success("10,000 test USDT added to your wallet!");
-      setUsdtBalance(null);
+      // Explicit refresh — do not rely on state-triggered useEffect
+      await refreshBalance(walletAddress);
     } catch (err) {
-      toast.error(err?.reason || err?.message || "Faucet failed");
+      console.error("[Faucet] error:", err);
+      toast.error(err?.reason || err?.shortMessage || err?.message || "Faucet failed");
     } finally {
       setFauceting(false);
     }
