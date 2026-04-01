@@ -143,7 +143,8 @@ function startKeepAlive() {
   const renderUrl = process.env.RENDER_EXTERNAL_URL;
   if (!renderUrl) return;
   setInterval(() => {
-    require("http").get(`${renderUrl}/api/health`, res => {
+    const mod = renderUrl.startsWith("https") ? require("https") : require("http");
+    mod.get(`${renderUrl}/api/health`, res => {
       res.resume();
     }).on("error", () => {});
   }, 10 * 60 * 1000);
