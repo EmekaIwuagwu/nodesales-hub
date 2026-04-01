@@ -8,7 +8,9 @@
       "Bash(node scripts/inject-addresses.js)",
       "Bash(node scripts/fund-vault.js)",
       "Bash(npm install:*)",
-      "Bash(node scripts/seed.js)"
+      "Bash(node scripts/seed.js)",
+      "Bash(curl -s --max-time 10 -X POST https://poseidon-rpc.testnet.kortana.xyz/ -H \"Content-Type: application/json\" -d '{\"\"jsonrpc\"\":\"\"2.0\"\",\"\"method\"\":\"\"eth_blockNumber\"\",\"\"params\"\":[],\"\"id\"\":1}')",
+      "Bash(KORTANA_RPC_URL=https://poseidon-rpc.testnet.kortana.xyz/ PRIVATE_KEY=0x0ce974795717622ea3c0429e580a4e25a71585a389e05b7f87167b87b5ff65d4 USDT_ADDRESS=0xE18cD71068Ed8dB03A5d19cE7eB232483F0F276C node /tmp/sim-user.js)"
     ]
   }
 }

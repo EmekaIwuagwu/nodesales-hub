@@ -3,19 +3,22 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./interfaces/INodeLicense.sol";
+import "./KortanaGuard.sol";
 
 /**
  * @title NodeSale
  * @notice Core sale contract. Accepts USDT, mints NodeLicense ERC-20 to buyer.
  *
- * Kortana EVM note: bool and address are stored as uint256 to avoid slot-packing
- * bugs observed on the Kortana testnet where packed types (bool alongside address
- * in the same 32-byte slot) are not reliably written or read back.
+ * Kortana EVM notes:
+ *  - bool/address stored as uint256 — Kortana EVM has slot-packing bugs where
+ *    packed types in the same 32-byte slot are not reliably written or read back.
+ *  - KortanaGuard replaces OZ ReentrancyGuard — OZ v5's ReentrancyGuard uses
+ *    StorageSlot assembly (r.slot := slot) which causes a silent EVM revert on
+ *    Kortana (data=null, reason=null).
  */
-contract NodeSale is Ownable, Pausable, ReentrancyGuard {
+contract NodeSale is Ownable, Pausable, KortanaGuard {
 
     // ─── Structs ─────────────────────────────────────────────────────────────
     // All fields are uint256 / bytes32 — no packing. Each field gets its own

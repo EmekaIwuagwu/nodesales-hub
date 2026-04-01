@@ -141,7 +141,7 @@ export default function Buy() {
   async function handlePurchase() {
     if (!tier) return;
     try {
-      await purchase(selectedTier, quantity, totalCost);
+      await purchase(selectedTier, quantity, totalCost, tier.treasury);
       confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
       const ref = sessionStorage.getItem("kortana_ref");
       if (ref && token) {
@@ -413,17 +413,17 @@ export default function Buy() {
               {/* Purchase button */}
               <button
                 onClick={handlePurchase}
-                disabled={!hasBalance || step === "approving" || step === "purchasing"}
+                disabled={!hasBalance || step === "paying" || step === "waiting"}
                 className="btn-primary w-full text-base"
               >
-                {step === "approving" && (
+                {step === "paying" && (
                   <span className="flex items-center justify-center gap-2">
-                    <span className="animate-spin inline-block">⟳</span> Approving USDT…
+                    <span className="animate-spin inline-block">⟳</span> Sending USDT…
                   </span>
                 )}
-                {step === "purchasing" && (
+                {step === "waiting" && (
                   <span className="flex items-center justify-center gap-2">
-                    <span className="animate-spin inline-block">⟳</span> Confirming Purchase…
+                    <span className="animate-spin inline-block">⟳</span> Minting License…
                   </span>
                 )}
                 {step === "idle"  && `Confirm & Buy ${quantity} ${TIER_NAMES[selectedTier]} License${quantity > 1 ? "s" : ""}`}

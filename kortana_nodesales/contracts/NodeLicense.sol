@@ -4,95 +4,65 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title NodeLicense
  * @notice ERC-20 token representing ownership of a Kortana Node License.
- *         Each tier (Genesis / Early / Full / Premium) deploys its own instance.
- *         Decimals = 0 — whole licenses only.
- *         Only the designated NodeSale contract can mint.
+ *
+ * Kortana EVM: contract-to-contract CALL opcode is broken (silent no-op).
+ * Purchase flow is therefore off-chain verified:
+ *   1. User sends USDT directly to treasury (EOA → ERC20, works fine).
+ *   2. Backend detects Transfer event, verifies amount, calls mint() directly
+ *      from the distributor EOA (EOA → NodeLicense, works fine).
+ *
+ * The `minter` role replaces the old `nodeSaleContract` — it is set to the
+ * backend distributor wallet address, not a contract.
  */
-contract NodeLicense is ERC20, Ownable, Pausable, ReentrancyGuard {
-
-    // ─── State ───────────────────────────────────────────────────────────────
+contract NodeLicense is ERC20, Ownable, Pausable {
 
     uint256 public immutable maxSupply;
     uint256 public totalMinted;
     uint8   public immutable tierId;
-    address public nodeSaleContract;
+    address public minter;
 
-    // ─── Events ──────────────────────────────────────────────────────────────
+    event LicenseMinted(address indexed buyer, uint256 amount, uint8 tier);
+    event MinterUpdated(address indexed newMinter);
 
-    event LicenseMinted(address indexed buyer,  uint256 amount, uint8 tier);
-    event LicenseBurned(address indexed holder, uint256 amount);
-    event NodeSaleContractUpdated(address indexed newContract);
-
-    // ─── Modifiers ───────────────────────────────────────────────────────────
-
-    modifier onlyNodeSale() {
-        require(msg.sender == nodeSaleContract, "NodeLicense: caller is not NodeSale");
+    modifier onlyMinter() {
+        require(msg.sender == minter || msg.sender == owner(), "NodeLicense: not minter");
         _;
     }
 
-    // ─── Constructor ─────────────────────────────────────────────────────────
-
-    /**
-     * @param name_       e.g. "Kortana Genesis License"
-     * @param symbol_     e.g. "KGL"
-     * @param _maxSupply  Tier supply cap
-     * @param _tierId     0 = Genesis, 1 = Early, 2 = Full, 3 = Premium
-     */
     constructor(
         string memory name_,
         string memory symbol_,
         uint256 _maxSupply,
-        uint8   _tierId
+        uint8   _tierId,
+        address _minter
     ) ERC20(name_, symbol_) Ownable(msg.sender) {
+        require(_minter != address(0), "NodeLicense: zero minter");
         maxSupply = _maxSupply;
         tierId    = _tierId;
+        minter    = _minter;
     }
 
-    // ─── ERC-20 Override — 0 decimals ────────────────────────────────────────
+    function decimals() public pure override returns (uint8) { return 0; }
 
-    function decimals() public pure override returns (uint8) {
-        return 0;
-    }
-
-    // ─── Minting ─────────────────────────────────────────────────────────────
-
-    /**
-     * @notice Mint license tokens to a buyer. Only callable by NodeSale.
-     */
-    function mint(address to, uint256 amount) external onlyNodeSale whenNotPaused nonReentrant {
+    function mint(address to, uint256 amount) external onlyMinter whenNotPaused {
         require(totalMinted + amount <= maxSupply, "NodeLicense: supply cap exceeded");
         totalMinted += amount;
         _mint(to, amount);
         emit LicenseMinted(to, amount, tierId);
     }
 
-    // ─── Burning ─────────────────────────────────────────────────────────────
-
-    /**
-     * @notice Burn licenses from a holder. Admin only (revocation).
-     */
-    function burn(address from, uint256 amount) external onlyOwner nonReentrant {
-        _burn(from, amount);
-        emit LicenseBurned(from, amount);
-    }
-
-    // ─── Remaining Supply ────────────────────────────────────────────────────
-
     function remainingSupply() external view returns (uint256) {
         return maxSupply - totalMinted;
     }
 
-    // ─── Admin ───────────────────────────────────────────────────────────────
-
-    function setNodeSaleContract(address _contract) external onlyOwner {
-        require(_contract != address(0), "NodeLicense: zero address");
-        nodeSaleContract = _contract;
-        emit NodeSaleContractUpdated(_contract);
+    function setMinter(address _minter) external onlyOwner {
+        require(_minter != address(0), "NodeLicense: zero minter");
+        minter = _minter;
+        emit MinterUpdated(_minter);
     }
 
     function pause()   external onlyOwner { _pause(); }

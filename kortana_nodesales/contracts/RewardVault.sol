@@ -3,9 +3,8 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "./KortanaGuard.sol";
 
 /**
  * @title RewardVault
@@ -13,9 +12,13 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
  *         to node license holders every epoch (24 hours / 86400 seconds).
  *         The off-chain reward engine calls distributeRewards() each epoch.
  *         Users can claim their pending DNR at any time via claimRewards().
+ *
+ * Kortana EVM notes:
+ *  - KortanaGuard replaces OZ ReentrancyGuard (StorageSlot assembly is broken).
+ *  - SafeERC20 removed — its assembly is incompatible with Kortana EVM.
+ *    Direct IERC20.transfer/transferFrom calls are used instead.
  */
-contract RewardVault is Ownable, Pausable, ReentrancyGuard {
-    using SafeERC20 for IERC20;
+contract RewardVault is Ownable, Pausable, KortanaGuard {
 
     // ─── State ───────────────────────────────────────────────────────────────
 
@@ -86,7 +89,7 @@ contract RewardVault is Ownable, Pausable, ReentrancyGuard {
      */
     function depositRewards(uint256 amount) external onlyOwner {
         require(amount > 0, "RewardVault: zero amount");
-        dnrToken.safeTransferFrom(msg.sender, address(this), amount);
+        require(dnrToken.transferFrom(msg.sender, address(this), amount), "RewardVault: transferFrom failed");
         emit RewardsDeposited(amount, block.timestamp);
     }
 
@@ -146,7 +149,7 @@ contract RewardVault is Ownable, Pausable, ReentrancyGuard {
         pendingRewards[msg.sender] = 0;
         lastClaimEpoch[msg.sender] = currentEpoch;
 
-        dnrToken.safeTransfer(msg.sender, amount);
+        require(dnrToken.transfer(msg.sender, amount), "RewardVault: transfer failed");
         emit RewardsClaimed(msg.sender, amount, currentEpoch, block.timestamp);
     }
 
@@ -160,7 +163,7 @@ contract RewardVault is Ownable, Pausable, ReentrancyGuard {
         pendingRewards[user] = 0;
         lastClaimEpoch[user] = currentEpoch;
 
-        dnrToken.safeTransfer(user, amount);
+        require(dnrToken.transfer(user, amount), "RewardVault: transfer failed");
         emit RewardsClaimed(user, amount, currentEpoch, block.timestamp);
     }
 
@@ -202,7 +205,7 @@ contract RewardVault is Ownable, Pausable, ReentrancyGuard {
      */
     function emergencyWithdraw(uint256 amount) external onlyOwner {
         require(amount > 0, "RewardVault: zero amount");
-        dnrToken.safeTransfer(owner(), amount);
+        require(dnrToken.transfer(owner(), amount), "RewardVault: transfer failed");
     }
 
     function pause()   external onlyOwner { _pause(); }
