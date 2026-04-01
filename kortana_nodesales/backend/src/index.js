@@ -27,8 +27,19 @@ const app  = express();
 const PORT = process.env.PORT || 4000;
 
 app.use(helmet());
+
+const allowedOrigins = (process.env.ALLOWED_ORIGIN || "http://localhost:5173")
+  .split(",")
+  .map(s => s.trim())
+  .filter(Boolean);
+
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGIN || "http://localhost:5173",
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+      return cb(null, true);
+    }
+    cb(new Error("CORS: origin not allowed"));
+  },
   credentials: true,
 }));
 app.use(express.json({ limit: "10kb" }));
@@ -95,9 +106,22 @@ app.use((err, req, res, next) => {
 
 // ─── Start ───────────────────────────────────────────────────────────────────
 
+// Keep-alive: ping self every 10 minutes to prevent Render free tier sleep
+function startKeepAlive() {
+  const renderUrl = process.env.RENDER_EXTERNAL_URL;
+  if (!renderUrl) return;
+  setInterval(() => {
+    require("http").get(`${renderUrl}/api/health`, res => {
+      res.resume();
+    }).on("error", () => {});
+  }, 10 * 60 * 1000);
+  logger.info(`Keep-alive ping enabled → ${renderUrl}/api/health`);
+}
+
 async function start() {
   await connectDB();
   app.listen(PORT, () => logger.info(`Kortana Node Sale API running on :${PORT}`));
+  startKeepAlive();
 
   if (process.env.NODE_ENV !== "test") {
     if (isBlockchainConfigured()) {
@@ -106,7 +130,7 @@ async function start() {
       logger.info("Blockchain services started");
     } else {
       logger.warn("Blockchain not fully configured — reward engine and event listener disabled");
-      logger.warn("Set KORTANA_RPC_URL, NODE_SALE_ADDRESS, REWARD_VAULT_ADDRESS, DISTRIBUTOR_PRIVATE_KEY to enable");
+      logger.warn("Set KORTANA_RPC_URL, DISTRIBUTOR_PRIVATE_KEY, DNR_ADDRESS to enable");
     }
 
     // Warn if SaleConfig has not been seeded (only when DB is connected)

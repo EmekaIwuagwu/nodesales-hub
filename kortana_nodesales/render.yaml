@@ -1,0 +1,50 @@
+services:
+  - type: web
+    name: kortana-nodesales-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node src/index.js
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4000"
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 24h
+      - key: KORTANA_RPC_URL
+        sync: false
+      - key: KORTANA_CHAIN_ID
+        value: "72511"
+      - key: DISTRIBUTOR_PRIVATE_KEY
+        sync: false
+      - key: DISTRIBUTOR_ADDRESS
+        sync: false
+      - key: NODE_SALE_ADDRESS
+        sync: false
+      - key: REWARD_VAULT_ADDRESS
+        sync: false
+      - key: GENESIS_LICENSE_ADDRESS
+        sync: false
+      - key: EARLY_LICENSE_ADDRESS
+        sync: false
+      - key: FULL_LICENSE_ADDRESS
+        sync: false
+      - key: PREMIUM_LICENSE_ADDRESS
+        sync: false
+      - key: USDT_ADDRESS
+        sync: false
+      - key: DNR_ADDRESS
+        sync: false
+      - key: TREASURY
+        sync: false
+      - key: ALLOWED_ORIGIN
+        sync: false
+      - key: CRON_SECRET
+        sync: false
