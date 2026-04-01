@@ -16,7 +16,7 @@ const spaceGrotesk = Space_Grotesk({
   display: "swap",
 });
 
-const BASE_URL = "https://kortana.xyz";
+const BASE_URL = "https://www.kortana.network";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
