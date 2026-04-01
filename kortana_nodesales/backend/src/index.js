@@ -95,7 +95,7 @@ app.get("/api/health", async (req, res) => {
 
 const path = require("path");
 const fs   = require("fs");
-const publicDir = path.join(__dirname, "../../public");
+const publicDir = path.join(__dirname, "../public");
 
 if (fs.existsSync(publicDir)) {
   app.use(express.static(publicDir));
