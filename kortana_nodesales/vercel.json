@@ -9,8 +9,14 @@
   ],
   "functions": {
     "api/index.js": {
-      "maxDuration": 30,
+      "maxDuration": 60,
       "memory": 512
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/distribute?secret=kortana-cron-2026",
+      "schedule": "0 * * * *"
+    }
+  ]
 }

@@ -60,6 +60,22 @@ app.use("/api/user",    userRoutes);
 app.use("/api/rewards", rewardRoutes);
 app.use("/api/admin",   adminRoutes);
 
+// ─── Cron endpoint (called by Vercel Cron or external scheduler) ──────────────
+// Secured with CRON_SECRET so only the scheduler can trigger it.
+app.post("/api/cron/distribute", async (req, res) => {
+  const secret = req.headers["x-cron-secret"] || req.query.secret;
+  if (secret !== process.env.CRON_SECRET) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  try {
+    const { distributeRewards } = require("../backend/src/services/rewardEngine");
+    await distributeRewards();
+    res.json({ ok: true, timestamp: new Date().toISOString() });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── Public ───────────────────────────────────────────────────────────────────
 
 app.get("/api/faq", async (req, res) => {
