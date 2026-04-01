@@ -91,11 +91,24 @@ app.get("/api/health", async (req, res) => {
   });
 });
 
-// ─── 404 ──────────────────────────────────────────────────────────────────────
+// ─── Serve frontend (when built into /public by Docker) ───────────────────────
 
-app.use((req, res) => {
-  res.status(404).json({ error: "Not found" });
-});
+const path = require("path");
+const fs   = require("fs");
+const publicDir = path.join(__dirname, "../../public");
+
+if (fs.existsSync(publicDir)) {
+  app.use(express.static(publicDir));
+  // SPA fallback — let React Router handle all non-API routes
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(publicDir, "index.html"));
+  });
+} else {
+  // ─── 404 (API-only mode, no frontend build present) ────────────────────────
+  app.use((req, res) => {
+    res.status(404).json({ error: "Not found" });
+  });
+}
 
 // ─── Error handler ────────────────────────────────────────────────────────────
 

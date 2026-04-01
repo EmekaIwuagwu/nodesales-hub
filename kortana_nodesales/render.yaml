@@ -1,12 +1,10 @@
 services:
   - type: web
-    name: kortana-nodesales-api
-    runtime: node
-    rootDir: backend
-    buildCommand: npm install
-    startCommand: node src/index.js
-    plan: free
+    name: kortana-nodesales
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     healthCheckPath: /api/health
+    plan: free
     envVars:
       - key: NODE_ENV
         value: production
@@ -45,6 +43,25 @@ services:
       - key: TREASURY
         sync: false
       - key: ALLOWED_ORIGIN
-        sync: false
+        value: "*"
       - key: CRON_SECRET
+        sync: false
+    # Build-time ARGs baked into the Vite bundle — must be set before first deploy
+    dockerContext: .
+    buildArgs:
+      - key: VITE_API_URL
+        value: ""
+      - key: VITE_CHAIN_ID
+        value: "72511"
+      - key: VITE_RPC_URL
+        value: "https://poseidon-rpc.testnet.kortana.xyz/"
+      - key: VITE_EXPLORER_URL
+        value: "https://explorer.testnet.kortana.xyz"
+      - key: VITE_NODE_SALE_ADDRESS
+        sync: false
+      - key: VITE_REWARD_VAULT_ADDRESS
+        sync: false
+      - key: VITE_USDT_ADDRESS
+        sync: false
+      - key: VITE_WALLETCONNECT_PROJECT_ID
         sync: false
