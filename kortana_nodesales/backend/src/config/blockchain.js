@@ -16,7 +16,8 @@ const REWARD_VAULT_ABI = [
 ];
 
 const NODE_SALE_ABI = [
-  "function getTier(uint256 tierId) external view returns (tuple(string name, uint256 priceUSDT, uint256 maxSupply, uint256 sold, uint256 dnrPerEpoch, address licenseToken, bool active))",
+  "function getTier(uint256 tierId) external view returns (tuple(bytes32 name, uint256 priceUSDT, uint256 maxSupply, uint256 sold, uint256 dnrPerEpoch, uint256 licenseToken, uint256 active))",
+  "function tiers(uint256) external view returns (bytes32 name, uint256 priceUSDT, uint256 maxSupply, uint256 sold, uint256 dnrPerEpoch, uint256 licenseToken, uint256 active)",
   "function totalRaised() external view returns (uint256)",
   "function remainingSupply(uint256 tierId) external view returns (uint256)",
   "event NodePurchased(address indexed buyer, uint256 indexed tierId, uint256 quantity, uint256 totalPaid, uint256 timestamp)",
