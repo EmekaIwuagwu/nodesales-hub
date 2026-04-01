@@ -36,8 +36,9 @@ export function useNodePurchase() {
       const usdt    = await getUSDTContract(signer);
       const buyer   = await signer.getAddress();
 
-      // Kortana testnet: estimateGas unreliable, gasPrice must be explicit (not EIP-1559).
-      const GAS = { gasLimit: 300_000, gasPrice: 1 };
+      // Kortana only supports legacy (type-0) transactions — EIP-1559 (type-2) fails
+      // with RlpExpectedToBeList. type:0 + gasPrice forces legacy RLP encoding.
+      const GAS = { type: 0, gasLimit: 300_000, gasPrice: 1 };
 
       // Single transaction: send USDT directly to treasury (no approve, no contract logic)
       toast("Sending USDT payment…", { icon: "⏳" });
