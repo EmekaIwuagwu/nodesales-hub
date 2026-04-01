@@ -123,7 +123,7 @@ async function ensureDb() {
   }
 }
 
-// ─── Vercel handler ───────────────────────────────────────────────────────────
+// ─── Vercel handler — updated 2026-04-01 ─────────────────────────────────────
 
 module.exports = async (req, res) => {
   try {
