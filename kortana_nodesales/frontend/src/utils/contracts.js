@@ -1,14 +1,15 @@
 import { ethers } from "ethers";
 import { getActiveProvider } from "../store/useStore";
 
-export const KORTANA_CHAIN_ID = parseInt(import.meta.env.VITE_CHAIN_ID || "9002");
+// Chain ID — hardcoded fallback, overridden by /api/config at runtime
+export const KORTANA_CHAIN_ID = parseInt(import.meta.env.VITE_CHAIN_ID || "72511");
 
 export const KORTANA_NETWORK = {
   chainId:   `0x${KORTANA_CHAIN_ID.toString(16)}`,
   chainName: KORTANA_CHAIN_ID === 9002 ? "Kortana Mainnet" : "Kortana Testnet",
   nativeCurrency: { name: "DNR", symbol: "DNR", decimals: 18 },
-  rpcUrls:     [import.meta.env.VITE_RPC_URL || "https://zeus-rpc.mainnet.kortana.xyz"],
-  blockExplorerUrls: [import.meta.env.VITE_EXPLORER_URL || "https://explorer.mainnet.kortana.xyz"],
+  rpcUrls:          [import.meta.env.VITE_RPC_URL || "https://poseidon-rpc.testnet.kortana.xyz/"],
+  blockExplorerUrls:[import.meta.env.VITE_EXPLORER_URL || "https://explorer.testnet.kortana.xyz"],
 };
 
 export const NODE_SALE_ABI = [
@@ -38,18 +39,36 @@ export const ERC20_ABI = [
   "function faucet(address to, uint256 amount) external",
 ];
 
+// ─── Runtime config fetched from /api/config ─────────────────────────────────
+// Addresses come from backend env vars, not from VITE_ build args.
+// This means no Docker rebuild is needed when addresses change.
+
+let _config = null;
+
+export async function getConfig() {
+  if (_config) return _config;
+  try {
+    const API = import.meta.env.VITE_API_URL || "";
+    const res = await fetch(`${API}/api/config`);
+    _config = await res.json();
+  } catch {
+    // Fallback to VITE_ build-time vars if API unreachable
+    _config = {
+      usdtAddress:        import.meta.env.VITE_USDT_ADDRESS        || "",
+      nodeSaleAddress:    import.meta.env.VITE_NODE_SALE_ADDRESS    || "",
+      rewardVaultAddress: import.meta.env.VITE_REWARD_VAULT_ADDRESS || "",
+      rpcUrl:             import.meta.env.VITE_RPC_URL              || "https://poseidon-rpc.testnet.kortana.xyz/",
+      explorerUrl:        import.meta.env.VITE_EXPLORER_URL         || "https://explorer.testnet.kortana.xyz",
+    };
+  }
+  return _config;
+}
+
+// ─── Provider ─────────────────────────────────────────────────────────────────
+
 export function getProvider() {
-  // Use the specific provider the user logged in with (set in WalletModal).
-  // This avoids the broken composite window.ethereum wrapper that MetaMask
-  // creates when multiple wallet extensions are installed, which has a broken
-  // internal event system ("this[#S].addListener is not a function").
   const raw = getActiveProvider();
   if (!raw) throw new Error("No wallet detected");
-
-  // No-op event adapter: ethers v6 BrowserProvider calls provider.on() during
-  // construction. For MetaMask this triggers broken internal addListener calls.
-  // We only need request() to work — chain/account events are handled directly
-  // in useWallet.js on the raw provider in the correct execution context.
   const noop = () => {};
   const adapter = {
     request:        (args) => raw.request(args),
@@ -63,53 +82,46 @@ export function getProvider() {
 }
 
 export async function getSigner() {
-  const provider = getProvider();
-  return provider.getSigner();
+  return getProvider().getSigner();
 }
 
+// ─── Contract getters (use runtime config) ────────────────────────────────────
+
 export async function getNodeSaleContract(signerOrProvider) {
-  const addr = import.meta.env.VITE_NODE_SALE_ADDRESS;
-  if (!addr) throw new Error("VITE_NODE_SALE_ADDRESS not set");
-  return new ethers.Contract(addr, NODE_SALE_ABI, signerOrProvider);
+  const { nodeSaleAddress } = await getConfig();
+  if (!nodeSaleAddress) throw new Error("Node sale address not configured");
+  return new ethers.Contract(nodeSaleAddress, NODE_SALE_ABI, signerOrProvider);
 }
 
 export async function getRewardVaultContract(signerOrProvider) {
-  const addr = import.meta.env.VITE_REWARD_VAULT_ADDRESS;
-  if (!addr) throw new Error("VITE_REWARD_VAULT_ADDRESS not set");
-  return new ethers.Contract(addr, REWARD_VAULT_ABI, signerOrProvider);
+  const { rewardVaultAddress } = await getConfig();
+  if (!rewardVaultAddress) throw new Error("Reward vault address not configured");
+  return new ethers.Contract(rewardVaultAddress, REWARD_VAULT_ABI, signerOrProvider);
 }
 
 export async function getUSDTContract(signerOrProvider) {
-  const addr = import.meta.env.VITE_USDT_ADDRESS;
-  if (!addr) throw new Error("VITE_USDT_ADDRESS not set");
-  return new ethers.Contract(addr, ERC20_ABI, signerOrProvider);
+  const { usdtAddress } = await getConfig();
+  if (!usdtAddress) throw new Error("USDT address not configured");
+  return new ethers.Contract(usdtAddress, ERC20_ABI, signerOrProvider);
 }
 
-// Read-only provider always pointed at Kortana RPC — used for balance reads.
-// This ensures MetaMask users (who may be on Ethereum mainnet) still see their
-// correct Kortana testnet USDT balance.
-export function getKortanaReadProvider() {
-  const rpc = import.meta.env.VITE_RPC_URL || "https://poseidon-rpc.testnet.kortana.xyz/";
-  return new ethers.JsonRpcProvider(rpc);
+// Read-only provider always on Kortana RPC — balance reads work regardless of
+// which network the user's MetaMask is currently set to.
+export async function getKortanaReadProvider() {
+  const { rpcUrl } = await getConfig();
+  return new ethers.JsonRpcProvider(rpcUrl || "https://poseidon-rpc.testnet.kortana.xyz/");
 }
 
-/** Switch or add the Kortana network — uses the active login provider */
+/** Switch MetaMask to Kortana network */
 export async function switchToKortana() {
   const raw = getActiveProvider();
   if (!raw) return;
-  // Kortana Wallet manages its own network internally
   if (raw.isKortana || raw.isKortanaWallet) return;
   try {
-    await raw.request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: KORTANA_NETWORK.chainId }],
-    });
+    await raw.request({ method: "wallet_switchEthereumChain", params: [{ chainId: KORTANA_NETWORK.chainId }] });
   } catch (err) {
     if (err.code === 4902 || err.code === -32603) {
-      await raw.request({
-        method: "wallet_addEthereumChain",
-        params: [KORTANA_NETWORK],
-      });
+      await raw.request({ method: "wallet_addEthereumChain", params: [KORTANA_NETWORK] });
     } else {
       throw err;
     }

@@ -78,6 +78,18 @@ app.post("/api/cron/distribute", async (req, res) => {
 
 // ─── Public ───────────────────────────────────────────────────────────────────
 
+// ─── Public config ────────────────────────────────────────────────────────────
+app.get("/api/config", (req, res) => {
+  res.json({
+    usdtAddress:        process.env.USDT_ADDRESS        || "",
+    nodeSaleAddress:    process.env.NODE_SALE_ADDRESS    || "",
+    rewardVaultAddress: process.env.REWARD_VAULT_ADDRESS || "",
+    chainId:            parseInt(process.env.KORTANA_CHAIN_ID || "72511"),
+    rpcUrl:             process.env.KORTANA_RPC_URL      || "",
+    explorerUrl:        process.env.EXPLORER_URL         || "https://explorer.testnet.kortana.xyz",
+  });
+});
+
 app.get("/api/faq", async (req, res) => {
   if (isNoDbMode()) return res.json([]);
   try {

@@ -99,7 +99,7 @@ export default function Buy() {
     if (!walletAddress) return;
     (async () => {
       try {
-        const readProvider = getKortanaReadProvider();
+        const readProvider = await getKortanaReadProvider();
         const usdt = await getUSDTContract(readProvider);
         const bal  = await usdt.balanceOf(walletAddress);
         setUsdtBalance(bal);
