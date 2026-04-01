@@ -14,6 +14,7 @@ import {
   formatUSDT,
   switchToKortana,
   KORTANA_NETWORK,
+  KORTANA_CHAIN_ID,
 } from "../utils/contracts";
 import Logo from "../components/Logo";
 
@@ -211,7 +212,7 @@ export default function Buy() {
       <div className="relative max-w-3xl mx-auto px-6 py-10">
         <div className="mb-8">
           <h1 className="text-4xl font-black mb-1">Purchase a Node</h1>
-          <p className="text-gray-600 text-sm">Kortana Testnet · Chain {KORTANA_NETWORK.chainId}</p>
+          <p className="text-gray-600 text-sm">Kortana Testnet · Chain {KORTANA_CHAIN_ID}</p>
         </div>
 
         <Steps current={stepIdx} />
