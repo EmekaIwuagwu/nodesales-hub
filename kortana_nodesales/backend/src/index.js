@@ -26,6 +26,9 @@ const adminRoutes   = require("./routes/admin");
 const app  = express();
 const PORT = process.env.PORT || 4000;
 
+// Trust Render/Vercel reverse proxy so rate limiter sees real client IPs
+app.set("trust proxy", 1);
+
 app.use(helmet());
 
 const allowedOrigins = (process.env.ALLOWED_ORIGIN || "http://localhost:5173")
@@ -43,7 +46,11 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json({ limit: "10kb" }));
-app.use(apiLimiter);
+// Skip rate limiting for health check (used by keep-alive ping and Render)
+app.use((req, res, next) => {
+  if (req.path === "/api/health") return next();
+  return apiLimiter(req, res, next);
+});
 
 // ─── API routes ───────────────────────────────────────────────────────────────
 
