@@ -13,7 +13,7 @@ export interface Token {
 // TESTNET (Chain ID: 72511)
 export const TESTNET_TOKENS: Token[] = [
   {
-    address: "0x0000000000000000000000000000000000000000", // Native DNR
+    address: "0x0000000000000000000000000000000000000000",
     symbol: "DNR",
     name: "Kortana Dinar",
     decimals: 18,
@@ -22,7 +22,16 @@ export const TESTNET_TOKENS: Token[] = [
     tags: ["native"],
   },
   {
-    address: process.env.NEXT_PUBLIC_DNRS_ADDRESS_TESTNET || "0x5FbDB2315678afecb367f032d93F642f64180aa3", // Placeholder
+    address: process.env.NEXT_PUBLIC_WDNR_ADDRESS_TESTNET || "0xa9f4C43D113332123FAc2b6574767A6B00067d7e",
+    symbol: "WDNR",
+    name: "Wrapped Kortana Dinar",
+    decimals: 18,
+    logoURI: "/tokens/wdnr.png",
+    chainId: 72511,
+    tags: ["wrapped"],
+  },
+  {
+    address: "0xa1E9679c7AE524a09AbE34464A99d8D5daaEA92B", // Official DNRS from kortana-dnrs project
     symbol: "DNRS",
     name: "Kortana Dinar Stable",
     decimals: 18,
@@ -31,10 +40,10 @@ export const TESTNET_TOKENS: Token[] = [
     tags: ["stablecoin"],
   },
   {
-    address: process.env.NEXT_PUBLIC_USDT_ADDRESS_TESTNET || "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512", // Placeholder
+    address: "0x17A784f080Af594280a6F9871E658B99ccE364F3", // MockDNR used as USDT for now
     symbol: "USDT",
     name: "Tether USD (Testnet)",
-    decimals: 6,
+    decimals: 18,
     logoURI: "/tokens/usdt.png",
     chainId: 72511,
     tags: ["stablecoin"],
@@ -52,27 +61,10 @@ export const MAINNET_TOKENS: Token[] = [
     chainId: 9002,
     tags: ["native"],
   },
-  {
-    address: process.env.NEXT_PUBLIC_DNRS_ADDRESS_MAINNET || "0x0000000000000000000000000000000000000000",
-    symbol: "DNRS",
-    name: "Kortana Dinar Stable",
-    decimals: 18,
-    logoURI: "/tokens/dnrs.png",
-    chainId: 9002,
-    tags: ["stablecoin"],
-  },
-  {
-    address: process.env.NEXT_PUBLIC_USDT_ADDRESS_MAINNET || "0x0000000000000000000000000000000000000000",
-    symbol: "USDT",
-    name: "Tether USD",
-    decimals: 6,
-    logoURI: "/tokens/usdt.png",
-    chainId: 9002,
-    tags: ["stablecoin"],
-  },
 ];
 
 // Convenience exports
 export const DNR_TOKEN = TESTNET_TOKENS[0];
-export const DNRS_TOKEN = TESTNET_TOKENS[1];
-export const USDT_TOKEN = TESTNET_TOKENS[2];
+export const WDNR_TOKEN = TESTNET_TOKENS[1];
+export const DNRS_TOKEN = TESTNET_TOKENS[2];
+export const USDT_TOKEN = TESTNET_TOKENS[3];

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:KortanaWallet.ViewModels"
+             x:Class="KortanaWallet.Views.Auth.LoginPage"
+             x:DataType="vm:LoginViewModel"
+             Shell.NavBarIsVisible="False">
+
+    <Grid BackgroundColor="{StaticResource DeepSpaceBlue}">
+        <!-- Floating particle orbs background effect (simulated with ellipses) -->
+        <Ellipse Fill="{StaticResource RoyalKortanaBlue}" Opacity="0.1" WidthRequest="300" HeightRequest="300" TranslationX="-150" TranslationY="-150" />
+        <Ellipse Fill="{StaticResource NeonBlueGlow}" Opacity="0.05" WidthRequest="400" HeightRequest="400" TranslationX="200" TranslationY="300" />
+
+        <VerticalStackLayout VerticalOptions="Center" Spacing="40" Padding="40">
+            
+            <Image Source="kortana_logo.png" HeightRequest="120" WidthRequest="120" HorizontalOptions="Center" />
+            
+            <Label Text="Unlock Wallet" Style="{StaticResource H2Section}" HorizontalOptions="Center" />
+            
+            <VerticalStackLayout Spacing="8">
+                <Border Style="{StaticResource GlassCardStyle}" Padding="0" HeightRequest="60">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Entry Placeholder="Enter Password" 
+                               IsPassword="True" 
+                               Text="{Binding Password}" 
+                               TextColor="{StaticResource PureWhite}"
+                               PlaceholderColor="{StaticResource SlateGray}"
+                               FontSize="18"
+                               VerticalOptions="Center"
+                               Margin="16,0" />
+                        
+                        <Button Grid.Column="1" 
+                                Text="Unlock" 
+                                Style="{StaticResource PrimaryButtonStyle}" 
+                                WidthRequest="100" 
+                                HeightRequest="60"
+                                CornerRadius="0"
+                                Command="{Binding AuthenticateCommand}" />
+                    </Grid>
+                </Border>
+                <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource DangerRed}" HorizontalOptions="Center" IsVisible="{Binding HasError}" Margin="0,10" />
+            </VerticalStackLayout>
+
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="20">
+                 <Button Text="Use Biometrics" Style="{StaticResource GhostButtonStyle}" BorderWidth="0" Command="{Binding BiometricLoginCommand}" />
+            </HorizontalStackLayout>
+
+            <Button Text="Reset Wallet" Style="{StaticResource GhostButtonStyle}" Opacity="0.5" BorderWidth="0" HeightRequest="30" FontSize="12" HorizontalOptions="Center" Command="{Binding ResetCommand}" Margin="0,40,0,0" />
+
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

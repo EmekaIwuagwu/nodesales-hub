@@ -5,7 +5,7 @@ async function main() {
     const [deployer] = await ethers.getSigners();
     
     // MAINNET OFFICIAL CONTRACT ADDRESS (Replace after you run deploy.js on mainnet)
-    const CONTRACT_ADDRESS = "0xd31303e73A0601D6785E9516692D4A8eB8fA0A99B";
+    const CONTRACT_ADDRESS = "0x2333B951635Ce16A452BbeE8034AFbfA081Da856";
     
     console.log(`===========================================`);
     console.log(`⬡ KORTANA OFFICIAL DAILY AIRDROP BOT`);
@@ -44,8 +44,10 @@ async function main() {
         console.log(`🎉=======================================🎉\n`);
 
     } catch (e) {
-        console.log(`\n❌ ERROR: Transaction reverted. Ensure your Server Wallet has enough DNR for Gas Fees, or that the Epoch timeframe is fully met!`);
-        console.error(e);
+        console.log(`\n❌ ERROR: Transaction reverted.`);
+        if (e.data) console.log("Revert Data:", e.data);
+        if (e.reason) console.log("Reason:", e.reason);
+        console.error(e.message);
         process.exit(1);
     }
 }

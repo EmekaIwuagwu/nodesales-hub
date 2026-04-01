@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:KortanaWallet.ViewModels"
+             xmlns:models="clr-namespace:KortanaWallet.Models"
+             x:Class="KortanaWallet.Views.Network.NetworkPage"
+             x:DataType="vm:NetworkViewModel"
+             Title="Networks">
+
+    <Grid RowDefinitions="*, Auto" Padding="20">
+        <CollectionView Grid.Row="0" ItemsSource="{Binding Networks}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Network">
+                    <Border Style="{StaticResource GlassCardStyle}" Margin="0,0,0,12" Padding="16">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:NetworkViewModel}}, Path=SwitchNetworkCommand}" CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        
+                        <Grid ColumnDefinitions="Auto, *, Auto">
+                            <Ellipse Grid.Column="0" WidthRequest="32" HeightRequest="32" Fill="{StaticResource CardGradient}" VerticalOptions="Center" Margin="0,0,12,0" />
+                            
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                <Label Text="{Binding Name}" Style="{StaticResource BodyLarge}" />
+                                <Label Text="{Binding ChainId, StringFormat='Chain ID: {0}'}" Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                            
+                            <Ellipse Grid.Column="2" WidthRequest="16" HeightRequest="16" Fill="{StaticResource ElectricCobalt}" VerticalOptions="Center" IsVisible="{Binding IsActive}" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Button Grid.Row="1" Text="+ Add Custom RPC" 
+                Style="{StaticResource PrimaryButtonStyle}" 
+                Margin="0,20,0,20" />
+    </Grid>
+
+</ContentPage>

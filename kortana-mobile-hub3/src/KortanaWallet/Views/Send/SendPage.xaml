@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:KortanaWallet.ViewModels"
+             xmlns:models="clr-namespace:KortanaWallet.Models"
+             xmlns:controls="clr-namespace:KortanaWallet.Controls"
+             x:Class="KortanaWallet.Views.Send.SendPage"
+             x:DataType="vm:SendViewModel" 
+             Title="Send">
+
+    <ScrollView Padding="20">
+        <VerticalStackLayout Spacing="24">
+            
+            <!-- Token Selector -->
+            <Label Text="Select Token" Style="{StaticResource Caption}" />
+            <Border Style="{StaticResource GlassCardStyle}" HeightRequest="60" Padding="12,0">
+                <Grid ColumnDefinitions="Auto, *, Auto">
+                    <Ellipse Grid.Column="0" WidthRequest="32" HeightRequest="32" Fill="{StaticResource CardGradient}" VerticalOptions="Center" Margin="0,0,12,0" />
+                    <Label Grid.Column="1" Text="Kortana (KOR)" Style="{StaticResource BodyLarge}" VerticalOptions="Center" />
+                    <Label Grid.Column="2" Text="▼" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <!-- Recipient Address -->
+            <Label Text="Recipient" Style="{StaticResource Caption}" />
+            <controls:AddressInput 
+                Address="{Binding RecipientAddress}" 
+                ScanCommand="{Binding ScanQRCodeCommand}" />
+
+            <!-- Amount Section -->
+            <Label Text="Amount" Style="{StaticResource Caption}" />
+            <Grid RowDefinitions="Auto, Auto">
+                <Entry Grid.Row="0" 
+                       Keyboard="Numeric" 
+                       Placeholder="0.00" 
+                       Text="{Binding Amount}"
+                       FontSize="40" 
+                       FontFamily="{StaticResource InterBold}" 
+                       TextColor="{StaticResource PureWhite}" 
+                       BackgroundColor="Transparent" 
+                       HorizontalTextAlignment="Center" />
+                
+                <Label Grid.Row="1" Text="≈ $0.00 USD" Style="{StaticResource BodyMedium}" HorizontalOptions="Center" />
+            </Grid>
+
+            <!-- Gas Fee Estimator -->
+            <Label Text="Speed &amp; Gas" Style="{StaticResource Caption}" />
+            <Grid ColumnDefinitions="*, *, *" ColumnSpacing="12">
+                <Border Grid.Column="0" Style="{StaticResource GlassCardStyle}" Padding="8">
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Text="🐢" HorizontalOptions="Center" />
+                        <Label Text="Slow" Style="{StaticResource Caption}" HorizontalOptions="Center" />
+                        <Label Text="$0.02" Style="{StaticResource MonoTiny}" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+                
+                <Border Grid.Column="1" Background="{StaticResource PrimaryGradient}" StrokeShape="RoundRectangle 20" Padding="8">
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Text="⚡" HorizontalOptions="Center" />
+                        <Label Text="Standard" Style="{StaticResource Caption}" HorizontalOptions="Center" TextColor="{StaticResource PureWhite}" />
+                        <Label Text="$0.05" Style="{StaticResource MonoTiny}" HorizontalOptions="Center" TextColor="{StaticResource PureWhite}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource GlassCardStyle}" Padding="8">
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Text="🚀" HorizontalOptions="Center" />
+                        <Label Text="Fast" Style="{StaticResource Caption}" HorizontalOptions="Center" />
+                        <Label Text="$0.10" Style="{StaticResource MonoTiny}" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <!-- CTA -->
+            <Button Text="Review &amp; Send" 
+                    Style="{StaticResource PrimaryButtonStyle}" 
+                    Command="{Binding ReviewCommand}"
+                    Margin="0,20,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

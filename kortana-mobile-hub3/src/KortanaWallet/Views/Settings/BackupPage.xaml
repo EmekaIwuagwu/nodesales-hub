@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:KortanaWallet.ViewModels"
+             x:Class="KortanaWallet.Views.Settings.BackupPage"
+             x:DataType="vm:BackupViewModel"
+             Title="Recovery Phrase">
+
+    <ScrollView Padding="24">
+        <VerticalStackLayout Spacing="32">
+            
+            <Label Text="Double Check Safety" Style="{StaticResource H2Section}" HorizontalOptions="Center" />
+            <Label Text="Ensure no one is looking at your screen. These words provide full access to your funds." Style="{StaticResource BodyMedium}" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
+
+            <!-- Hidden State Overlay -->
+            <Border Style="{StaticResource GlassCardStyle}" HeightRequest="300" Padding="20">
+                <Grid>
+                    <!-- Blurred content (simulated with opacity) -->
+                    <VerticalStackLayout IsVisible="{Binding IsRevealed}" Spacing="16">
+                         <FlexLayout Wrap="Wrap" JustifyContent="Center" AlignItems="Center" BindableLayout.ItemsSource="{Binding MnemonicWords}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{StaticResource MidnightNavy}" Margin="4" Padding="12,8" StrokeShape="RoundRectangle 8">
+                                        <Label Text="{Binding .}" TextColor="{StaticResource PureWhite}" FontFamily="{StaticResource InterSemiBold}" />
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
+                        
+                        <Button Text="📋 Copy Phrase" Command="{Binding CopyToClipboardCommand}" Style="{StaticResource GhostButtonStyle}" BorderWidth="0" HeightRequest="40" FontSize="12" />
+                    </VerticalStackLayout>
+
+                    <!-- Overlay for Reveal -->
+                    <VerticalStackLayout IsVisible="{Binding IsRevealed, Converter={StaticResource InvertedBoolConverter}}" VerticalOptions="Center" Spacing="20">
+                         <Label Text="•••••••• •••••••• •••••••• ••••••••" Style="{StaticResource H2Section}" HorizontalOptions="Center" Opacity="0.3" />
+                         <Button Text="Tap to Reveal" Command="{Binding RevealCommand}" Style="{StaticResource PrimaryButtonStyle}" HorizontalOptions="Center" Padding="40,0" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <VerticalStackLayout Spacing="16" Margin="0,20,0,0">
+                <Label Text="Important Note:" Style="{StaticResource BodyLarge}" TextColor="{StaticResource WarningAmber}" />
+                <Label Text="• This is the only way to recover your wallet if you lose your device.&#10;• Write it down on paper and store it in a secure, fireproof location.&#10;• Digital copies are discouraged." 
+                       Style="{StaticResource BodyMedium}" Opacity="0.8" />
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:KortanaWallet.Models"
+             x:Class="KortanaWallet.Views.NFTs.NFTGalleryPage"
+             Title="NFT Gallery">
+
+    <Grid>
+        <CollectionView x:Name="NftCollectionView" 
+                        ItemsSource="{Binding NFTs}" 
+                        EmptyView="No NFTs found in your wallet"
+                        SelectionMode="Single"
+                        Margin="10">
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="10" VerticalItemSpacing="10" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:NFT">
+                    <Border Style="{StaticResource GlassCardStyle}" Padding="0" HeightRequest="250">
+                        <Grid RowDefinitions="*, Auto">
+                            <Image Grid.Row="0" 
+                                   Source="{Binding ImageUri}" 
+                                   Aspect="AspectFill" 
+                                   WidthRequest="150" 
+                                   HeightRequest="150" />
+                            <VerticalStackLayout Grid.Row="1" Padding="10">
+                                <Label Text="{Binding Name}" Style="{StaticResource BodyMedium}" MaxLines="1" />
+                                <Label Text="{Binding CollectionName}" Style="{StaticResource Caption}" Opacity="0.7" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

@@ -3,33 +3,44 @@ const { ethers } = pkg;
 
 async function main() {
     const [deployer] = await ethers.getSigners();
-    
-    console.log(`===========================================`);
-    console.log(`⬡ EXECUTING OFFICIAL MAINNET LAUNCH PROTOCOL`);
-    console.log(`===========================================`);
-    console.log("💳 Deploying Unified Architecture with Foundation account:", deployer.address);
 
-    const balance = await deployer.provider.getBalance(deployer.address);
-    console.log("💰 Foundation Balance:", ethers.formatEther(balance));
+    console.log(`===========================================`);
+    console.log(`⬡ KORTANA UNIFIED DEPLOYMENT PROTOCOL`);
+    console.log(`===========================================`);
+    console.log("💳 Deployer:", deployer.address);
+    console.log("💰 Balance:", ethers.formatEther(await deployer.provider.getBalance(deployer.address)));
 
-    // Deploy Unified Ecosystem Monolith
-    console.log("\n🚀 DEPLOYING MONOLITHIC SMART CONTRACT...");
+    // 1. Deploy DNR ERC20 Token (1 billion supply to deployer)
+    console.log("\n🚀 [1/2] Deploying DNRToken (ERC20)...");
+    const DNR = await ethers.getContractFactory("DNRToken");
+    const dnr = await DNR.deploy(
+        ethers.parseEther("1000000000"), // 1 billion DNR
+        { type: 0, gasLimit: 3000000, gasPrice: ethers.parseUnits("1", "gwei") }
+    );
+    await dnr.waitForDeployment();
+    const dnrAddress = await dnr.getAddress();
+    console.log(`✅ DNRToken deployed at: ${dnrAddress}`);
+
+    // 2. Deploy KortanaLicenseNFT with the DNR token address
+    console.log("\n🚀 [2/2] Deploying KortanaLicenseNFT...");
     const NFT = await ethers.getContractFactory("KortanaLicenseNFT");
-    // Explicit Legacy type overrides for Mainnet Zeus-RPC compatibilities
-    const nft = await NFT.deploy({ type: 0, gasLimit: 5000000, gasPrice: ethers.parseUnits("1", "gwei") });
+    const nft = await NFT.deploy(
+        dnrAddress,
+        { type: 0, gasLimit: 5000000, gasPrice: ethers.parseUnits("1", "gwei") }
+    );
     await nft.waitForDeployment();
-    
-    const targetAddress = await nft.getAddress();
+    const nftAddress = await nft.getAddress();
+    console.log(`✅ KortanaLicenseNFT deployed at: ${nftAddress}`);
+
     console.log(`\n🎉=======================================🎉`);
-    console.log(`📡 KORTANA UNIFIED SMART CONTRACT DEPLOYED!`);
-    console.log(`🎯 Official Mainnet Address: ${targetAddress}`);
-    console.log(`🎉=======================================🎉\n`);
-    
-    console.log(`⚠️ IMPORTANT ACTIONS REQUIRED NEXT ⚠️`);
-    console.log(`1. Copy the Official Address above.`);
-    console.log(`2. Paste it into your 'admin_panel/.env' as 'NFT_ADDRESS=${targetAddress}'.`);
-    console.log(`3. Paste it inside 'scripts/daily-airdrop.js' as 'CONTRACT_ADDRESS'.`);
-    console.log(`4. Send some Mainnet DNR to '${targetAddress}' to fuel your daily payouts!`);
+    console.log(`📡 DEPLOYMENT COMPLETE`);
+    console.log(`🪙  DNR Token  : ${dnrAddress}`);
+    console.log(`🎯  NFT License: ${nftAddress}`);
+    console.log(`🎉=======================================🎉`);
+    console.log(`\n⚠️  NEXT STEPS:`);
+    console.log(`1. Set DNR_ADDRESS=${dnrAddress} in your .env files`);
+    console.log(`2. Set NFT_ADDRESS=${nftAddress} in your .env files`);
+    console.log(`3. Run fund-contract.js to transfer DNR tokens into the NFT contract treasury`);
 }
 
 main()

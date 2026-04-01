@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-nodesale\\contracts\\KortanaLicenseNFT.sol": {
-      "lastModificationDate": 1774864127193,
-      "contentHash": "f070c8a10633223c9eaf1466e961d7f9",
+      "lastModificationDate": 1774870251414,
+      "contentHash": "d07090ba19061bf57faad795b8660b22",
       "sourceName": "contracts/KortanaLicenseNFT.sol",
       "solcConfig": {
         "version": "0.8.20",
@@ -608,6 +608,78 @@
       "artifacts": [
         "IKortanaLicenseNFT",
         "KortanaRewards"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-nodesale\\contracts\\test\\ETHSenderTest.sol": {
+      "lastModificationDate": 1774871737739,
+      "contentHash": "6cdaa1d31eb64b9a1263e75045a9c20a",
+      "sourceName": "contracts/test/ETHSenderTest.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "ETHSenderTest"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-nodesale\\contracts\\test\\ETHSenderTest2.sol": {
+      "lastModificationDate": 1774871834509,
+      "contentHash": "11404f2f319e3c33fc4641ae6a1d3336",
+      "sourceName": "contracts/test/ETHSenderTest2.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "ETHSenderTest2"
       ]
     }
   }

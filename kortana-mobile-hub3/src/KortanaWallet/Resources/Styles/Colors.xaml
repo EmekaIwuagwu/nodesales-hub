@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- PRIMARY BLUES -->
+    <Color x:Key="DeepSpaceBlue">#0A0E27</Color>
+    <Color x:Key="MidnightNavy">#0D1B4B</Color>
+    <Color x:Key="RoyalKortanaBlue">#1A3BB0</Color>
+    <Color x:Key="ElectricCobalt">#2563EB</Color>
+    <Color x:Key="SkyPulseBlue">#3B82F6</Color>
+    <Color x:Key="IceBlue">#60A5FA</Color>
+    <Color x:Key="CrystalBlue">#BFDBFE</Color>
+
+    <!-- WHITES & NEUTRALS -->
+    <Color x:Key="PureWhite">#FFFFFF</Color>
+    <Color x:Key="OffWhitePearl">#F0F4FF</Color>
+    <Color x:Key="FrostWhite">#E8EEFF</Color>
+    <Color x:Key="SilverMist">#CBD5E1</Color>
+    <Color x:Key="SlateGray">#94A3B8</Color>
+
+    <!-- ACCENT & SEMANTIC -->
+    <Color x:Key="SuccessGreen">#10B981</Color>
+    <Color x:Key="WarningAmber">#F59E0B</Color>
+    <Color x:Key="DangerRed">#EF4444</Color>
+    <Color x:Key="NeonBlueGlow">#38BDF8</Color>
+    <Color x:Key="DeepPurpleAccent">#7C3AED</Color>
+
+    <!-- GLASSMORPHISM SURFACES -->
+    <Color x:Key="GlassCardBackground">#14FFFFFF</Color> <!-- rgba(255, 255, 255, 0.08) -->
+    <Color x:Key="GlassCardBorder">#26FFFFFF</Color>     <!-- rgba(255, 255, 255, 0.15) -->
+
+    <!-- GRADIENTS -->
+    <LinearGradientBrush x:Key="PrimaryGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#1A3BB0" Offset="0.0" />
+        <GradientStop Color="#2563EB" Offset="0.5" />
+        <GradientStop Color="#38BDF8" Offset="1.0" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="CardGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#0D1B4B" Offset="0.0" />
+        <GradientStop Color="#1A3BB0" Offset="1.0" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="BalanceGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#2563EB" Offset="0.0" />
+        <GradientStop Color="#7C3AED" Offset="1.0" />
+    </LinearGradientBrush>
+
+</ResourceDictionary>

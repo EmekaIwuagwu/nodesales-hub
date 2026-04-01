@@ -1,102 +1,110 @@
+// app/pool/page.tsx
 "use client";
 
 import React from "react";
+import Link from "next/link";
+import { useAccount } from "wagmi";
+import { usePositions } from "../../lib/hooks/usePositions";
+import { TESTNET_TOKENS } from "../../lib/tokens/tokenList";
+import { motion } from "framer-motion";
 
 export default function PoolPage() {
+  const { isConnected, address } = useAccount();
+  const { positions, balance, isLoading } = usePositions();
+
+  const getTokenSymbol = (addr: string) => {
+    const t = TESTNET_TOKENS.find(tk => tk.address.toLowerCase() === addr.toLowerCase());
+    return t ? t.symbol : addr.substring(0, 6);
+  };
+
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "120px 24px 80px",
-        background: `radial-gradient(circle at 10% 10%, rgba(0, 210, 200, 0.05) 0%, transparent 40%),
-                     var(--bg-deep)`,
+    <main 
+      style={{ 
+        minHeight: "100vh", 
+        padding: "120px 24px 80px", 
+        background: "var(--bg-deep)",
         position: "relative",
-        overflow: "hidden",
+        overflow: "hidden"
       }}
     >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "1000px",
-          position: "relative",
-          zIndex: 1,
-        }}
-      >
-        <div style={{ marginBottom: "40px", textAlign: "center" }}>
-          <h1
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "42px",
-              fontWeight: 800,
-              letterSpacing: "-0.03em",
-              marginBottom: "12px",
-              background: "linear-gradient(135deg, white, var(--text-secondary))",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            Liquidity Pools
-          </h1>
-          <p style={{ color: "var(--text-secondary)", fontSize: "16px" }}>
-            Provide concentrated liquidity and earn fees on all swaps.
-          </p>
-        </div>
-
-        {/* Empty State / Coming Soon for now */}
-        <div
-          className="glass-card"
-          style={{
-            padding: "80px 20px",
-            textAlign: "center",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "24px",
-            border: "1px dashed var(--border-subtle)",
-          }}
-        >
-          <div
-            style={{
-              width: "64px",
-              height: "64px",
-              borderRadius: "50%",
-              background: "rgba(255,255,255,0.03)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "var(--text-tertiary)",
-            }}
-          >
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M12 2v20m10-10H2" />
-            </svg>
-          </div>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "radial-gradient(circle at 10% 10%, rgba(245, 166, 35, 0.05) 0%, transparent 40%)", pointerEvents: "none" }} />
+      
+      <div style={{ maxWidth: "1000px", margin: "0 auto", position: "relative", zIndex: 1 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "48px" }}>
           <div>
-            <h3 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "8px" }}>No active positions</h3>
-            <p style={{ color: "var(--text-tertiary)", fontSize: "14px", maxWidth: "340px", margin: "0 auto" }}>
-              Your liquidity positions will appear here. Start providing liquidity to earn fees.
+            <h1 style={{ fontFamily: "var(--font-display)", fontSize: "42px", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: "12px", background: "linear-gradient(135deg, white, var(--text-secondary))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              My Positions
+            </h1>
+            <p style={{ color: "var(--text-secondary)", fontSize: "16px" }}>
+              Manage your concentrated liquidity and collect earned trading fees.
             </p>
           </div>
-          <button
-            style={{
-              padding: "12px 28px",
-              borderRadius: "var(--radius-full)",
-              background: "linear-gradient(135deg, var(--teal-primary), var(--teal-dim))",
-              border: "none",
-              color: "var(--bg-deep)",
-              fontWeight: 800,
-              cursor: "pointer",
-              boxShadow: "0 0 30px rgba(0, 210, 200, 0.2)",
-            }}
-          >
-            Create New Position
-          </button>
+          <Link href="/pool/create" style={{ textDecoration: "none" }}>
+            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} style={{ padding: "12px 24px", borderRadius: "12px", background: "var(--cyan-primary)", border: "none", color: "white", fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 24px rgba(6, 182, 212, 0.2)" }}>
+              + Create New Position
+            </motion.button>
+          </Link>
         </div>
+
+        {isLoading ? (
+          <div style={{ textAlign: "center", padding: "100px 0" }}>
+            <div className="spinner" style={{ margin: "0 auto 16px" }} />
+            <div style={{ color: "var(--text-tertiary)" }}>Indexing your positions...</div>
+          </div>
+        ) : balance > 0 && positions.length > 0 ? (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: "24px" }}>
+            {positions.map((pos) => (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} key={pos.tokenId} className="glass-card" style={{ padding: "32px", border: "1px solid var(--border-subtle)", background: "rgba(10, 10, 15, 0.7)", position: "relative" }}>
+                 <div style={{ position: "absolute", top: 12, right: 12, padding: "4px 10px", borderRadius: "8px", background: "rgba(16, 185, 129, 0.1)", color: "var(--success)", fontSize: "11px", fontWeight: 800 }}>ACTIVE</div>
+                 
+                 <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
+                    <div style={{ display: "flex" }}>
+                      <div style={{ width: "28px", height: "28px", borderRadius: "50%", background: "var(--cyan-primary)", border: "2px solid #1a1a1a" }} />
+                      <div style={{ width: "28px", height: "28px", borderRadius: "50%", background: "var(--gold-primary)", border: "2px solid #1a1a1a", marginLeft: "-8px" }} />
+                    </div>
+                    <div>
+                       <span style={{ fontWeight: 800, fontSize: "20px" }}>{getTokenSymbol(pos.token0)} / {getTokenSymbol(pos.token1)}</span>
+                       <span style={{ marginLeft: "8px", color: "var(--text-tertiary)", fontSize: "14px" }}># {pos.tokenId}</span>
+                    </div>
+                 </div>
+
+                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "24px" }}>
+                    <div style={{ padding: "16px", background: "rgba(255,255,255,0.02)", borderRadius: "12px", border: "1px solid var(--border-subtle)" }}>
+                       <div style={{ fontSize: "12px", color: "var(--text-tertiary)", marginBottom: "4px" }}>Min Price</div>
+                       <div style={{ fontWeight: 700 }}>{pos.tickLower}</div>
+                    </div>
+                    <div style={{ padding: "16px", background: "rgba(255,255,255,0.02)", borderRadius: "12px", border: "1px solid var(--border-subtle)" }}>
+                       <div style={{ fontSize: "12px", color: "var(--text-tertiary)", marginBottom: "4px" }}>Max Price</div>
+                       <div style={{ fontWeight: 700 }}>{pos.tickUpper}</div>
+                    </div>
+                 </div>
+
+                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ fontSize: "14px", color: "var(--text-secondary)" }}>
+                       Fee Tier: <span style={{ color: "white", fontWeight: 700 }}>{(pos.fee / 10000).toFixed(2)}%</span>
+                    </div>
+                    <Link href={`/pool/manage/${pos.tokenId}`}>
+                       <button style={{ padding: "8px 16px", borderRadius: "8px", background: "rgba(255,255,255,0.05)", border: "1px solid var(--border-subtle)", color: "white", cursor: "pointer" }}>Manage</button>
+                    </Link>
+                 </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ padding: "80px", textAlign: "center", border: "2px dashed var(--border-subtle)", borderRadius: "24px", background: "rgba(255,255,255,0.02)" }}>
+            <div style={{ color: "var(--text-tertiary)", fontSize: "18px", marginBottom: "24px" }}>No active positions found in this Enclave.</div>
+            <Link href="/pool/create" style={{ textDecoration: "none" }}>
+              <motion.button whileHover={{ scale: 1.05 }} style={{ padding: "16px 32px", borderRadius: "16px", background: "var(--gold-primary)", border: "none", color: "black", fontWeight: 800, cursor: "pointer", boxShadow: "0 10px 30px rgba(245, 166, 35, 0.3)" }}>
+                Initialize Your First Position
+              </motion.button>
+            </Link>
+          </div>
+        )}
       </div>
+      <style jsx>{`
+        .spinner { width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--cyan-primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `}</style>
     </main>
   );
 }

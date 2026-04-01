@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:KortanaWallet.ViewModels"
+             x:Class="KortanaWallet.Views.Onboarding.OnboardingPage"
+             x:DataType="vm:OnboardingViewModel"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="*, Auto, Auto">
+        <!-- Background mesh or gradient -->
+        <BoxView Grid.RowSpan="3" BackgroundColor="{StaticResource DeepSpaceBlue}" />
+
+        <!-- Slides -->
+        <CarouselView x:Name="OnboardingCarousel" 
+                      Grid.Row="0"
+                      ItemsSource="{Binding Slides}"
+                      IndicatorView="IndicatorView">
+            <CarouselView.ItemTemplate>
+                <DataTemplate x:DataType="vm:OnboardingSlide">
+                    <VerticalStackLayout Spacing="30" VerticalOptions="Center" Padding="40">
+                        <!-- Placeholder for Logo/Illustration -->
+                        <Grid HeightRequest="250" WidthRequest="250" HorizontalOptions="Center">
+                             <Ellipse Fill="{StaticResource ElectricCobalt}" Opacity="0.1" />
+                             <Image Source="{Binding ImageSource}" 
+                                    HeightRequest="150" WidthRequest="150" 
+                                    HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Grid>
+                        
+                        <Label Text="{Binding Title}" 
+                               Style="{StaticResource H1Display}" 
+                               HorizontalOptions="Center" 
+                               HorizontalTextAlignment="Center" />
+                        
+                        <Label Text="{Binding Description}" 
+                               Style="{StaticResource BodyMedium}" 
+                               HorizontalOptions="Center" 
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </CarouselView.ItemTemplate>
+        </CarouselView>
+
+        <!-- Indicator -->
+        <IndicatorView x:Name="IndicatorView"
+                       Grid.Row="1"
+                       HorizontalOptions="Center"
+                       IndicatorColor="{StaticResource SlateGray}"
+                       SelectedIndicatorColor="{StaticResource ElectricCobalt}"
+                       Margin="0,0,0,40" />
+
+        <!-- Buttons -->
+        <VerticalStackLayout Grid.Row="2" Spacing="16" Padding="24" Margin="0,0,0,40">
+            <Button Text="Create New Wallet" 
+                    Style="{StaticResource PrimaryButtonStyle}" 
+                    Command="{Binding CreateWalletCommand}" />
+            
+            <Button Text="Import Existing Wallet" 
+                    Style="{StaticResource GhostButtonStyle}" 
+                    Command="{Binding ImportWalletCommand}" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

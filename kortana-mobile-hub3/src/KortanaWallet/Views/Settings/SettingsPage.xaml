@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:KortanaWallet.ViewModels"
+             x:Class="KortanaWallet.Views.Settings.SettingsPage"
+             x:DataType="vm:SettingsViewModel"
+             Title="Settings">
+
+    <ScrollView Padding="20">
+        <VerticalStackLayout Spacing="32">
+            
+            <!-- Security Section -->
+            <VerticalStackLayout Spacing="16">
+                <Label Text="Security" Style="{StaticResource H3CardTitle}" />
+                
+                <Border Style="{StaticResource GlassCardStyle}" Padding="16">
+                    <Grid ColumnDefinitions="Auto, *, Auto">
+                        <Label Grid.Column="0" Text="🔒" FontSize="20" VerticalOptions="Center" Margin="0,0,12,0" />
+                        <Label Grid.Column="1" Text="Show Recovery Phrase" Style="{StaticResource BodyLarge}" VerticalOptions="Center" />
+                        <Button Grid.Column="2" Text="View" 
+                                Command="{Binding ShowRecoveryPhraseCommand}" 
+                                Style="{StaticResource GhostButtonStyle}" 
+                                HeightRequest="36" Padding="12,0" FontSize="12" />
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource GlassCardStyle}" Padding="16">
+                    <Grid ColumnDefinitions="Auto, *, Auto">
+                        <Label Grid.Column="0" Text="🔑" FontSize="20" VerticalOptions="Center" Margin="0,0,12,0" />
+                        <Label Grid.Column="1" Text="Biometric Authentication" Style="{StaticResource BodyLarge}" VerticalOptions="Center" />
+                        <Switch Grid.Column="2" IsToggled="{Binding IsBiometricsEnabled}" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource GlassCardStyle}" Padding="16">
+                     <Grid ColumnDefinitions="Auto, *, Auto">
+                        <Label Grid.Column="0" Text="🛡️" FontSize="20" VerticalOptions="Center" Margin="0,0,12,0" />
+                        <Label Grid.Column="1" Text="Change PIN" Style="{StaticResource BodyLarge}" VerticalOptions="Center" />
+                        <Label Grid.Column="2" Text="›" Style="{StaticResource H3CardTitle}" Opacity="0.5" VerticalOptions="Center" />
+                     </Grid>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Network Section -->
+            <VerticalStackLayout Spacing="16">
+                <Label Text="Network &amp; Connectivity" Style="{StaticResource H3CardTitle}" />
+                
+                <Border Style="{StaticResource GlassCardStyle}" Padding="16">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ManageNetworksCommand}" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto, *, Auto">
+                        <Label Grid.Column="0" Text="🌐" FontSize="20" VerticalOptions="Center" Margin="0,0,12,0" />
+                        <Label Grid.Column="1" Text="Manage Networks" Style="{StaticResource BodyLarge}" VerticalOptions="Center" />
+                        <Label Grid.Column="2" Text="›" Style="{StaticResource H3CardTitle}" Opacity="0.5" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource GlassCardStyle}" Padding="16">
+                     <Grid ColumnDefinitions="Auto, *, Auto">
+                        <Label Grid.Column="0" Text="🔗" FontSize="20" VerticalOptions="Center" Margin="0,0,12,0" />
+                        <Label Grid.Column="1" Text="Connected DApps" Style="{StaticResource BodyLarge}" VerticalOptions="Center" />
+                        <Label Grid.Column="2" Text="0" Style="{StaticResource Caption}" VerticalOptions="Center" IsVisible="true" />
+                     </Grid>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- About Section -->
+             <VerticalStackLayout Spacing="16">
+                <Label Text="General" Style="{StaticResource H3CardTitle}" />
+                
+                <Border Style="{StaticResource GlassCardStyle}" Padding="16" Opacity="0.7">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Grid.Column="0" Text="Version" Style="{StaticResource BodyLarge}" VerticalOptions="Center" />
+                        <Label Grid.Column="1" Text="{Binding AppVersion}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+                
+                <Button Text="Sign Out / Clear Wallet" 
+                        TextColor="{StaticResource DangerRed}" 
+                        Style="{StaticResource GhostButtonStyle}" 
+                        BorderColor="{StaticResource DangerRed}" 
+                        Opacity="0.8" />
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

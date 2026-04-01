@@ -7,6 +7,7 @@ RUN npm install --include=dev
 COPY frontend/ ./
 # VITE_ env vars are baked into the bundle at build time.
 # On Render, VITE_API_URL is left empty — frontend and API share the same origin.
+# Declare build args — must match keys in Render dashboard
 ARG VITE_API_URL=""
 ARG VITE_CHAIN_ID=72511
 ARG VITE_RPC_URL="https://poseidon-rpc.testnet.kortana.xyz/"
@@ -15,6 +16,17 @@ ARG VITE_NODE_SALE_ADDRESS=""
 ARG VITE_REWARD_VAULT_ADDRESS=""
 ARG VITE_USDT_ADDRESS=""
 ARG VITE_WALLETCONNECT_PROJECT_ID=""
+
+# Promote ARGs to ENV so Vite can read them via process.env during npm run build
+ENV VITE_API_URL=$VITE_API_URL \
+    VITE_CHAIN_ID=$VITE_CHAIN_ID \
+    VITE_RPC_URL=$VITE_RPC_URL \
+    VITE_EXPLORER_URL=$VITE_EXPLORER_URL \
+    VITE_NODE_SALE_ADDRESS=$VITE_NODE_SALE_ADDRESS \
+    VITE_REWARD_VAULT_ADDRESS=$VITE_REWARD_VAULT_ADDRESS \
+    VITE_USDT_ADDRESS=$VITE_USDT_ADDRESS \
+    VITE_WALLETCONNECT_PROJECT_ID=$VITE_WALLETCONNECT_PROJECT_ID
+
 RUN npm run build
 
 # ── Stage 2: Production server ────────────────────────────────────────────────

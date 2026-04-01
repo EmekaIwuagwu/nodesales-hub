@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:controls="clr-namespace:KortanaWallet.Controls"
+             x:Class="KortanaWallet.Controls.AddressInput"
+             x:Name="this">
+
+    <Border Style="{StaticResource GlassCardStyle}" HeightRequest="56" Padding="12,0">
+        <Grid ColumnDefinitions="*, Auto, Auto">
+            <Entry Grid.Column="0" 
+                   Text="{Binding Address, Source={Reference this}}" 
+                   Placeholder="Recipient Address or ENS" 
+                   PlaceholderColor="{StaticResource SlateGray}"
+                   TextColor="{StaticResource PureWhite}"
+                   FontSize="14"
+                   FontFamily="{StaticResource Mono}"
+                   VerticalOptions="Center" />
+            
+            <HorizontalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center" Margin="8,0">
+                <Button Text="" Padding="0" Background="Transparent" WidthRequest="36" HeightRequest="36" Command="{Binding PasteCommand, Source={Reference this}}">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="MaterialIcons" Glyph="content_paste" Color="{StaticResource IceBlue}" Size="20" />
+                    </Button.ImageSource>
+                </Button>
+                
+                <Button Text="" Padding="0" Background="Transparent" WidthRequest="36" HeightRequest="36" Command="{Binding ScanCommand, Source={Reference this}}">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="MaterialIcons" Glyph="qr_code_scanner" Color="{StaticResource IceBlue}" Size="20" />
+                    </Button.ImageSource>
+                </Button>
+            </HorizontalStackLayout>
+
+            <Image Grid.Column="2" 
+                   WidthRequest="20" HeightRequest="20" 
+                   VerticalOptions="Center"
+                   Source="check_circle_icon.png" 
+                   IsVisible="{Binding IsValid, Source={Reference this}}">
+                <Image.Behaviors>
+                    <toolkit:IconTintColorBehavior TintColor="{StaticResource SuccessGreen}" />
+                </Image.Behaviors>
+            </Image>
+        </Grid>
+    </Border>
+
+</ContentView>

@@ -1,7 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowRight, Zap, Layers, ShieldCheck, Globe } from 'lucide-react';
+import { FaArrowRight, FaBolt, FaLayerGroup, FaShieldAlt, FaGlobe } from 'react-icons/fa';
+import { HiServerStack } from "react-icons/hi2";
+import { GiRoundShield } from "react-icons/gi";
 
 export default function WhyKortana() {
     return (
@@ -43,7 +45,7 @@ export default function WhyKortana() {
                 <FeatureCard
                     title="EVM Compatible"
                     desc="Deploy Solidity contracts unchanged. Use Hardhat, Truffle, and Remix instantly with full tooling support."
-                    icon={<Layers className="w-6 h-6" />}
+                    icon={<FaLayerGroup className="w-6 h-6" />}
                     link="Learn more"
                     delay={0}
                     color="cyan"
@@ -51,7 +53,7 @@ export default function WhyKortana() {
                 <FeatureCard
                     title="Proprietary VM"
                     desc="Parallel execution engine capable of 50,000+ TPS by processing non-conflicting transactions simultaneously."
-                    icon={<Zap className="w-6 h-6" />}
+                    icon={<HiServerStack className="w-6 h-6" />}
                     link="See benchmarks"
                     delay={0.1}
                     color="purple"
@@ -59,7 +61,7 @@ export default function WhyKortana() {
                 <FeatureCard
                     title="DPoH Consensus"
                     desc="Novel Delegated Proof-of-History provides an immutable record of time for secure, ultra-low latency finality."
-                    icon={<ShieldCheck className="w-6 h-6" />}
+                    icon={<GiRoundShield className="w-6 h-6" />}
                     link="Deep dive"
                     delay={0.2}
                     color="neon"
@@ -67,7 +69,7 @@ export default function WhyKortana() {
                 <FeatureCard
                     title="Global Reach"
                     desc="Enterprise-grade architecture with regulatory compliance frameworks built directly into the protocol level."
-                    icon={<Globe className="w-6 h-6" />}
+                    icon={<FaGlobe className="w-6 h-6" />}
                     link="Start building"
                     delay={0.3}
                     color="blue"
@@ -107,7 +109,7 @@ function FeatureCard({ title, desc, icon, link, delay, color }: { title: string,
 
             <a href="#" className="mt-auto group/link flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-all">
                 {link}
-                <ArrowRight className="w-3 h-3 group-hover/link:translate-x-1 transition-transform" />
+                <FaArrowRight className="w-3 h-3 group-hover/link:translate-x-1 transition-transform" />
             </a>
         </motion.div>
     )

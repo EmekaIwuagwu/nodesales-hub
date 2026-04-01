@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Glass Card Style (using Border) -->
+    <Style x:Key="GlassCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource GlassCardBackground}" />
+        <Setter Property="Stroke" Value="{StaticResource GlassCardBorder}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="{StaticResource ElectricCobalt}" 
+                        Offset="0,8" 
+                        Radius="32" 
+                        Opacity="0.25" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Gradient Hero Card Style -->
+    <Style x:Key="HeroCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource CardGradient}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 28" />
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="{StaticResource MidnightNavy}" 
+                        Offset="0,12" 
+                        Radius="40" 
+                        Opacity="0.4" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

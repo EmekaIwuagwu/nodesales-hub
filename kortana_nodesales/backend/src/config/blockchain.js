@@ -57,9 +57,8 @@ function getNodeSale() {
 function isBlockchainConfigured() {
   return !!(
     process.env.KORTANA_RPC_URL &&
-    process.env.NODE_SALE_ADDRESS &&
-    process.env.REWARD_VAULT_ADDRESS &&
-    process.env.DISTRIBUTOR_PRIVATE_KEY
+    process.env.DISTRIBUTOR_PRIVATE_KEY &&
+    process.env.DNR_ADDRESS
   );
 }
 

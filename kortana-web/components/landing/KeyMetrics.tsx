@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, Shield, Globe, Zap, Cpu, Users, Coins, Activity, Database } from 'lucide-react';
+import { FaClock, FaShieldAlt, FaGlobe, FaBolt, FaMicrochip, FaUsers, FaCoins, FaChartLine, FaDatabase } from 'react-icons/fa';
 import { getBlockHeight } from '@/lib/rpc';
 
 export default function KeyMetrics() {
@@ -59,28 +59,28 @@ export default function KeyMetrics() {
             >
                 <MetricCard
                     variants={item}
-                    icon={<Database className="w-5 h-5 text-cyan-400" />}
+                    icon={<FaDatabase className="w-5 h-5 text-cyan-400" />}
                     label="Block Height"
                     value={metrics.blockHeight}
                     sub="Live RPC Sync"
                 />
                 <MetricCard
                     variants={item}
-                    icon={<Clock className="w-5 h-5 text-purple-400" />}
+                    icon={<FaClock className="w-5 h-5 text-purple-400" />}
                     label="Block Time"
                     value={`${metrics.blockTime.toFixed(1)}s`}
                     sub="Deterministic 2s"
                 />
                 <MetricCard
                     variants={item}
-                    icon={<Cpu className="w-5 h-5 text-neon-green" />}
+                    icon={<FaMicrochip className="w-5 h-5 text-neon-green" />}
                     label="Validators"
                     value={`${metrics.validators}`}
                     sub="PoH Secured"
                 />
                 <MetricCard
                     variants={item}
-                    icon={<Globe className="w-5 h-5 text-blue-400" />}
+                    icon={<FaGlobe className="w-5 h-5 text-blue-400" />}
                     label="Chain ID"
                     value={`${metrics.chainId}`}
                     sub="Mainnet Network"
@@ -97,10 +97,10 @@ export default function KeyMetrics() {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 blur-[80px] -mr-32 -mt-32 group-hover:bg-cyan-500/10 transition-colors"></div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center relative z-10">
-                    <SecondaryStat label="Initial Supply" value="10B" icon={<Coins />} unit="DNR" />
-                    <SecondaryStat label="Global Capacity" value="50,000+" icon={<Activity />} unit="TPS" color="cyan" />
-                    <SecondaryStat label="Staking APY" value="12.4%" icon={<Shield />} unit="ANNUAL" color="cyan" />
-                    <SecondaryStat label="Gas Cost" value="< 0.001" icon={<Zap />} unit="DNR" color="green" />
+                    <SecondaryStat label="Initial Supply" value="10B" icon={<FaCoins />} unit="DNR" />
+                    <SecondaryStat label="Global Capacity" value="50,000+" icon={<FaChartLine />} unit="TPS" color="cyan" />
+                    <SecondaryStat label="Staking APY" value="12.4%" icon={<FaShieldAlt />} unit="ANNUAL" color="cyan" />
+                    <SecondaryStat label="Gas Cost" value="< 0.001" icon={<FaBolt />} unit="DNR" color="green" />
                 </div>
             </motion.div>
         </section>

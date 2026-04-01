@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:KortanaWallet.ViewModels"
+             x:Class="KortanaWallet.Views.Auth.ImportWalletPage"
+             x:DataType="vm:ImportWalletViewModel"
+             Title="Import Wallet">
+
+    <ScrollView Padding="24">
+        <VerticalStackLayout Spacing="32">
+            
+            <Label Text="Welcome Back" Style="{StaticResource H2Section}" HorizontalOptions="Center" />
+            <Label Text="Enter your seed phrase or private key to recover your wallet." Style="{StaticResource BodyMedium}" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
+
+            <!-- Tab Selector -->
+            <Border Style="{StaticResource GlassCardStyle}" HeightRequest="56" Padding="4">
+                <Grid ColumnDefinitions="*, *">
+                    <Button Grid.Column="0" Text="Seed Phrase" 
+                            Command="{Binding SelectTabCommand}" CommandParameter="mnemonic"
+                            BackgroundColor="{Binding IsMnemonicTab, Converter={StaticResource TabToColorConverter}, ConverterParameter=true}" 
+                            TextColor="{StaticResource PureWhite}" 
+                            CornerRadius="12" Padding="0" />
+                    <Button Grid.Column="1" Text="Private Key" 
+                            Command="{Binding SelectTabCommand}" CommandParameter="privatekey"
+                            BackgroundColor="{Binding IsMnemonicTab, Converter={StaticResource TabToColorConverter}, ConverterParameter=false}" 
+                            TextColor="{StaticResource PureWhite}" 
+                            CornerRadius="12" Padding="0" />
+                </Grid>
+            </Border>
+
+            <!-- Mnemonic Input Area -->
+            <VerticalStackLayout IsVisible="{Binding IsMnemonicTab}" Spacing="16">
+                <Editor Placeholder="Word 1 Word 2 Word 3..." 
+                        Text="{Binding Mnemonic}" 
+                        Style="{StaticResource PrimaryInputStyle}" 
+                        HeightRequest="150" 
+                        AutoSize="Disabled" />
+            </VerticalStackLayout>
+
+            <!-- Private Key Input Area -->
+            <VerticalStackLayout IsVisible="{Binding IsMnemonicTab, Converter={StaticResource InvertedBoolConverter}}" Spacing="16">
+                <Entry Placeholder="0x..." 
+                       Text="{Binding PrivateKey}" 
+                       Style="{StaticResource AddressInputStyle}" />
+            </VerticalStackLayout>
+
+            <Line Stroke="{StaticResource GlassCardBorder}" X2="1" HorizontalOptions="Fill" />
+
+            <!-- Security PIN setup for local storage -->
+            <VerticalStackLayout Spacing="16">
+                <Label Text="Set Device PIN" Style="{StaticResource BodyLarge}" />
+                <Entry Placeholder="PIN (6 digits)" IsPassword="True" Text="{Binding Password}" Style="{StaticResource PrimaryInputStyle}" Keyboard="Numeric" MaxLength="6" />
+                <Entry Placeholder="Confirm PIN" IsPassword="True" Text="{Binding ConfirmPassword}" Style="{StaticResource PrimaryInputStyle}" Keyboard="Numeric" MaxLength="6" />
+            </VerticalStackLayout>
+
+            <Button Text="Import Wallet" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding ImportCommand}" Margin="0,20,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

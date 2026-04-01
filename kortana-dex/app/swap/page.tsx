@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { SwapCard } from "../../components/swap/SwapCard";
+import SwapCard from "../../components/swap/SwapCard";
 import { motion } from "framer-motion";
 
 export default function SwapPage() {

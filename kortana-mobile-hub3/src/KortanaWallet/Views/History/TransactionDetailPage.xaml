@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:KortanaWallet.ViewModels"
+             xmlns:controls="clr-namespace:KortanaWallet.Controls"
+             x:Class="KortanaWallet.Views.History.TransactionDetailPage"
+             x:DataType="vm:TransactionDetailViewModel"
+             Title="Transaction Details">
+
+    <ScrollView Padding="24">
+        <VerticalStackLayout Spacing="32">
+            
+            <!-- Amount & Status -->
+            <VerticalStackLayout Spacing="12">
+                <Label Text="{Binding Transaction.DisplayAmount}" Style="{StaticResource H1Display}" HorizontalOptions="Center" />
+                <Label Text="{Binding Transaction.ValueUsd, StringFormat='≈ {0:C2} USD'}" Style="{StaticResource BodyMedium}" HorizontalOptions="Center" />
+                
+                <Border BackgroundColor="{StaticResource SuccessGreen}" Opacity="0.1" StrokeShape="RoundRectangle 16" VerticalOptions="Center" HorizontalOptions="Center" Padding="12,4" Margin="0,8">
+                    <Label Text="{Binding Transaction.Status}" Style="{StaticResource Caption}" TextColor="{StaticResource SuccessGreen}" HorizontalOptions="Center" />
+                </Border>
+            </VerticalStackLayout>
+
+            <Line Stroke="{StaticResource GlassCardBorder}" X2="1" HorizontalOptions="Fill" />
+
+            <!-- Transaction Metadata Rows -->
+            <controls:GlassCard Padding="24">
+                <VerticalStackLayout Spacing="24">
+                    <Label Text="Details" Style="{StaticResource H3CardTitle}" />
+                    
+                    <Grid ColumnDefinitions="*, Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="Transaction Hash" Style="{StaticResource Caption}" />
+                            <Label Text="{Binding Transaction.Hash}" Style="{StaticResource MonoTiny}" LineBreakMode="MiddleTruncation" FontSize="12" Opacity="0.8" />
+                        </VerticalStackLayout>
+                        <Button Grid.Column="1" Text="📋" Command="{Binding CopyHashCommand}" BackgroundColor="Transparent" Padding="8" VerticalOptions="Center" />
+                    </Grid>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="From" Style="{StaticResource Caption}" />
+                        <Label Text="{Binding Transaction.FromAddress}" Style="{StaticResource MonoTiny}" LineBreakMode="MiddleTruncation" FontSize="14" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="To" Style="{StaticResource Caption}" />
+                        <Label Text="{Binding Transaction.ToAddress}" Style="{StaticResource MonoTiny}" LineBreakMode="MiddleTruncation" FontSize="14" />
+                    </VerticalStackLayout>
+
+                    <Grid ColumnDefinitions="*, *">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="Network Fee" Style="{StaticResource Caption}" />
+                            <Label Text="{Binding Transaction.GasFeeUsd, StringFormat='{0:C4}'}" Style="{StaticResource BodyMedium}" TextColor="{StaticResource PureWhite}" />
+                        </VerticalStackLayout>
+                        
+                        <VerticalStackLayout Grid.Column="1" Spacing="4" HorizontalOptions="End">
+                            <Label Text="Date &amp; Time" Style="{StaticResource Caption}" HorizontalOptions="End" />
+                            <Label Text="{Binding Transaction.Timestamp, StringFormat='{0:g}'}" Style="{StaticResource BodyMedium}" HorizontalOptions="End" TextColor="{StaticResource PureWhite}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </controls:GlassCard>
+
+            <Button Text="View on Block Explorer" Style="{StaticResource GhostButtonStyle}" Command="{Binding ViewOnExplorerCommand}" Margin="0,20,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

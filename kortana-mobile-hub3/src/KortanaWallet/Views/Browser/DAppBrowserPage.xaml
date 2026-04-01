@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="KortanaWallet.Views.Browser.DAppBrowserPage"
+             Title="Browser">
+
+    <Grid RowDefinitions="Auto, *">
+        <!-- Address Bar -->
+        <Border Grid.Row="0" Style="{StaticResource GlassCardStyle}" Margin="10" Padding="10,0">
+            <Grid ColumnDefinitions="*, Auto">
+                <Entry Grid.Column="0" 
+                       x:Name="UrlEntry" 
+                       Placeholder="Search or enter URL" 
+                       PlaceholderColor="{StaticResource SlateGray}"
+                       TextColor="{StaticResource PureWhite}"
+                       FontSize="14"
+                       Keyboard="Url"
+                       VerticalOptions="Center"
+                       Completed="OnUrlEntered" />
+                <Button Grid.Column="1" Text="Go" Background="Transparent" TextColor="{StaticResource ElectricCobalt}" Clicked="OnGoClicked" />
+            </Grid>
+        </Border>
+
+        <!-- WebView -->
+        <WebView Grid.Row="1" x:Name="MainWebView" Navigated="OnNavigated" />
+        
+        <!-- Loading Indicator -->
+        <ActivityIndicator Grid.Row="1" 
+                           x:Name="LoadingIndicator" 
+                           IsRunning="False" 
+                           Color="{StaticResource ElectricCobalt}"
+                           VerticalOptions="Center" 
+                           HorizontalOptions="Center" />
+    </Grid>
+</ContentPage>

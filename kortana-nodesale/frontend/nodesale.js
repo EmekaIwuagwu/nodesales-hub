@@ -140,7 +140,7 @@ document.querySelectorAll('.faq-question').forEach(q => {
 });
 
 // --- Live Supply Tracking ---
-const NFT_ADDRESS = "0xd31303e73A0601D6785E9516692D4A8eB8fA0A99B"; // Testnet Address
+const NFT_ADDRESS = "0x5b417f46958aea783F05BE0759D3c6930672Fc14"; // Testnet Address
 const NFT_ABI = [
     "function totalMinted(uint8 tier) view returns (uint256)",
     "function maxSupply(uint8 tier) view returns (uint256)"

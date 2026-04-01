@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- FONT FAMILY NAMES (to be registered in MauiProgram.cs) -->
+    <x:String x:Key="InterBold">Inter-Bold</x:String>
+    <x:String x:Key="InterSemiBold">Inter-SemiBold</x:String>
+    <x:String x:Key="InterRegular">Inter-Regular</x:String>
+    <x:String x:Key="Mono">SpaceMono-Regular</x:String>
+
+    <!-- H1 Display: 36sp Bold -->
+    <Style x:Key="H1Display" TargetType="Label">
+        <Setter Property="FontSize" Value="36" />
+        <Setter Property="FontFamily" Value="{StaticResource InterBold}" />
+        <Setter Property="TextColor" Value="{StaticResource PureWhite}" />
+        <Setter Property="CharacterSpacing" Value="-0.3" />
+        <Setter Property="LineHeight" Value="1.2" />
+    </Style>
+
+    <!-- H2 Section: 24sp SemiBold -->
+    <Style x:Key="H2Section" TargetType="Label">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontFamily" Value="{StaticResource InterSemiBold}" />
+        <Setter Property="TextColor" Value="{StaticResource PureWhite}" />
+        <Setter Property="CharacterSpacing" Value="-0.3" />
+        <Setter Property="LineHeight" Value="1.2" />
+    </Style>
+
+    <!-- H3 Card Title: 18sp SemiBold -->
+    <Style x:Key="H3CardTitle" TargetType="Label">
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="FontFamily" Value="{StaticResource InterSemiBold}" />
+        <Setter Property="TextColor" Value="{StaticResource PureWhite}" />
+        <Setter Property="CharacterSpacing" Value="-0.3" />
+        <Setter Property="LineHeight" Value="1.2" />
+    </Style>
+
+    <!-- Body Large: 16sp Regular -->
+    <Style x:Key="BodyLarge" TargetType="Label">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontFamily" Value="{StaticResource InterRegular}" />
+        <Setter Property="TextColor" Value="{StaticResource PureWhite}" />
+        <Setter Property="LineHeight" Value="1.5" />
+    </Style>
+
+    <!-- Body Medium: 14sp Regular -->
+    <Style x:Key="BodyMedium" TargetType="Label">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontFamily" Value="{StaticResource InterRegular}" />
+        <Setter Property="TextColor" Value="{StaticResource SilverMist}" />
+        <Setter Property="LineHeight" Value="1.5" />
+    </Style>
+
+    <!-- Caption: 12sp Regular -->
+    <Style x:Key="Caption" TargetType="Label">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontFamily" Value="{StaticResource InterRegular}" />
+        <Setter Property="TextColor" Value="{StaticResource SlateGray}" />
+        <Setter Property="LineHeight" Value="1.5" />
+    </Style>
+
+    <!-- Mono Tiny: 11sp Mono -->
+    <Style x:Key="MonoTiny" TargetType="Label">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontFamily" Value="{StaticResource Mono}" />
+        <Setter Property="TextColor" Value="{StaticResource SilverMist}" />
+        <Setter Property="LineHeight" Value="1.5" />
+    </Style>
+
+</ResourceDictionary>

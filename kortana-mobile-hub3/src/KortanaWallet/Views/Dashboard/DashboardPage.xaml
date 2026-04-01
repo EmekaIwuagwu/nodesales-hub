@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:KortanaWallet.ViewModels"
+             xmlns:models="clr-namespace:KortanaWallet.Models"
+             xmlns:micro="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
+             x:Class="KortanaWallet.Views.Dashboard.DashboardPage"
+             x:DataType="vm:DashboardViewModel"
+             Title="Dashboard">
+
+    <Grid>
+        <RefreshView x:Name="DashboardRefreshView"
+                     IsRefreshing="{Binding IsBusy}"
+                     Command="{Binding RefreshCommand}"
+                     RefreshColor="{StaticResource ElectricCobalt}">
+
+            <ScrollView Padding="20">
+                <VerticalStackLayout Spacing="24">
+                    
+                    <!-- Top Bar (within scroll for now or stationary in grid) -->
+                    <Grid ColumnDefinitions="*, Auto, Auto" Margin="0,0,0,10">
+                        <HorizontalStackLayout Grid.Column="0" Spacing="8" VerticalOptions="Center">
+                             <Ellipse WidthRequest="10" HeightRequest="10" Fill="{StaticResource SuccessGreen}" VerticalOptions="Center" />
+                             <Label Text="Kortana Mainnet" Style="{StaticResource BodyMedium}" />
+                             <Label Text="▼" Style="{StaticResource Caption}" />
+                        </HorizontalStackLayout>
+                        
+                        <Image Grid.Column="1" Source="kortana_logo_small.png" WidthRequest="30" HeightRequest="30" Margin="0,0,10,0" />
+                        
+                        <Ellipse Grid.Column="2" WidthRequest="36" HeightRequest="36" Fill="{StaticResource HighContrastWhite}" Stroke="{StaticResource CrystalBlue}" StrokeThickness="1" />
+                    </Grid>
+
+                    <!-- Balance Hero Card -->
+                    <Border Style="{StaticResource HeroCardStyle}" HeightRequest="200">
+                        <Grid Padding="24" RowDefinitions="Auto, *, Auto, Auto" ColumnDefinitions="*, *">
+                            <Label Grid.Row="0" Text="Total Balance" Style="{StaticResource Caption}" Opacity="0.8" TextColor="{StaticResource PureWhite}" />
+                            
+                            <HorizontalStackLayout Grid.Row="1" VerticalOptions="Center" Spacing="4">
+                                <Label Text="$" Style="{StaticResource H1Display}" VerticalOptions="Center" />
+                                <Label x:Name="BalanceLabel" Text="{Binding TotalBalanceUsd, StringFormat='{0:N2}'}" Style="{StaticResource H1Display}" />
+                            </HorizontalStackLayout>
+
+                            <Label Grid.Row="2" Text="{Binding NativeBalance}" Style="{StaticResource BodyMedium}" TextColor="{StaticResource CrystalBlue}" />
+                            
+                            <!-- Chart View (Overlaying right side of card) -->
+                            <micro:ChartView Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" 
+                                            Chart="{Binding PortfolioHistoryChart}" 
+                                            HeightRequest="120" 
+                                            VerticalOptions="End"
+                                            Margin="0,0,0,10" />
+
+                            <Grid Grid.Row="3" ColumnDefinitions="Auto, *">
+                                <Border Grid.Column="0" Background="#33FFFFFF" StrokeShape="RoundRectangle 12" Padding="12,4" HorizontalOptions="Start">
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Label Text="{Binding WalletAddressPill}" Style="{StaticResource MonoTiny}" VerticalOptions="Center" />
+                                        <Image Source="copy_icon.png" WidthRequest="12" HeightRequest="12" />
+                                    </HorizontalStackLayout>
+                                </Border>
+
+                                <Label Grid.Column="1" 
+                                       Text="{Binding PortfolioChangeText}" 
+                                       Style="{StaticResource Caption}" 
+                                       TextColor="{StaticResource SuccessGreen}" 
+                                       HorizontalOptions="End" 
+                                       VerticalOptions="Center" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <!-- Quick Actions -->
+                    <Grid ColumnDefinitions="*, *, *, *" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="8" HorizontalOptions="Center">
+                            <Border WidthRequest="64" HeightRequest="64" Style="{StaticResource GlassCardStyle}">
+                                <Image Source="send_icon.png" WidthRequest="24" HeightRequest="24" />
+                            </Border>
+                            <Label Text="Send" Style="{StaticResource Caption}" HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                        
+                        <VerticalStackLayout Grid.Column="1" Spacing="8" HorizontalOptions="Center">
+                            <Border WidthRequest="64" HeightRequest="64" Style="{StaticResource GlassCardStyle}">
+                                <Image Source="receive_icon.png" WidthRequest="24" HeightRequest="24" />
+                            </Border>
+                            <Label Text="Receive" Style="{StaticResource Caption}" HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="2" Spacing="8" HorizontalOptions="Center">
+                            <Border WidthRequest="64" HeightRequest="64" Style="{StaticResource GlassCardStyle}">
+                                <Image Source="swap_icon.png" WidthRequest="24" HeightRequest="24" />
+                            </Border>
+                            <Label Text="Swap" Style="{StaticResource Caption}" HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="3" Spacing="8" HorizontalOptions="Center">
+                            <Border WidthRequest="64" HeightRequest="64" Style="{StaticResource GlassCardStyle}">
+                                <Image Source="buy_icon.png" WidthRequest="24" HeightRequest="24" />
+                            </Border>
+                            <Label Text="Buy" Style="{StaticResource Caption}" HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- Assets Section -->
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Grid.Column="0" Text="Assets" Style="{StaticResource H3CardTitle}" VerticalOptions="Center" />
+                        <Button Grid.Column="1" Text="+" Style="{StaticResource PrimaryButtonStyle}" WidthRequest="40" HeightRequest="40" Padding="0" CornerRadius="20" />
+                    </Grid>
+
+                    <CollectionView ItemsSource="{Binding Assets}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Token">
+                                <Border Style="{StaticResource GlassCardStyle}" Margin="0,0,0,12" Padding="16">
+                                    <Grid ColumnDefinitions="Auto, *, Auto">
+                                        <Ellipse Grid.Column="0" WidthRequest="40" HeightRequest="40" Fill="{StaticResource CardGradient}" Margin="0,0,12,0" />
+                                        
+                                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                            <Label Text="{Binding Name}" Style="{StaticResource BodyLarge}" />
+                                            <Label Text="{Binding Symbol}" Style="{StaticResource Caption}" />
+                                        </VerticalStackLayout>
+                                        
+                                        <VerticalStackLayout Grid.Column="2" HorizontalOptions="End" VerticalOptions="Center">
+                                            <Label Text="{Binding Balance, StringFormat='{0:N4}'}" Style="{StaticResource BodyLarge}" HorizontalOptions="End" />
+                                            <Label Text="{Binding PriceChange24h, StringFormat='{0:+0.00;-0.00}%'}" 
+                                                   Style="{StaticResource Caption}" 
+                                                   TextColor="{StaticResource SuccessGreen}" 
+                                                   HorizontalOptions="End" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

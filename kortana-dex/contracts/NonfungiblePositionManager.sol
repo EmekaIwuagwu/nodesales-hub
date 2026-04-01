@@ -3,10 +3,11 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./interfaces/IKortanaPool.sol";
+import "./interfaces/IKortanaFactory.sol";
 import "./libraries/Position.sol";
 import "./libraries/TickMath.sol";
 import "./libraries/PoolAddress.sol";
@@ -66,13 +67,24 @@ contract NonfungiblePositionManager is
         checkDeadline(params.deadline) 
         returns (uint256 tokenId, uint128 liquidity, uint256 amount0, uint256 amount1) 
     {
-        // Pool layout for KortanaSwap: token0, token1, fee
-        address pool = PoolAddress.computeAddress(factory, PoolAddress.getPoolKey(params.token0, params.token1, params.fee));
+        // 1. Get pool address
+        address pool = IKortanaFactory(factory).getPool(params.token0, params.token1, params.fee);
         
-        // This is a simplified mint. A full implementation would calculate liquidity from amount0/amount1
-        // For now, let's assume UI provides a reasonable liquidity delta expectation or we calculate it.
-        // Simplified version:
-        liquidity = 1000000; // Placeholder for actual calculation logic
+        // 2. Create pool if it doesn't exist
+        if (pool == address(0)) {
+            pool = IKortanaFactory(factory).createPool(params.token0, params.token1, params.fee);
+        }
+
+        // 3. Initialize pool if it's new (price not set)
+        (uint160 sqrtPriceX96, , , , , , ) = IKortanaPool(pool).slot0();
+        if (sqrtPriceX96 == 0) {
+            // Default to 1:1 price ratio (Tick 0)
+            uint160 initialPrice = 79228162514264337593543950336; 
+            IKortanaPool(pool).initialize(initialPrice);
+        }
+
+        // 4. Calculate liquidity and mint
+        liquidity = 1000000; // Placeholder: Real implementation uses LiquidityAmounts.getLiquidityForAmounts
 
         (amount0, amount1) = IKortanaPool(pool).mint(
             address(this),
@@ -103,19 +115,21 @@ contract NonfungiblePositionManager is
 
     function kortanaMintCallback(uint256 amount0, uint256 amount1, bytes calldata data) external override {
         address sender = abi.decode(data, (address));
-        // Validate caller is a pool deployed by our factory
-        // pay back
         if (amount0 > 0) pay(IKortanaPool(msg.sender).token0(), sender, msg.sender, amount0);
         if (amount1 > 0) pay(IKortanaPool(msg.sender).token1(), sender, msg.sender, amount1);
     }
 
-    // Required overrides
-    function _update(address to, uint256 tokenId, address auth) internal override(ERC721, ERC721Enumerable) returns (address) {
-        return super._update(to, tokenId, auth);
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 batchSize
+    ) internal override(ERC721, ERC721Enumerable) {
+        super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
-    function _increaseBalance(address account, uint128 value) internal override(ERC721, ERC721Enumerable) {
-        super._increaseBalance(account, value);
+    function _burn(uint256 tokenId) internal override(ERC721) {
+        super._burn(tokenId);
     }
 
     function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool) {

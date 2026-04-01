@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Activity, Users, Zap } from 'lucide-react';
+import { Box, Clock, Users } from 'lucide-react';
 
 const StatCard = ({ title, value, icon: Icon, change, suffix }) => (
     <div className="glass-card" style={{ position: 'relative', overflow: 'hidden' }}>
@@ -38,16 +38,16 @@ const StatsOverview = ({ stats }) => {
     return (
         <div className="stats-grid">
             <StatCard
-                title="DNR PRICE"
-                value={`$${stats?.price || '1.24'}`}
-                icon={Zap}
-                change={stats?.priceChange || '+5.2%'}
+                title="BLOCK TIME"
+                value={`${stats?.blockTime || '2'}`}
+                icon={Clock}
+                suffix="SEC"
             />
             <StatCard
-                title="TRANSACTIONS"
-                value={stats?.totalTransactions !== undefined ? stats.totalTransactions.toLocaleString() : '0'}
-                icon={Activity}
-                suffix="TXNS"
+                title="TOTAL ADDRESSES"
+                value={stats?.totalAddresses !== undefined ? stats.totalAddresses.toLocaleString() : '0'}
+                icon={Users}
+                suffix="ADDRS"
             />
             <StatCard
                 title="LATEST BLOCK"

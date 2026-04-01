@@ -1,4 +1,0 @@
-﻿Compiled 1 Solidity file successfully (evm target: paris).
-===========================================
-Γ¼í EXECUTING 60-EPOCH (1 HOUR) LIVE SIMULATION
-===========================================

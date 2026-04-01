@@ -28,7 +28,7 @@ import "./libraries/FixedPoint128.sol";
 import "./NoDelegateCall.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract KortanaPool is IKortanaPool, ReentrancyGuard, NoDelegateCall {
     using SafeCast for uint256;

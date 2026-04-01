@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:KortanaWallet.ViewModels"
+             xmlns:models="clr-namespace:KortanaWallet.Models"
+             x:Class="KortanaWallet.Views.Accounts.AccountsPage"
+             x:DataType="vm:AccountsViewModel"
+             Title="Accounts">
+
+    <Grid RowDefinitions="*, Auto">
+        <CollectionView Grid.Row="0" ItemsSource="{Binding Accounts}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:WalletAccount">
+                    <Border Style="{StaticResource GlassCardStyle}" Margin="20,0,20,16" Padding="16">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AccountsViewModel}}, Path=SelectAccountCommand}" CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        
+                        <Grid ColumnDefinitions="Auto, *, Auto">
+                             <Border Grid.Column="0" WidthRequest="44" HeightRequest="44" BackgroundColor="{StaticResource CardGradient}" Margin="0,0,12,0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="22" />
+                                </Border.StrokeShape>
+                             </Border>
+                            
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                <Label Text="{Binding Name}" Style="{StaticResource BodyLarge}" />
+                                <Label Text="{Binding TruncatedAddress}" Style="{StaticResource MonoTiny}" />
+                            </VerticalStackLayout>
+                            
+                            <VerticalStackLayout Grid.Column="2" HorizontalOptions="End" VerticalOptions="Center">
+                                <Label Text="{Binding PortfolioBalanceUsd, StringFormat='{0:C2}'}" Style="{StaticResource BodyLarge}" HorizontalOptions="End" />
+                                <Ellipse WidthRequest="20" HeightRequest="20" Fill="{StaticResource SuccessGreen}" IsVisible="{Binding IsActive}" HorizontalOptions="End" Margin="0,4,0,0" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Button Grid.Row="1" Text="+ Add Account" 
+                Style="{StaticResource PrimaryButtonStyle}" 
+                Command="{Binding ShowAddAccountCommand}" 
+                Margin="20,0,20,40" />
+    </Grid>
+</ContentPage>

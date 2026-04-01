@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:KortanaWallet.ViewModels"
+             xmlns:models="clr-namespace:KortanaWallet.Models"
+             x:Class="KortanaWallet.Views.History.TransactionHistoryPage"
+             x:DataType="vm:TransactionHistoryViewModel"
+             Title="Activity">
+
+    <Grid RowDefinitions="Auto, *">
+        <!-- Filters -->
+        <HorizontalStackLayout Grid.Row="0" Spacing="10" Padding="20,10">
+            <Border Background="{StaticResource PrimaryGradient}" StrokeShape="RoundRectangle 16" Padding="12,6">
+                <Label Text="All" TextColor="{StaticResource PureWhite}" />
+            </Border>
+            <Border Style="{StaticResource GlassCardStyle}" StrokeShape="RoundRectangle 16" Padding="12,6">
+                <Label Text="Sent" />
+            </Border>
+            <Border Style="{StaticResource GlassCardStyle}" StrokeShape="RoundRectangle 16" Padding="12,6">
+                <Label Text="Received" />
+            </Border>
+        </HorizontalStackLayout>
+
+        <!-- Transaction List -->
+        <CollectionView Grid.Row="1" 
+                        ItemsSource="{Binding Transactions}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Transaction">
+                    <Grid ColumnDefinitions="Auto, *, Auto" Padding="20,12">
+                        <!-- Direction Icon -->
+                        <Border Grid.Column="0" 
+                                WidthRequest="44" HeightRequest="44" 
+                                Background="{StaticResource GlassCardBackground}"
+                                Margin="0,0,12,0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="22" />
+                            </Border.StrokeShape>
+                            <Label Text="↑" HorizontalOptions="Center" VerticalOptions="Center" FontSize="20" IsVisible="{Binding Direction, Converter={StaticResource StatusToVisibilityConverter}}" />
+                        </Border>
+
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                            <Label Text="{Binding Direction}" Style="{StaticResource BodyLarge}" />
+                            <Label Text="{Binding Hash}" Style="{StaticResource MonoTiny}" Opacity="0.6" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="2" HorizontalOptions="End" VerticalOptions="Center">
+                            <Label Text="{Binding DisplayAmount}" Style="{StaticResource BodyLarge}" HorizontalOptions="End" />
+                            <Label Text="{Binding Status}" Style="{StaticResource Caption}" TextColor="{StaticResource SuccessGreen}" HorizontalOptions="End" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

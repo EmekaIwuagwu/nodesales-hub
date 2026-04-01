@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:KortanaWallet.ViewModels"
+             x:Class="KortanaWallet.Views.Auth.CreateWalletPage"
+             x:DataType="vm:CreateWalletViewModel"
+             Title="Create Wallet">
+
+    <Grid RowDefinitions="Auto, *">
+        <!-- Step Indicator -->
+        <Grid Grid.Row="0" Padding="24" ColumnDefinitions="*, *, *">
+             <ProgressBar Progress="{Binding Progress}" 
+                           ProgressColor="{StaticResource ElectricCobalt}" 
+                           Grid.ColumnSpan="3" VerticalOptions="Center" />
+        </Grid>
+
+        <ScrollView Grid.Row="1" Padding="24">
+            <VerticalStackLayout Spacing="24">
+                
+                <!-- Step 1: Set Password -->
+                <VerticalStackLayout IsVisible="{Binding CurrentStep, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter=1}" Spacing="20">
+                    <Label Text="Secure Your Wallet" Style="{StaticResource H2Section}" HorizontalOptions="Center" />
+                    <Label Text="Set a strong password to protect your assets on this device." Style="{StaticResource BodyMedium}" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
+                    
+                    <Entry Placeholder="Password" IsPassword="True" Text="{Binding Password}" Style="{StaticResource PrimaryInputStyle}" />
+                    <Entry Placeholder="Confirm Password" IsPassword="True" Text="{Binding ConfirmPassword}" Style="{StaticResource PrimaryInputStyle}" />
+                    
+                    <Button Text="Continue" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding NextStepCommand}" />
+                </VerticalStackLayout>
+
+                <!-- Step 2: Seed Phrase -->
+                <VerticalStackLayout IsVisible="{Binding CurrentStep, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter=2}" Spacing="20">
+                    <Label Text="Your Recovery Phrase" Style="{StaticResource H2Section}" HorizontalOptions="Center" />
+                    <Label Text="Write down these 12 words in order and keep them somewhere safe." Style="{StaticResource BodyMedium}" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
+                    
+                    <Border Style="{StaticResource GlassCardStyle}" Padding="20">
+                        <FlexLayout Wrap="Wrap" JustifyContent="Center" AlignItems="Center" BindableLayout.ItemsSource="{Binding MnemonicWords}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{StaticResource MidnightNavy}" Margin="4" Padding="12,8" StrokeShape="RoundRectangle 8">
+                                        <Label Text="{Binding .}" TextColor="{StaticResource PureWhite}" FontFamily="{StaticResource InterSemiBold}" />
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
+                    </Border>
+
+                    <Border Background="{StaticResource WarningAmber}" Padding="16" StrokeShape="RoundRectangle 12" Opacity="0.9">
+                         <Label Text="⚠️ NEVER share this phrase with anyone. If you lose it, your funds are gone forever." 
+                                 TextColor="Black" FontFamily="{StaticResource InterBold}" HorizontalTextAlignment="Center" />
+                    </Border>
+
+                    <Button Text="I've Written It Down" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding CompleteBackupCommand}" />
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

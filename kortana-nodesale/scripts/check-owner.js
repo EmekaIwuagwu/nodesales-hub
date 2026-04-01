@@ -2,7 +2,7 @@ import hre from "hardhat";
 const { ethers } = hre;
 
 async function main() {
-    const CONTRACT_ADDRESS = "0xd31303e73A0601D6785E9516692D4A8eB8fA0A99B";
+    const CONTRACT_ADDRESS = "0x2333B951635Ce16A452BbeE8034AFbfA081Da856";
     const NFT = await ethers.getContractFactory("KortanaLicenseNFT");
     const nft = NFT.attach(CONTRACT_ADDRESS);
 

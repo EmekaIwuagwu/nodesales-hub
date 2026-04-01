@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Primary Input Entry Style -->
+    <Style x:Key="PrimaryInputStyle" TargetType="Entry">
+        <Setter Property="Background" Value="#1AFFFFFF" />
+        <Setter Property="TextColor" Value="{StaticResource PureWhite}" />
+        <Setter Property="PlaceholderColor" Value="{StaticResource SlateGray}" />
+        <Setter Property="FontFamily" Value="{StaticResource InterRegular}" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="HeightRequest" Value="56" />
+        <Setter Property="Margin" Value="0,8" />
+        <Setter Property="Keyboard" Value="Email" /> <!-- Default, can be overridden -->
+    </Style>
+
+    <!-- Monospace Address Entry Style -->
+    <Style x:Key="AddressInputStyle" TargetType="Entry">
+        <Setter Property="Background" Value="#1AFFFFFF" />
+        <Setter Property="TextColor" Value="{StaticResource PureWhite}" />
+        <Setter Property="PlaceholderColor" Value="{StaticResource SlateGray}" />
+        <Setter Property="FontFamily" Value="{StaticResource Mono}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="HeightRequest" Value="60" />
+        <Setter Property="Margin" Value="0,8" />
+    </Style>
+
+    <!-- Search Bar Style -->
+    <Style x:Key="PrimarySearchBarStyle" TargetType="SearchBar">
+        <Setter Property="Background" Value="#1AFFFFFF" />
+        <Setter Property="TextColor" Value="{StaticResource PureWhite}" />
+        <Setter Property="PlaceholderColor" Value="{StaticResource SlateGray}" />
+        <Setter Property="FontFamily" Value="{StaticResource InterRegular}" />
+        <Setter Property="CancelButtonColor" Value="{StaticResource PureWhite}" />
+    </Style>
+
+</ResourceDictionary>

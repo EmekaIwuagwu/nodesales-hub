@@ -6,14 +6,14 @@
       "contentHash": "a445a3dd139022b7d7961e375321e923",
       "sourceName": "contracts/base/PeripheryImmutableState.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -45,14 +45,14 @@
       "contentHash": "ff880e5012905747b80ccc47b4d737cb",
       "sourceName": "contracts/interfaces/IPeripheryImmutableState.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -82,14 +82,14 @@
       "contentHash": "61fe91acbf69f9ff3bb2a2881a4a3ed6",
       "sourceName": "contracts/SwapRouter.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -131,14 +131,14 @@
       "contentHash": "0de741e0ae4b0fb352f76911e67a0d10",
       "sourceName": "contracts/interfaces/IKortanaPool.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -168,14 +168,14 @@
       "contentHash": "d6f6e0df826402fcd792fae4be4f5944",
       "sourceName": "contracts/interfaces/ISwapRouter.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -201,18 +201,18 @@
       ]
     },
     "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\contracts\\libraries\\PoolAddress.sol": {
-      "lastModificationDate": 1774088703470,
-      "contentHash": "668e7bb5c32548d6a9e0f6166b7cb250",
+      "lastModificationDate": 1774089284816,
+      "contentHash": "1fad704030026f03e7b6473ffe5637d8",
       "sourceName": "contracts/libraries/PoolAddress.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -242,14 +242,14 @@
       "contentHash": "a3ffb51c80f5947ee667a618d3781b50",
       "sourceName": "contracts/interfaces/IKortanaSwapCallback.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -279,14 +279,14 @@
       "contentHash": "d137defd9f372427e93313c32d190831",
       "sourceName": "contracts/libraries/Path.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -316,14 +316,14 @@
       "contentHash": "8ae3f4404362ae3b971da1230d2fc39f",
       "sourceName": "contracts/libraries/CallbackValidation.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -356,14 +356,14 @@
       "contentHash": "9a17adcc4e587022aadac893bec32604",
       "sourceName": "contracts/base/PeripheryPayments.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -395,14 +395,14 @@
       "contentHash": "00511d676651b93868039d0627d4e21d",
       "sourceName": "contracts/libraries/SafeCast.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -432,14 +432,14 @@
       "contentHash": "bf9f4ab81394f9bdb8eeb882646dec43",
       "sourceName": "contracts/libraries/TransferHelper.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -471,14 +471,14 @@
       "contentHash": "de55129798578f78de6cabb4b1a84422",
       "sourceName": "contracts/libraries/TickMath.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -545,14 +545,14 @@
       "contentHash": "c93fa84c2e163cacc6c6ffb210ba696b",
       "sourceName": "contracts/libraries/Tick.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -586,14 +586,14 @@
       "contentHash": "9bcaab5999619a1c57f4c85416d9e065",
       "sourceName": "contracts/libraries/LiquidityMath.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -619,18 +619,18 @@
       ]
     },
     "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\contracts\\KortanaPool.sol": {
-      "lastModificationDate": 1774089146043,
-      "contentHash": "42b869436788fa4681484feb41a72e61",
+      "lastModificationDate": 1774202259092,
+      "contentHash": "835b484e01ea90b8e47fe96779970b1d",
       "sourceName": "contracts/KortanaPool.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -667,7 +667,7 @@
         "./libraries/FixedPoint128.sol",
         "./NoDelegateCall.sol",
         "@openzeppelin/contracts/token/ERC20/IERC20.sol",
-        "@openzeppelin/contracts/utils/ReentrancyGuard.sol"
+        "@openzeppelin/contracts/security/ReentrancyGuard.sol"
       ],
       "versionPragmas": [
         "^0.8.20"
@@ -681,14 +681,14 @@
       "contentHash": "987162e318f1f34975a9ea415374c015",
       "sourceName": "contracts/interfaces/IKortanaFactory.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -718,14 +718,14 @@
       "contentHash": "1daef6d98861c7e00130257335ce0e84",
       "sourceName": "contracts/interfaces/IKortanaPoolDeployer.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -755,14 +755,14 @@
       "contentHash": "e91987688f2f9879bb65c6fb958e0409",
       "sourceName": "contracts/interfaces/IKortanaMintCallback.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -792,14 +792,14 @@
       "contentHash": "a188965a6964dddc1d7ac2058b90c4fc",
       "sourceName": "contracts/interfaces/IKortanaFlashCallback.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -829,14 +829,14 @@
       "contentHash": "4046751717c41a8bd088231228887c24",
       "sourceName": "contracts/libraries/Position.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -869,14 +869,14 @@
       "contentHash": "b4a3bb652c718816581c87fa1733bdea",
       "sourceName": "contracts/libraries/Oracle.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -906,14 +906,14 @@
       "contentHash": "cb58e70bc524aa5493f87bb370db5ae7",
       "sourceName": "contracts/libraries/FullMath.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -943,14 +943,14 @@
       "contentHash": "2a9842f2d14b31febd8342869d3d7640",
       "sourceName": "contracts/libraries/SqrtPriceMath.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -982,14 +982,14 @@
       "contentHash": "ffe93ed0d3a4e7539ae3a31f55cc2d82",
       "sourceName": "contracts/libraries/SwapMath.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -1022,14 +1022,14 @@
       "contentHash": "b24a3960ddcd496a2b611aaaf1f0ae11",
       "sourceName": "contracts/libraries/TickBitmap.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -1059,14 +1059,14 @@
       "contentHash": "c8a3e99ccaa9fb2425b37f41d8b177f6",
       "sourceName": "contracts/NoDelegateCall.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -1096,14 +1096,14 @@
       "contentHash": "c568cc1f24c5521347cd5e326ca25018",
       "sourceName": "contracts/libraries/FixedPoint128.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -1209,14 +1209,14 @@
       "contentHash": "21e5525cf192215dd097bc7aaad8f275",
       "sourceName": "contracts/KortanaPoolDeployer.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -1249,14 +1249,14 @@
       "contentHash": "65ef42b3d3a6bf63bb9533de50e738df",
       "sourceName": "contracts/KortanaFactory.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -1448,14 +1448,14 @@
       "contentHash": "4778c8e48a05185a8642037333f99edc",
       "sourceName": "contracts/WDNR.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -1487,14 +1487,14 @@
       "contentHash": "06f5b4919a71b24f309be044efa17a6a",
       "sourceName": "contracts/MockERC20.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -1526,14 +1526,14 @@
       "contentHash": "0e9db197ded0595517562fa9e76ec073",
       "sourceName": "contracts/libraries/FixedPoint96.sol",
       "solcConfig": {
-        "version": "0.8.20",
+        "version": "0.8.26",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 800
+            "runs": 200
           },
-          "viaIR": true,
-          "evmVersion": "paris",
+          "viaIR": false,
+          "evmVersion": "london",
           "outputSelection": {
             "*": {
               "*": [
@@ -1556,6 +1556,788 @@
       ],
       "artifacts": [
         "FixedPoint96"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\IERC20.sol": {
+      "lastModificationDate": 1774201630706,
+      "contentHash": "df36f7051335cd1e748b1b6463b7fdd3",
+      "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": false,
+          "evmVersion": "london",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IERC20"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\contracts\\NonfungiblePositionManager.sol": {
+      "lastModificationDate": 1774246074966,
+      "contentHash": "93d3ac691b400acdae607d7b82b1d4d9",
+      "sourceName": "contracts/NonfungiblePositionManager.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": false,
+          "evmVersion": "london",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC721/ERC721.sol",
+        "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol",
+        "@openzeppelin/contracts/security/ReentrancyGuard.sol",
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "./interfaces/IKortanaPool.sol",
+        "./interfaces/IKortanaFactory.sol",
+        "./libraries/Position.sol",
+        "./libraries/TickMath.sol",
+        "./libraries/PoolAddress.sol",
+        "./libraries/TransferHelper.sol",
+        "./base/PeripheryImmutableState.sol",
+        "./base/PeripheryPayments.sol",
+        "./interfaces/IKortanaMintCallback.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "NonfungiblePositionManager"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\node_modules\\@openzeppelin\\contracts\\token\\ERC721\\ERC721.sol": {
+      "lastModificationDate": 1774201630570,
+      "contentHash": "95602b04f0b53f1139f4668d123ddeb7",
+      "sourceName": "@openzeppelin/contracts/token/ERC721/ERC721.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": false,
+          "evmVersion": "london",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC721.sol",
+        "./IERC721Receiver.sol",
+        "./extensions/IERC721Metadata.sol",
+        "../../utils/Address.sol",
+        "../../utils/Context.sol",
+        "../../utils/Strings.sol",
+        "../../utils/introspection/ERC165.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ERC721"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\node_modules\\@openzeppelin\\contracts\\token\\ERC721\\extensions\\ERC721Enumerable.sol": {
+      "lastModificationDate": 1774201630580,
+      "contentHash": "212e86880d210b6cac8c3eb0cd6b1fad",
+      "sourceName": "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": false,
+          "evmVersion": "london",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../ERC721.sol",
+        "./IERC721Enumerable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ERC721Enumerable"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\node_modules\\@openzeppelin\\contracts\\utils\\StorageSlot.sol": {
+      "lastModificationDate": 1774091105742,
+      "contentHash": "e656d64c4ce918f3d13030b91c935134",
+      "sourceName": "@openzeppelin/contracts/utils/StorageSlot.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 800
+          },
+          "viaIR": true,
+          "evmVersion": "cancun",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "StorageSlot"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\node_modules\\@openzeppelin\\contracts\\utils\\Strings.sol": {
+      "lastModificationDate": 1774201630921,
+      "contentHash": "48686fc32a22a3754b8e63321857dd2a",
+      "sourceName": "@openzeppelin/contracts/utils/Strings.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": false,
+          "evmVersion": "london",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./math/Math.sol",
+        "./math/SignedMath.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Strings"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\node_modules\\@openzeppelin\\contracts\\utils\\Context.sol": {
+      "lastModificationDate": 1774201630440,
+      "contentHash": "f07feb4a44b1a4872370da5aa70e8e46",
+      "sourceName": "@openzeppelin/contracts/utils/Context.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": false,
+          "evmVersion": "london",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Context"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\node_modules\\@openzeppelin\\contracts\\token\\ERC721\\IERC721.sol": {
+      "lastModificationDate": 1774201630746,
+      "contentHash": "48de4c9a3a4ae5ef66a2aa620843413f",
+      "sourceName": "@openzeppelin/contracts/token/ERC721/IERC721.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": false,
+          "evmVersion": "london",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../utils/introspection/IERC165.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IERC721"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\node_modules\\@openzeppelin\\contracts\\utils\\introspection\\ERC165.sol": {
+      "lastModificationDate": 1774201630515,
+      "contentHash": "0e7db055ce108f9da7bb6686a00287c0",
+      "sourceName": "@openzeppelin/contracts/utils/introspection/ERC165.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": false,
+          "evmVersion": "london",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC165.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ERC165"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\node_modules\\@openzeppelin\\contracts\\token\\ERC721\\extensions\\IERC721Metadata.sol": {
+      "lastModificationDate": 1774201630756,
+      "contentHash": "efbc0d15b80a74e34dbe8da0f3e879bb",
+      "sourceName": "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": false,
+          "evmVersion": "london",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../IERC721.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IERC721Metadata"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\node_modules\\@openzeppelin\\contracts\\utils\\math\\SafeCast.sol": {
+      "lastModificationDate": 1774091104830,
+      "contentHash": "f28a38cd37f4225d0a91fb5405dd850f",
+      "sourceName": "@openzeppelin/contracts/utils/math/SafeCast.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 800
+          },
+          "viaIR": true,
+          "evmVersion": "cancun",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "SafeCast"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\node_modules\\@openzeppelin\\contracts\\utils\\math\\Math.sol": {
+      "lastModificationDate": 1774201630833,
+      "contentHash": "fe63409d8a06818b926cf89e0ea88b1b",
+      "sourceName": "@openzeppelin/contracts/utils/math/Math.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": false,
+          "evmVersion": "london",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Math"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\node_modules\\@openzeppelin\\contracts\\utils\\math\\SignedMath.sol": {
+      "lastModificationDate": 1774201630909,
+      "contentHash": "9488ebd4daacfee8ad04811600d7d061",
+      "sourceName": "@openzeppelin/contracts/utils/math/SignedMath.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": false,
+          "evmVersion": "london",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "SignedMath"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\node_modules\\@openzeppelin\\contracts\\utils\\introspection\\IERC165.sol": {
+      "lastModificationDate": 1774201630696,
+      "contentHash": "03e6768535ac4da0e9756f1d8a4a018a",
+      "sourceName": "@openzeppelin/contracts/utils/introspection/IERC165.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": false,
+          "evmVersion": "london",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IERC165"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\node_modules\\@openzeppelin\\contracts\\token\\ERC721\\IERC721Receiver.sol": {
+      "lastModificationDate": 1774201630758,
+      "contentHash": "c22d4395e33763de693fd440c6fd10e1",
+      "sourceName": "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": false,
+          "evmVersion": "london",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IERC721Receiver"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\node_modules\\@openzeppelin\\contracts\\token\\ERC721\\extensions\\IERC721Enumerable.sol": {
+      "lastModificationDate": 1774201630752,
+      "contentHash": "f4dd06783f321aa26179bc2b6e361c29",
+      "sourceName": "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": false,
+          "evmVersion": "london",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../IERC721.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IERC721Enumerable"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\extensions\\IERC20Metadata.sol": {
+      "lastModificationDate": 1774201630710,
+      "contentHash": "909ab67fc5c25033fe6cd364f8c056f9",
+      "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": false,
+          "evmVersion": "london",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../IERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IERC20Metadata"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol": {
+      "lastModificationDate": 1774201630524,
+      "contentHash": "3ae5166c6827a9cf1a7a462d1632b464",
+      "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": false,
+          "evmVersion": "london",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC20.sol",
+        "./extensions/IERC20Metadata.sol",
+        "../../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ERC20"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\node_modules\\@openzeppelin\\contracts\\security\\ReentrancyGuard.sol": {
+      "lastModificationDate": 1774201630873,
+      "contentHash": "1535f8c0c68463f8c1b5239f7584e71f",
+      "sourceName": "@openzeppelin/contracts/security/ReentrancyGuard.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": false,
+          "evmVersion": "london",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ReentrancyGuard"
+      ]
+    },
+    "C:\\Users\\emi\\Desktop\\blockchains\\kortanablockchain-devhub\\kortana-dex\\node_modules\\@openzeppelin\\contracts\\utils\\Address.sol": {
+      "lastModificationDate": 1774201630415,
+      "contentHash": "211ffd288c1588ba8c10eae668ca3c66",
+      "sourceName": "@openzeppelin/contracts/utils/Address.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": false,
+          "evmVersion": "london",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.1"
+      ],
+      "artifacts": [
+        "Address"
       ]
     }
   }

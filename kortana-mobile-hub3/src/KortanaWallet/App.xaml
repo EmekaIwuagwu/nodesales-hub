@@ -1,0 +1,44 @@
+<?xml version = "1.0" encoding = "UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:KortanaWallet"
+             xmlns:converters="clr-namespace:KortanaWallet.Core.Converters"
+             x:Class="KortanaWallet.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Typography.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Buttons.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Cards.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Inputs.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <converters:StepToVisibilityConverter x:Key="StepToVisibilityConverter" />
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <converters:TabToColorConverter x:Key="TabToColorConverter" />
+            <converters:PinDotConverter x:Key="PinDotConverter" />
+
+            <Style TargetType="NavigationPage">
+                <Setter Property="BarBackgroundColor" Value="{StaticResource DeepSpaceBlue}" />
+                <Setter Property="BarTextColor" Value="{StaticResource PureWhite}" />
+            </Style>
+
+            <Style TargetType="ContentPage">
+                <Setter Property="BackgroundColor" Value="{StaticResource DeepSpaceBlue}" />
+            </Style>
+
+            <Style TargetType="Shell" ApplyToDerivedTypes="True">
+                <Setter Property="Shell.BackgroundColor" Value="{StaticResource DeepSpaceBlue}" />
+                <Setter Property="Shell.ForegroundColor" Value="{StaticResource PureWhite}" />
+                <Setter Property="Shell.TitleColor" Value="{StaticResource PureWhite}" />
+                <Setter Property="Shell.DisabledColor" Value="{StaticResource SlateGray}" />
+                <Setter Property="Shell.UnselectedColor" Value="{StaticResource SilverMist}" />
+                <Setter Property="Shell.TabBarBackgroundColor" Value="{StaticResource MidnightNavy}" />
+                <Setter Property="Shell.TabBarForegroundColor" Value="{StaticResource PureWhite}" />
+                <Setter Property="Shell.TabBarUnselectedColor" Value="{StaticResource SilverMist}" />
+                <Setter Property="Shell.TabBarTitleColor" Value="{StaticResource PureWhite}" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

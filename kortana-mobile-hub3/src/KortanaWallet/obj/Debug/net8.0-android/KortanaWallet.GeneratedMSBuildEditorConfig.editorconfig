@@ -1,0 +1,197 @@
+is_global = true
+build_property.EnableAotAnalyzer = 
+build_property.EnableSingleFileAnalyzer = true
+build_property.EnableTrimAnalyzer = false
+build_property.IncludeAllContentForSelfExtract = 
+build_property.TargetFramework = net8.0-android
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = false
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = KortanaWallet
+build_property.ProjectDir = C:\Users\emi\Desktop\blockchains\kortanablockchain-devhub\kortana-mobile-hub3\src\KortanaWallet\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/App.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.App.xaml
+build_metadata.AdditionalFiles.TargetPath = App.xaml
+build_metadata.AdditionalFiles.RelativePath = App.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/AppShell.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.AppShell.xaml
+build_metadata.AdditionalFiles.TargetPath = AppShell.xaml
+build_metadata.AdditionalFiles.RelativePath = AppShell.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Controls/AddressInput.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Controls.AddressInput.xaml
+build_metadata.AdditionalFiles.TargetPath = Controls\AddressInput.xaml
+build_metadata.AdditionalFiles.RelativePath = Controls\AddressInput.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Controls/GlassCard.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Controls.GlassCard.xaml
+build_metadata.AdditionalFiles.TargetPath = Controls\GlassCard.xaml
+build_metadata.AdditionalFiles.RelativePath = Controls\GlassCard.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Controls/LoadingOverlay.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Controls.LoadingOverlay.xaml
+build_metadata.AdditionalFiles.TargetPath = Controls\LoadingOverlay.xaml
+build_metadata.AdditionalFiles.RelativePath = Controls\LoadingOverlay.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Controls/PinPad.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Controls.PinPad.xaml
+build_metadata.AdditionalFiles.TargetPath = Controls\PinPad.xaml
+build_metadata.AdditionalFiles.RelativePath = Controls\PinPad.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Resources/Styles/Buttons.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Resources.Styles.Buttons.xaml
+build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Buttons.xaml
+build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Buttons.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Resources/Styles/Cards.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Resources.Styles.Cards.xaml
+build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Cards.xaml
+build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Cards.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Resources/Styles/Colors.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Resources.Styles.Colors.xaml
+build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Colors.xaml
+build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Colors.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Resources/Styles/Inputs.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Resources.Styles.Inputs.xaml
+build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Inputs.xaml
+build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Inputs.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Resources/Styles/Typography.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Resources.Styles.Typography.xaml
+build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Typography.xaml
+build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Typography.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Views/Accounts/AccountsPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Views.Accounts.AccountsPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\Accounts\AccountsPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\Accounts\AccountsPage.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Views/Auth/CreateWalletPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Views.Auth.CreateWalletPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\Auth\CreateWalletPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\Auth\CreateWalletPage.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Views/Auth/ImportWalletPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Views.Auth.ImportWalletPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\Auth\ImportWalletPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\Auth\ImportWalletPage.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Views/Auth/LoginPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Views.Auth.LoginPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\Auth\LoginPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\Auth\LoginPage.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Views/Browser/DAppBrowserPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Views.Browser.DAppBrowserPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\Browser\DAppBrowserPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\Browser\DAppBrowserPage.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Views/Common/QrScannerPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Views.Common.QrScannerPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\Common\QrScannerPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\Common\QrScannerPage.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Views/Dashboard/DashboardPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Views.Dashboard.DashboardPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\Dashboard\DashboardPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\Dashboard\DashboardPage.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Views/History/TransactionDetailPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Views.History.TransactionDetailPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\History\TransactionDetailPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\History\TransactionDetailPage.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Views/History/TransactionHistoryPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Views.History.TransactionHistoryPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\History\TransactionHistoryPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\History\TransactionHistoryPage.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Views/Network/NetworkPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Views.Network.NetworkPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\Network\NetworkPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\Network\NetworkPage.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Views/NFTs/NFTGalleryPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Views.NFTs.NFTGalleryPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\NFTs\NFTGalleryPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\NFTs\NFTGalleryPage.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Views/Onboarding/OnboardingPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Views.Onboarding.OnboardingPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\Onboarding\OnboardingPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\Onboarding\OnboardingPage.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Views/Receive/ReceivePage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Views.Receive.ReceivePage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\Receive\ReceivePage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\Receive\ReceivePage.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Views/Send/SendPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Views.Send.SendPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\Send\SendPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\Send\SendPage.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Views/Settings/BackupPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Views.Settings.BackupPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\Settings\BackupPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\Settings\BackupPage.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Views/Settings/SettingsPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Views.Settings.SettingsPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\Settings\SettingsPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\Settings\SettingsPage.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Views/Splash/SplashPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Views.Splash.SplashPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\Splash\SplashPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\Splash\SplashPage.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Views/Swap/SwapPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Views.Swap.SwapPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\Swap\SwapPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\Swap\SwapPage.xaml
+
+[C:/Users/emi/Desktop/blockchains/kortanablockchain-devhub/kortana-mobile-hub3/src/KortanaWallet/Views/Tokens/TokenListPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KortanaWallet.Views.Tokens.TokenListPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\Tokens\TokenListPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\Tokens\TokenListPage.xaml

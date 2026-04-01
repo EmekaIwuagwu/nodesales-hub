@@ -7,9 +7,9 @@ import requests
 import json
 
 # Configuration
-RPC_URL = "https://poseidon-rpc.kortana.worchsester.xyz/"
-RECIPIENT_ADDRESS = "0x28e514Ce1a0554B83f6d5EEEE11B07D0e294D9F9"
-AMOUNT_DNR = 100  # Amount in DNR
+RPC_URL = "https://poseidon-rpc.testnet.kortana.xyz/"
+RECIPIENT_ADDRESS = "0xf251038d1dB96Ce1a733Ae92247E0A6F400F275E"
+AMOUNT_DNR = 4000000  # Amount in DNR
 
 def send_tokens():
     """Send tokens using eth_requestDNR method"""

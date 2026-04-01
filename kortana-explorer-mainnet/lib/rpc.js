@@ -173,12 +173,21 @@ export async function getNetworkStats() {
             getGlobalTransactions()
         ]);
 
+        // Calculate unique addresses from transactions
+        const uniqueAddresses = new Set();
+        recentTxs.forEach(tx => {
+            if (tx.from) uniqueAddresses.add(tx.from.toLowerCase());
+            if (tx.to) uniqueAddresses.add(tx.to.toLowerCase());
+        });
+
         return {
             latestBlock: blockNumber,
             gasPrice: ethers.formatUnits(gasPrice.gasPrice || 0, 'gwei'),
             tps: recentTxs.length > 0 ? (recentTxs.length / (blockNumber || 1) * 0.1).toFixed(2) : '0.00',
             activeValidators: validators.filter(v => v.isActive).length,
             totalTransactions: recentTxs.length,
+            totalAddresses: uniqueAddresses.size,
+            blockTime: 2, // Kortana block time in seconds
             marketCap: (1000000000 * 1.24).toLocaleString(),
             price: '1.24',
             priceChange: '+5.2%'

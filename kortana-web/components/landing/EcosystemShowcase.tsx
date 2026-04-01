@@ -1,7 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Sparkles, Construction, Layers, Zap } from 'lucide-react';
+import { SiInstructure, SiWebmoney } from "react-icons/si";
+import { BiSolidCoinStack } from "react-icons/bi";
 
 export default function EcosystemShowcase() {
     return (
@@ -30,17 +31,17 @@ export default function EcosystemShowcase() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <FutureCard
-                        icon={<Construction className="w-8 h-8 text-cyan-400" />}
+                        icon={<SiWebmoney className="w-8 h-8 text-cyan-400" />}
                         title="Institutional DeFi"
                         desc="Advanced liquidity protocols and automated credit markets currently in stealth development."
                     />
                     <FutureCard
-                        icon={<Layers className="w-8 h-8 text-purple-400" />}
+                        icon={<BiSolidCoinStack className="w-8 h-8 text-purple-400" />}
                         title="RWA Tokenization"
                         desc="Legal frameworks and asset containers for bridging real-world value to the Kortana chain."
                     />
                     <FutureCard
-                        icon={<Zap className="w-8 h-8 text-neon-green" />}
+                        icon={<SiInstructure className="w-8 h-8 text-neon-green" />}
                         title="Native Infrastructure"
                         desc="High-performance indexers and oracle networks optimized for the Solaris engine."
                     />

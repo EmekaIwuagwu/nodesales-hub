@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:KortanaWallet.ViewModels"
+             x:Class="KortanaWallet.Views.Receive.ReceivePage"
+             x:DataType="vm:ReceiveViewModel"
+             Title="Receive">
+
+    <Grid VerticalOptions="Center" Padding="40">
+        <VerticalStackLayout Spacing="32" HorizontalOptions="Center">
+            
+            <Label Text="Scan to receive funds" 
+                   Style="{StaticResource BodyLarge}" 
+                   HorizontalOptions="Center" />
+
+            <!-- QR Code Container -->
+            <Border Style="{StaticResource GlassCardStyle}" 
+                    Padding="24" 
+                    WidthRequest="280" 
+                    HeightRequest="280" 
+                    HorizontalOptions="Center"
+                    BackgroundColor="{StaticResource PureWhite}">
+                <!-- Placeholder for QR Image -->
+                <Grid>
+                    <Image Source="{Binding QrCodeImageSource}" 
+                           Aspect="AspectFit" />
+                    <!-- Watermark -->
+                    <Image Source="kortana_logo_small.png" 
+                           WidthRequest="40" 
+                           HeightRequest="40" 
+                           VerticalOptions="Center" 
+                           HorizontalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <!-- Address Display -->
+            <VerticalStackLayout Spacing="8">
+                <Label Text="{Binding WalletAddress}" 
+                       Style="{StaticResource MonoTiny}" 
+                       FontSize="14"
+                       HorizontalOptions="Center" 
+                       HorizontalTextAlignment="Center"
+                       LineBreakMode="CharacterWrap" />
+                
+                <Label Text="Only send Kortana Assets to this address" 
+                       Style="{StaticResource Caption}" 
+                       TextColor="{StaticResource WarningAmber}" 
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <!-- Actions -->
+            <Grid ColumnDefinitions="*, *" ColumnSpacing="16">
+                <Button Grid.Column="0" 
+                        Text="📋 Copy" 
+                        Style="{StaticResource GhostButtonStyle}" 
+                        Command="{Binding CopyToClipboardCommand}" />
+                
+                <Button Grid.Column="1" 
+                        Text="↗️ Share" 
+                        Style="{StaticResource GhostButtonStyle}" 
+                        Command="{Binding ShareCommand}" />
+            </Grid>
+
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

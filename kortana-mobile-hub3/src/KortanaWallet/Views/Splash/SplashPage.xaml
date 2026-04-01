@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:KortanaWallet.ViewModels"
+             x:Class="KortanaWallet.Views.Splash.SplashPage"
+             Shell.NavBarIsVisible="False">
+
+    <Grid BackgroundColor="{StaticResource DeepSpaceBlue}">
+        <!-- Animated Background Gradient -->
+        <BoxView IsVisible="true">
+            <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="{StaticResource DeepSpaceBlue}" Offset="0.0" />
+                    <GradientStop Color="{StaticResource MidnightNavy}" Offset="1.0" />
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
+
+        <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="20">
+            <!-- Pulse Glow behind Logo -->
+            <Grid HeightRequest="200" WidthRequest="200" HorizontalOptions="Center">
+                <Ellipse x:Name="PulseGlow"
+                         Fill="{StaticResource NeonBlueGlow}"
+                         Opacity="0.2"
+                         HeightRequest="150" WidthRequest="150"
+                         HorizontalOptions="Center" VerticalOptions="Center" />
+                
+                <!-- Logo Layout (Placeholder Image) -->
+                <Image Source="kortana_logo.png" 
+                       x:Name="LogoImage"
+                       HeightRequest="120" WidthRequest="120" 
+                       HorizontalOptions="Center" 
+                       VerticalOptions="Center" />
+            </Grid>
+
+            <Label Text="KORTANA" 
+                   Style="{StaticResource H1Display}"
+                   HorizontalOptions="Center"
+                   TextColor="{StaticResource PureWhite}"
+                   FontSize="42" />
+
+            <Label Text="Your Gateway to the Kortana Network" 
+                   Style="{StaticResource BodyMedium}"
+                   TextColor="{StaticResource SilverMist}"
+                   HorizontalOptions="Center"
+                   Opacity="0"
+                   x:Name="TaglineLabel" />
+        </VerticalStackLayout>
+        
+        <!-- Loading Indicator -->
+        <ActivityIndicator 
+            IsRunning="True"
+            Color="{StaticResource ElectricCobalt}"
+            HeightRequest="40"
+            WidthRequest="40"
+            VerticalOptions="End" 
+            Margin="0,0,0,50" />
+    </Grid>
+</ContentPage>

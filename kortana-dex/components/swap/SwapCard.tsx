@@ -1,130 +1,142 @@
+// components/swap/SwapCard.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useAccount, useBalance, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { parseUnits, formatUnits } from "viem";
+import { ERC20_ABI, SWAP_ROUTER_ABI } from "../../lib/constants/abis";
+import { getContractAddress } from "../../lib/constants/addresses";
+import { DNR_TOKEN, DNRS_TOKEN, WDNR_TOKEN, TESTNET_TOKENS, Token } from "../../lib/tokens/tokenList";
+import { usePool } from "../../lib/hooks/usePool";
 import { motion, AnimatePresence } from "framer-motion";
-import { TokenInput } from "./TokenInput";
-import { TokenSelector } from "./TokenSelector";
-import { SwapSettings } from "./SwapSettings";
-import { TESTNET_TOKENS, DNR_TOKEN, DNRS_TOKEN, Token } from "../../lib/tokens/tokenList";
-import { useAccount, useBalance } from "wagmi";
 
-export function SwapCard() {
+export default function SwapCard() {
   const { address, isConnected } = useAccount();
-  const [tokenIn, setTokenIn] = useState<Token>(DNR_TOKEN);
-  const [tokenOut, setTokenOut] = useState<Token>(DNRS_TOKEN);
-  const [amountIn, setAmountIn] = useState("");
-  const [amountOut, setAmountOut] = useState("");
-  const [slippage, setSlippage] = useState(0.5);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [selectingToken, setSelectingToken] = useState<"in" | "out" | null>(null);
+  const [sellToken, setSellToken] = useState<Token>(DNR_TOKEN);
+  const [buyToken, setBuyToken] = useState<Token>(DNRS_TOKEN);
+  const [sellAmount, setSellAmount] = useState("");
+  const [lastHash, setLastHash] = useState<`0x${string}` | null>(null);
 
-  const { data: balanceIn } = useBalance({
-    address,
-    token: tokenIn.address === "0x0000000000000000000000000000000000000000" ? undefined : (tokenIn.address as `0x${string}`),
-  });
+  const { writeContractAsync, isPending } = useWriteContract();
+  const { isLoading: isWaiting } = useWaitForTransactionReceipt({ hash: lastHash || undefined });
 
-  const { data: balanceOut } = useBalance({
-    address,
-    token: tokenOut.address === "0x0000000000000000000000000000000000000000" ? undefined : (tokenOut.address as `0x${string}`),
-  });
+  // Use WDNR for pool discovery if Native DNR is selected
+  const discoverySellToken = sellToken.address === "0x0000000000000000000000000000000000000000" ? WDNR_TOKEN : sellToken;
+  const discoveryBuyToken = buyToken.address === "0x0000000000000000000000000000000000000000" ? WDNR_TOKEN : buyToken;
 
-  const handleSwap = () => {
-    if (!isConnected) return;
-    console.log("Swapping", amountIn, tokenIn.symbol);
-  };
+  const { price, poolAddress, isLoading: isPoolLoading } = usePool(discoverySellToken, discoveryBuyToken);
 
-  const switchTokens = () => {
-    const temp = tokenIn;
-    setTokenIn(tokenOut);
-    setTokenOut(temp);
-    setAmountIn(amountOut);
-    setAmountOut(amountIn);
+  const buyAmount = price && sellAmount ? (parseFloat(sellAmount) * price).toFixed(4) : "0.0";
+  const routerAddress = getContractAddress(72511, "router") as `0x${string}`;
+
+  const handleSwap = async () => {
+    if (!isConnected || !sellAmount || !routerAddress) return;
+
+    try {
+      const isNative = sellToken.address === "0x0000000000000000000000000000000000000000";
+      const amountIn = parseUnits(sellAmount, sellToken.decimals);
+      
+      const hash = await writeContractAsync({
+        address: routerAddress,
+        abi: SWAP_ROUTER_ABI,
+        functionName: "exactInputSingle",
+        args: [
+          {
+            tokenIn: isNative ? WDNR_TOKEN.address : sellToken.address,
+            tokenOut: buyToken.address === "0x0000000000000000000000000000000000000000" ? WDNR_TOKEN.address : buyToken.address,
+            fee: 3000,
+            recipient: address,
+            deadline: BigInt(Math.floor(Date.now() / 1000) + 1200),
+            amountIn,
+            amountOutMinimum: 0,
+            sqrtPriceLimitX96: 0,
+          }
+        ],
+        value: isNative ? amountIn : undefined,
+        gas: BigInt(500000), // Manually set to bypass "Out of Gas" on testnet
+      } as any);
+
+      setLastHash(hash);
+    } catch (e) {
+      console.error("Swap failed", e);
+    }
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="glass-card cyan-accent"
-      style={{
-        width: "100%",
-        maxWidth: "480px",
-        padding: "24px",
-        margin: "0 auto",
-        position: "relative",
-        zIndex: 10,
-        background: "rgba(10, 10, 10, 0.8)",
-        backdropFilter: "blur(20px)",
-        border: "1px solid rgba(255, 255, 255, 0.08)",
-        borderRadius: "24px",
-        boxShadow: "0 24px 64px rgba(0,0,0,0.6)",
-      }}
-    >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-        <span style={{ fontFamily: "var(--font-display)", fontSize: "22px", fontWeight: 800, letterSpacing: "-0.02em", color: "white" }}>Swap Tokens</span>
-        <motion.button onClick={() => setIsSettingsOpen(!isSettingsOpen)} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: isSettingsOpen ? "var(--cyan-primary)" : "var(--text-secondary)", width: "36px", height: "36px", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33 1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001-1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82 1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" /></svg>
-        </motion.button>
+    <div className="glass-card" style={{ width: "100%", maxWidth: "480px", padding: "24px", background: "rgba(10, 10, 15, 0.82)", borderRadius: "24px", border: "1px solid var(--border-subtle)", boxShadow: "0 20px 50px rgba(0,0,0,0.3)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
+        <h2 style={{ fontSize: "18px", fontWeight: 800, color: "white" }}>Exchange</h2>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        {/* SELL */}
+        <div style={{ padding: "16px", background: "rgba(255,255,255,0.02)", borderRadius: "16px", border: "1px solid var(--border-subtle)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+            <span style={{ fontSize: "13px", color: "var(--text-secondary)" }}>Sell</span>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <input type="number" placeholder="0.0" value={sellAmount} onChange={(e) => setSellAmount(e.target.value)} style={{ background: "transparent", border: "none", color: "white", fontSize: "28px", fontWeight: 600, width: "60%", outline: "none" }} />
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 12px", background: "rgba(255,255,255,0.05)", borderRadius: "14px", border: "1px solid var(--border-subtle)", cursor: "pointer" }}>
+              <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "var(--cyan-primary)" }} />
+              <span style={{ fontWeight: 700 }}>{sellToken.symbol}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* BUY */}
+        <div style={{ padding: "16px", background: "rgba(255,255,255,0.02)", borderRadius: "16px", border: "1px solid var(--border-subtle)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+            <span style={{ fontSize: "13px", color: "var(--text-secondary)" }}>Buy (Estimated)</span>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <input type="text" readOnly value={buyAmount} style={{ background: "transparent", border: "none", color: "white", fontSize: "28px", fontWeight: 600, width: "60%", outline: "none" }} />
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 12px", background: "rgba(255,255,255,0.05)", borderRadius: "14px", border: "1px solid var(--border-subtle)", cursor: "pointer" }}>
+              <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "var(--gold-primary)" }} />
+              <span style={{ fontWeight: 700 }}>{buyToken.symbol}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <AnimatePresence>
-        {isSettingsOpen && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} style={{ overflow: "hidden" }}>
-            <SwapSettings slippage={slippage} onSlippageChange={setSlippage} />
+        {price && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} style={{ padding: "12px 0", fontSize: "13px", color: "var(--text-tertiary)", display: "flex", justifyContent: "space-between" }}>
+            <span>Exchange Rate</span>
+            <span style={{ fontWeight: 700, color: "var(--cyan-primary)" }}>1 {sellToken.symbol} = {price.toFixed(4)} {buyToken.symbol}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "8px", position: "relative" }}>
-        <TokenInput
-          label="Sell"
-          token={tokenIn}
-          amount={amountIn}
-          balance={balanceIn?.formatted || "0"}
-          onAmountChange={setAmountIn}
-          onTokenSelect={() => setSelectingToken("in")}
-          showMax={true}
-          onMax={() => setAmountIn(balanceIn?.formatted || "0")}
-        />
-
-        <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)", zIndex: 10 }}>
-          <motion.button onClick={switchTokens} style={{ width: "42px", height: "42px", borderRadius: "14px", background: "#1a1a1a", border: "4px solid #0a0a0a", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.4)" }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-primary)" strokeWidth="3"><path d="M7 13l5 5 5-5M7 6l5 5 5-5" /></svg>
-          </motion.button>
-        </div>
-
-        <TokenInput
-          label="Buy"
-          token={tokenOut}
-          amount={amountOut}
-          balance={balanceOut?.formatted || "0"}
-          onAmountChange={setAmountOut}
-          onTokenSelect={() => setSelectingToken("out")}
-          isOutput={true}
-        />
-      </div>
-
       <motion.button
-        disabled={!isConnected || !amountIn || parseFloat(amountIn) <= 0}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
         onClick={handleSwap}
-        style={{ width: "100%", padding: "20px", marginTop: "16px", borderRadius: "16px", background: !isConnected || !amountIn || parseFloat(amountIn) <= 0 ? "rgba(255,255,255,0.05)" : "linear-gradient(135deg, var(--cyan-primary), #6366f1)", border: "none", color: !isConnected || !amountIn || parseFloat(amountIn) <= 0 ? "var(--text-tertiary)" : "white", fontFamily: "var(--font-display)", fontSize: "17px", fontWeight: 800, cursor: isConnected ? "pointer" : "default", letterSpacing: "0.02em" }}
+        disabled={!isConnected || isPending || isWaiting || !sellAmount || !price}
+        style={{
+          width: "100%",
+          padding: "18px",
+          marginTop: "12px",
+          borderRadius: "16px",
+          background: !isConnected || isPending || isWaiting || !sellAmount || !price ? "rgba(255,255,255,0.05)" : "linear-gradient(135deg, var(--cyan-primary), #6366f1)",
+          border: "none",
+          color: "white",
+          fontWeight: 800,
+          fontSize: "16px",
+          cursor: "pointer",
+          boxShadow: isConnected && sellAmount && price ? "0 10px 30px rgba(6, 182, 212, 0.2)" : "none",
+          transition: "all 300ms",
+        }}
       >
-        {!isConnected ? "Connect Wallet" : !amountIn ? "Enter an amount" : "Swap Tokens"}
+        {!isConnected ? "Connect Wallet" : isWaiting ? "Confirming Swap..." : isPending ? "Check Wallet..." : !price ? "Insufficient Liquidity" : "Execute Exchange"}
       </motion.button>
-
-      <AnimatePresence>
-        {selectingToken && (
-          <TokenSelector
-            excludeToken={selectingToken === "in" ? tokenOut.address : tokenIn.address}
-            onClose={() => setSelectingToken(null)}
-            onSelect={(t) => {
-              if (selectingToken === "in") setTokenIn(t);
-              else setTokenOut(t);
-              setSelectingToken(null);
-            }}
-          />
-        )}
-      </AnimatePresence>
-    </motion.div>
+      
+      {lastHash && (
+         <div style={{ marginTop: "16px", padding: "12px", borderRadius: "12px", background: "rgba(16, 185, 129, 0.1)", border: "1px solid rgba(16, 185, 129, 0.2)", fontSize: "12px", textAlign: "center", color: "var(--success)" }}>
+            {isWaiting ? "Swap Pending..." : "Swap Successful!"} 
+            <br />
+            <a href={`https://explorer.testnet.kortana.xyz/tx/${lastHash}`} target="_blank" style={{ color: "var(--success)", fontWeight: 700 }}>View on Explorer</a>
+         </div>
+      )}
+    </div>
   );
 }

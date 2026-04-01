@@ -3,7 +3,13 @@ const fs = require("fs");
 const path = require("path");
 
 async function main() {
-  const [deployer] = await ethers.getSigners();
+  const signers = await ethers.getSigners();
+  if (!signers || signers.length === 0) {
+    console.error("❌ ERROR: No deployer found. Check DEPLOYER_PRIVATE_KEY in .env.local.");
+    process.exit(1);
+  }
+  const deployer = signers[0];
+  
   console.log("================================================================");
   console.log("🚀 KORTANASWAP DEPLOYMENT STARTING...");
   console.log("================================================================");
@@ -16,51 +22,58 @@ async function main() {
   const WDNR = await ethers.getContractFactory("WDNR");
   const wdnr = await WDNR.deploy();
   await wdnr.waitForDeployment();
-  console.log("WDNR Address:", await wdnr.getAddress());
+  const wdnrAddress = await wdnr.getAddress();
+  console.log("WDNR Address:", wdnrAddress);
 
   // 2. Deploy KortanaFactory
   console.log("\n📦 2. Deploying KortanaFactory...");
   const KortanaFactory = await ethers.getContractFactory("KortanaFactory");
   const factory = await KortanaFactory.deploy(deployer.address);
   await factory.waitForDeployment();
-  console.log("KortanaFactory Address:", await factory.getAddress());
+  const factoryAddress = await factory.getAddress();
+  console.log("KortanaFactory Address:", factoryAddress);
 
   // 3. Deploy SwapRouter
   console.log("\n📦 3. Deploying SwapRouter...");
   const SwapRouter = await ethers.getContractFactory("SwapRouter");
-  const router = await SwapRouter.deploy(await factory.getAddress(), await wdnr.getAddress());
+  const router = await SwapRouter.deploy(factoryAddress, wdnrAddress);
   await router.waitForDeployment();
-  console.log("SwapRouter Address:", await router.getAddress());
+  const routerAddress = await router.getAddress();
+  console.log("SwapRouter Address:", routerAddress);
 
-  // 4. Update .env.local with addresses
+  // 4. Deploy PositionManager
+  console.log("\n📦 4. Deploying NonfungiblePositionManager...");
+  const NPM = await ethers.getContractFactory("NonfungiblePositionManager");
+  const npm = await NPM.deploy(factoryAddress, wdnrAddress);
+  await npm.waitForDeployment();
+  const npmAddress = await npm.getAddress();
+  console.log("PositionManager Address:", npmAddress);
+
+  // 5. Update .env.local
   const envPath = path.join(__dirname, "../.env.local");
   let envContent = fs.readFileSync(envPath, "utf8");
 
-  const isTestnet = network.name === "kortanaTestnet";
+  const isTestnet = network.name === "kortanaTestnet" || network.name === "localhost";
   const prefix = isTestnet ? "TESTNET" : "MAINNET";
 
-  envContent = envContent.replace(
-    new RegExp(`NEXT_PUBLIC_FACTORY_ADDRESS_${prefix}=.*`),
-    `NEXT_PUBLIC_FACTORY_ADDRESS_${prefix}=${await factory.getAddress()}`
-  );
-  envContent = envContent.replace(
-    new RegExp(`NEXT_PUBLIC_ROUTER_ADDRESS_${prefix}=.*`),
-    `NEXT_PUBLIC_ROUTER_ADDRESS_${prefix}=${await router.getAddress()}`
-  );
-  envContent = envContent.replace(
-    new RegExp(`NEXT_PUBLIC_WDNR_ADDRESS_${prefix}=.*`),
-    `NEXT_PUBLIC_WDNR_ADDRESS_${prefix}=${await wdnr.getAddress()}`
-  );
+  console.log(`\n🖊️ Updating .env.local for ${prefix}...`);
+
+  const updateEnv = (key, val) => {
+    const regex = new RegExp(`${key}=.*`);
+    if (envContent.match(regex)) {
+        envContent = envContent.replace(regex, `${key}=${val}`);
+    } else {
+        envContent += `\n${key}=${val}`;
+    }
+  };
+
+  updateEnv(`NEXT_PUBLIC_FACTORY_ADDRESS_${prefix}`, factoryAddress);
+  updateEnv(`NEXT_PUBLIC_SWAP_ROUTER_ADDRESS_${prefix}`, routerAddress);
+  updateEnv(`NEXT_PUBLIC_WDNR_ADDRESS_${prefix}`, wdnrAddress);
+  updateEnv(`NEXT_PUBLIC_POSITION_MANAGER_ADDRESS_${prefix}`, npmAddress);
 
   fs.writeFileSync(envPath, envContent);
-  console.log("\n✅ Deployment Addresses updated in .env.local");
-
-  // 5. Verify Contracts (Optional)
-  if (network.name !== "hardhat") {
-    console.log("\n🔍 Verification recommended. Run:");
-    console.log(`npx hardhat verify --network ${network.name} ${await factory.getAddress()} ${deployer.address}`);
-    console.log(`npx hardhat verify --network ${network.name} ${await router.getAddress()} ${await factory.getAddress()} ${await wdnr.getAddress()}`);
-  }
+  console.log("✅ .env.local updated successfully.");
 
   console.log("\n================================================================");
   console.log("🎉 KORTANASWAP DEPLOYMENT COMPLETE!");
@@ -70,6 +83,6 @@ async function main() {
 main()
   .then(() => process.exit(0))
   .catch((error) => {
-    console.error(error);
+    console.error("❌ DEPLOYMENT FAILED", error);
     process.exit(1);
   });
