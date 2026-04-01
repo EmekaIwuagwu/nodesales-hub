@@ -9,7 +9,6 @@
 const express     = require("express");
 const RewardEpoch = require("../models/RewardEpoch");
 const SaleConfig  = require("../models/SaleConfig");
-const { getRewardVault } = require("../config/blockchain");
 const { isNoDbMode } = require("../config/database");
 const logger      = require("../utils/logger");
 
@@ -27,26 +26,17 @@ router.get("/epoch/:n", async (req, res) => {
 });
 
 router.get("/next-epoch", async (req, res) => {
-  // Always fall back to MongoDB — chain read is best-effort
   try {
-    const vault = getRewardVault();
-    const [ts, currentEpoch] = await Promise.all([
-      vault.nextEpochTimestamp(),
-      vault.currentEpoch(),
-    ]);
-    res.json({ nextEpochTimestamp: Number(ts), currentEpoch: Number(currentEpoch) });
-  } catch {
-    try {
-      const config = await SaleConfig.findOne();
-      res.json({
-        nextEpochTimestamp: config?.nextEpochTime
-          ? Math.floor(new Date(config.nextEpochTime).getTime() / 1000)
-          : null,
-        currentEpoch: config?.currentEpoch ?? 0,
-      });
-    } catch {
-      res.status(500).json({ error: "Server error" });
-    }
+    const config = await SaleConfig.findOne();
+    res.json({
+      nextEpochTimestamp: config?.nextEpochTime
+        ? Math.floor(new Date(config.nextEpochTime).getTime() / 1000)
+        : null,
+      currentEpoch: config?.currentEpoch ?? 0,
+    });
+  } catch (err) {
+    logger.error("[Rewards] next-epoch error:", err);
+    res.status(500).json({ error: "Server error" });
   }
 });
 

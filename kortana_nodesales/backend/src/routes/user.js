@@ -13,9 +13,8 @@ const NodePurchase = require("../models/NodePurchase");
 const UserReward   = require("../models/UserReward");
 const User         = require("../models/User");
 const { requireAuth } = require("../middleware/auth");
-const { getRewardVault, isBlockchainConfigured } = require("../config/blockchain");
 const { isNoDbMode } = require("../config/database");
-const { ethers }   = require("ethers");
+const NodePurchase = require("../models/NodePurchase");
 const logger       = require("../utils/logger");
 
 const router = express.Router();
@@ -94,17 +93,25 @@ router.get("/rewards", async (req, res) => {
 });
 
 // ─── GET /pending-rewards ────────────────────────────────────────────────────
+// Rewards are sent directly each epoch — "pending" = what they earned this epoch
+// so far (based on node holdings), not an on-chain claimable balance.
 
 router.get("/pending-rewards", async (req, res) => {
   try {
-    const vault   = getRewardVault();
-    const pending = await vault.getPendingRewards(req.user.walletAddress);
-    res.json({ pendingDNR: ethers.formatUnits(pending, 18) });
-  } catch (err) {
-    // Return 0 gracefully when blockchain not yet configured
-    if (err.message?.includes("not configured")) {
-      return res.json({ pendingDNR: "0", unavailable: true });
+    if (isNoDbMode()) return res.json({ pendingDNR: "0" });
+
+    const wallet  = req.user.walletAddress;
+    const DNR_RATES = { 0: 1, 1: 2, 2: 5, 3: 10 };
+
+    // Sum up nodes held × rate = DNR they'll earn next epoch
+    const purchases = await NodePurchase.find({ walletAddress: wallet, status: "confirmed" });
+    let pendingDNR = 0;
+    for (const p of purchases) {
+      pendingDNR += p.quantity * (DNR_RATES[p.tierId] ?? 0);
     }
+
+    res.json({ pendingDNR: pendingDNR.toString() });
+  } catch (err) {
     logger.error("[User] pending-rewards error:", err);
     res.status(500).json({ error: "Server error" });
   }

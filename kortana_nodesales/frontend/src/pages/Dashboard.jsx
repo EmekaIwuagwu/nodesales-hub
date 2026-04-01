@@ -54,7 +54,7 @@ export default function Dashboard() {
     })).data,
   });
 
-  const { pending, claim, claiming, nextEpoch } = useRewards(token);
+  const { pending, nextEpoch } = useRewards(token);
 
   // ── Not connected ──────────────────────────────────────────────────────────
   if (!walletAddress) {
@@ -69,7 +69,7 @@ export default function Dashboard() {
         <div>
           <h2 className="text-4xl font-black mb-3">Node Dashboard</h2>
           <p className="text-gray-400 max-w-sm mx-auto leading-relaxed">
-            Connect your wallet to view your node portfolio, track earnings, and claim DNR rewards.
+            Connect your wallet to view your node portfolio and track DNR earnings.
           </p>
         </div>
         <WalletConnect />
@@ -142,25 +142,18 @@ export default function Dashboard() {
 
         {/* ── Claim + Countdown ───────────────────────────────────────────── */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
-          {/* Claim card */}
+          {/* Earnings card */}
           <div className="relative overflow-hidden bg-gradient-to-br from-kortana-accent/15 via-kortana-800 to-kortana-800 border border-kortana-accent/30 rounded-2xl p-6">
             <div className="absolute top-0 right-0 w-32 h-32 bg-kortana-accent/10 rounded-full blur-2xl pointer-events-none" />
-            <p className="text-sm text-gray-400 uppercase tracking-wider font-semibold mb-3">Pending Rewards</p>
+            <p className="text-sm text-gray-400 uppercase tracking-wider font-semibold mb-3">Next Epoch Earnings</p>
             <div className="text-5xl font-black text-kortana-accent mb-1">
-              {pendingDNR.toFixed(4)}
+              {pendingDNR.toFixed(0)}
             </div>
-            <div className="text-kortana-accent/60 text-sm mb-6">DNR ready to claim</div>
-            <button
-              onClick={claim}
-              disabled={claiming || pendingDNR === 0}
-              className="btn-primary w-full text-base"
-            >
-              {claiming ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="animate-spin inline-block">⟳</span> Claiming…
-                </span>
-              ) : "Claim DNR Rewards"}
-            </button>
+            <div className="text-kortana-accent/60 text-sm mb-6">DNR per epoch</div>
+            <div className="flex items-center gap-2 bg-kortana-accent/10 border border-kortana-accent/20 rounded-xl px-4 py-3">
+              <span className="text-green-400 text-lg">✓</span>
+              <span className="text-sm text-gray-300">Auto-distributed every epoch — no claim needed</span>
+            </div>
           </div>
 
           {/* Epoch countdown */}
