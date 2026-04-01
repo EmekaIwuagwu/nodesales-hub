@@ -29,7 +29,22 @@ const PORT = process.env.PORT || 4000;
 // Trust Render/Vercel reverse proxy so rate limiter sees real client IPs
 app.set("trust proxy", 1);
 
-app.use(helmet());
+// Allow the browser to connect to Kortana RPC and explorer from the frontend
+const KORTANA_RPC     = process.env.KORTANA_RPC_URL || "https://poseidon-rpc.testnet.kortana.xyz/";
+const KORTANA_EXPLORER = process.env.EXPLORER_URL   || "https://explorer.testnet.kortana.xyz";
+
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc:  ["'self'"],
+      scriptSrc:   ["'self'", "'unsafe-inline'"],
+      styleSrc:    ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc:     ["'self'", "https://fonts.gstatic.com"],
+      imgSrc:      ["'self'", "data:", "https:"],
+      connectSrc:  ["'self'", KORTANA_RPC, KORTANA_EXPLORER, "wss:", "https:"],
+    },
+  },
+}));
 
 const allowedOrigins = (process.env.ALLOWED_ORIGIN || "http://localhost:5173")
   .split(",")
