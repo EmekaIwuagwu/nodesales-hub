@@ -2,14 +2,16 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import KortanaScene from '../3d/KortanaScene';
-import { ArrowRight, Play, FileText, Users } from 'lucide-react';
+import Globe from '../3d/Globe';
+import { FaPlay, FaBook, FaUsers } from 'react-icons/fa';
 
 export default function Hero() {
     return (
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-deep-space">
-            {/* 3D Background */}
-            <KortanaScene />
+            {/* 3D Globe Background */}
+            <div className="absolute inset-0 z-0">
+                <Globe />
+            </div>
 
             {/* Overlay Gradient */}
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-deep-space/50 to-deep-space z-0 pointer-events-none" />
@@ -79,7 +81,7 @@ export default function Hero() {
                         transition={{ duration: 0.8, delay: 0.4 }}
                         className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-500 to-cyan-400 bg-300% animate-gradient"
                     >
-                        BLOCKCHAIN
+                        NETWORK
                     </motion.div>
                 </h1>
 
@@ -107,7 +109,9 @@ export default function Hero() {
                         }}
                         className="group relative px-8 py-4 bg-white text-deep-space rounded-full font-bold text-lg hover:scale-105 transition-all duration-300 shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] hover:shadow-[0_0_60px_-15px_rgba(6,182,212,0.5)] flex items-center justify-center gap-2 overflow-hidden"
                     >
-                        <span className="relative z-10 flex items-center gap-2">Launch App <Play size={18} fill="currentColor" /></span>
+                        <span className="relative z-10 flex items-center gap-2">
+                            Launch App <FaPlay className="text-sm" />
+                        </span>
                         <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-purple-500 opacity-0 group-hover:opacity-20 transition-opacity" />
                     </button>
 
@@ -115,14 +119,14 @@ export default function Hero() {
                         href="/docs"
                         className="px-8 py-4 bg-white/5 backdrop-blur-md border border-white/10 text-white rounded-full font-bold text-lg hover:bg-white/10 hover:border-cyan-500/50 transition-all flex items-center justify-center gap-2"
                     >
-                        <FileText size={18} /> Documentation
+                        <FaBook /> Documentation
                     </Link>
 
                     <Link
                         href="/community"
                         className="px-8 py-4 text-gray-400 hover:text-white transition-colors flex items-center justify-center gap-2 font-medium"
                     >
-                        <Users size={18} /> Community
+                        <FaUsers /> Community
                     </Link>
                 </motion.div>
             </div>

@@ -70,7 +70,7 @@ export const metadata: Metadata = {
       "EVM-compatible L1 with 2s block times, sub-2s BFT finality, 50,000+ TPS. Chain ID: 9002. Native token: DNR. Built for institutional finance.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/webcover.png",
         width: 1200,
         height: 630,
         alt: "Kortana Blockchain — Industrial-Grade Layer 1",
@@ -85,7 +85,7 @@ export const metadata: Metadata = {
     title: "Kortana | Industrial-Grade Layer 1 Blockchain",
     description:
       "EVM-compatible L1 with 2s blocks, 50,000+ TPS. Chain ID 9002. Built for institutional DeFi.",
-    images: ["/og-image.png"],
+    images: ["/webcover.png"],
   },
   icons: {
     icon: [

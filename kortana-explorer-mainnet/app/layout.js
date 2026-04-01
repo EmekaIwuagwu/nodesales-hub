@@ -21,7 +21,7 @@ export const metadata = {
     description: 'Explore blocks, transactions, and addresses on the Kortana Mainnet - the most advanced high-performance blockchain powered by DINAR DNR.',
     images: [
       {
-        url: `${siteUrl}/webcover.png`,
+        url: '/webcover.png',
         width: 1200,
         height: 630,
         alt: 'Kortana Mainnet Blockchain Explorer',
@@ -32,7 +32,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'Kortana Mainnet Explorer | High Performance Blockchain',
     description: 'Explore blocks, transactions, and addresses on the Kortana Mainnet - the most advanced high-performance blockchain powered by DINAR DNR.',
-    images: [`${siteUrl}/webcover.png`],
+    images: ['/webcover.png'],
     creator: '@KortanaNetwork',
     site: '@KortanaNetwork',
   },
