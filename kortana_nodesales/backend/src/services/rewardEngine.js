@@ -2,13 +2,13 @@
  * Kortana Reward Distribution Engine
  *
  * Kortana EVM: contract→contract CALL is broken (silent no-op).
- * Fix: send DNR directly from distributor EOA to each holder wallet
- * (EOA→ERC20.transfer — works on Kortana). No vault contract involved.
+ * Fix: send native DNR directly from distributor EOA to each holder wallet
+ * (plain value transfer — DNR is the native token of Kortana, not ERC-20).
  *
  * Flow every epoch:
  *  1. Aggregate confirmed node holders from MongoDB
  *  2. Calculate DNR per wallet (tier rate × quantity)
- *  3. Send dnrToken.transfer(wallet, amount) for each holder directly
+ *  3. Send native DNR via signer.sendTransaction({ to: wallet, value }) for each holder
  *  4. Persist RewardEpoch + UserReward records in MongoDB
  */
 
@@ -25,11 +25,6 @@ const logger       = require("../utils/logger");
 const { alertAdmin } = require("../utils/telegramAlert");
 
 const DNR_RATES = { 0: 1, 1: 2, 2: 5, 3: 10 };
-
-const DNR_ABI = [
-  "function transfer(address to, uint256 amount) external returns (bool)",
-  "function balanceOf(address account) external view returns (uint256)",
-];
 
 async function distributeRewards() {
   logger.info("[RewardEngine] Starting epoch distribution...");
@@ -64,12 +59,11 @@ async function distributeRewards() {
 
     logger.info(`[RewardEngine] ${recipients.length} holders — ${totalDNR} DNR total`);
 
-    // 3. Check distributor has enough DNR
-    const provider   = getProvider();
-    const signer     = new ethers.Wallet(process.env.DISTRIBUTOR_PRIVATE_KEY, provider);
-    const dnrToken   = new ethers.Contract(process.env.DNR_ADDRESS, DNR_ABI, signer);
-    const vaultBal   = await dnrToken.balanceOf(signer.address);
-    const totalWei   = ethers.parseUnits(totalDNR.toString(), 18);
+    // 3. Check distributor native DNR balance
+    const provider  = getProvider();
+    const signer    = new ethers.Wallet(process.env.DISTRIBUTOR_PRIVATE_KEY, provider);
+    const vaultBal  = await provider.getBalance(signer.address);
+    const totalWei  = ethers.parseUnits(totalDNR.toString(), 18);
 
     if (vaultBal < totalWei) {
       const msg = `Distributor DNR balance too low: has ${ethers.formatUnits(vaultBal, 18)}, needs ${totalDNR}`;
@@ -78,12 +72,18 @@ async function distributeRewards() {
       return;
     }
 
-    // 4. Send DNR directly to each holder (EOA→ERC20, works on Kortana EVM)
+    // 4. Send native DNR directly to each holder wallet
+    //    DNR is the native token of Kortana — plain value transfer, not ERC-20
     const txHashes = [];
     for (const wallet of recipients) {
       const amount = ethers.parseUnits(rewardMap[wallet].toString(), 18);
       try {
-        const tx  = await dnrToken.transfer(wallet, amount, { gasLimit: 300_000, gasPrice: 1 });
+        const tx = await signer.sendTransaction({
+          to:       wallet,
+          value:    amount,
+          gasLimit: 21_000,
+          gasPrice: 1,
+        });
         await tx.wait();
         txHashes.push(tx.hash);
         logger.info(`[RewardEngine] Sent ${rewardMap[wallet]} DNR → ${wallet}  tx=${tx.hash}`);
