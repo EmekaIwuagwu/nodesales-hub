@@ -12,6 +12,7 @@ const NodePurchase = require("../models/NodePurchase");
 const User         = require("../models/User");
 const { getNodeSale, getProvider } = require("../config/blockchain");
 const { isNoDbMode } = require("../config/database");
+const { faucetLimiter } = require("../middleware/rateLimiter");
 const logger = require("../utils/logger");
 
 const router = express.Router();
@@ -226,7 +227,7 @@ router.post("/purchase", async (req, res) => {
 // Backend mints 10,000 test USDT to the caller's wallet.
 // Distributor EOA pays gas — user needs zero native token.
 
-router.post("/faucet", async (req, res) => {
+router.post("/faucet", faucetLimiter, async (req, res) => {
   const schema = z.object({ walletAddress: z.string().min(42).max(42) });
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "Invalid wallet address" });

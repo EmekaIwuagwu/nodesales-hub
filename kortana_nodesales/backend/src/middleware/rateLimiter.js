@@ -14,4 +14,14 @@ const authLimiter = rateLimit({
   message: { error: "Too many auth attempts." },
 });
 
-module.exports = { apiLimiter, authLimiter };
+// Faucet: 1 request per wallet per 24 hours (keyed by wallet in body, falls back to IP)
+const faucetLimiter = rateLimit({
+  windowMs: 24 * 60 * 60 * 1000, // 24 hours
+  max:      1,
+  standardHeaders: true,
+  legacyHeaders:   false,
+  keyGenerator: (req) => (req.body?.walletAddress || req.ip || "unknown").toLowerCase(),
+  message: { error: "Faucet already used in the last 24 hours for this wallet." },
+});
+
+module.exports = { apiLimiter, authLimiter, faucetLimiter };

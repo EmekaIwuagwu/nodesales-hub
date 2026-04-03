@@ -22,24 +22,38 @@ const logger   = require("../utils/logger");
 
 const router = express.Router();
 
-// ─── In-memory nonce store ────────────────────────────────────────────────────
-// Map<nonce, expiresAt> — keyed by nonce value (not by address)
+const NONCE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
+// ─── In-memory nonce store (NO-DB mode only) ──────────────────────────────────
 const memNonces = new Map();
-const NONCE_TTL = 5 * 60 * 1000; // 5 minutes
 
 function memCreateNonce() {
   const nonce = crypto.randomBytes(16).toString("hex");
-  memNonces.set(nonce, Date.now() + NONCE_TTL);
+  memNonces.set(nonce, Date.now() + NONCE_TTL_MS);
   return nonce;
 }
 
 function memConsumeNonce(nonce) {
   const expiry = memNonces.get(nonce);
   if (!expiry) return false;
-  memNonces.delete(nonce); // always remove (single-use)
+  memNonces.delete(nonce);
   if (Date.now() > expiry) return false;
   return true;
+}
+
+// ─── DB-backed nonce helpers (DB mode) ───────────────────────────────────────
+async function dbCreateNonce() {
+  const Nonce = require("../models/Nonce");
+  const nonce = crypto.randomBytes(16).toString("hex");
+  await Nonce.create({ nonce, expiresAt: new Date(Date.now() + NONCE_TTL_MS) });
+  return nonce;
+}
+
+async function dbConsumeNonce(nonce) {
+  const Nonce = require("../models/Nonce");
+  // findOneAndDelete is atomic — guarantees single-use even under concurrent requests
+  const doc = await Nonce.findOneAndDelete({ nonce, expiresAt: { $gt: new Date() } });
+  return !!doc;
 }
 
 // ─── POST /nonce ─────────────────────────────────────────────────────────────
@@ -47,13 +61,13 @@ function memConsumeNonce(nonce) {
 // what the wallet claims its address is.
 
 router.post("/nonce", authLimiter, async (req, res) => {
-  if (isNoDbMode()) {
-    return res.json({ nonce: memCreateNonce() });
+  try {
+    const nonce = isNoDbMode() ? memCreateNonce() : await dbCreateNonce();
+    res.json({ nonce });
+  } catch (err) {
+    logger.error("[Auth] nonce creation error:", err);
+    res.status(500).json({ error: "Server error" });
   }
-
-  // DB mode: still use in-memory nonces — the User record is created/updated
-  // after verify() succeeds and we know the true signing address.
-  res.json({ nonce: memCreateNonce() });
 });
 
 // ─── POST /verify ─────────────────────────────────────────────────────────────
@@ -76,8 +90,11 @@ router.post("/verify", authLimiter, async (req, res) => {
     if (!nonceMatch) return res.status(400).json({ error: "Message missing valid nonce" });
     const nonce = nonceMatch[1];
 
-    // 2 — Consume nonce (single-use, 5-min TTL)
-    if (!memConsumeNonce(nonce)) {
+    // 2 — Consume nonce (single-use, 5-min TTL) — atomic in DB mode
+    const nonceValid = isNoDbMode()
+      ? memConsumeNonce(nonce)
+      : await dbConsumeNonce(nonce);
+    if (!nonceValid) {
       return res.status(401).json({ error: "Invalid or expired nonce" });
     }
 

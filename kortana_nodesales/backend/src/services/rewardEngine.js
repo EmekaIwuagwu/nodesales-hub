@@ -26,7 +26,15 @@ const { alertAdmin } = require("../utils/telegramAlert");
 
 const DNR_RATES = { 0: 1, 1: 2, 2: 5, 3: 10 };
 
+// In-process lock — prevents concurrent cron fires from double-distributing
+let _distributing = false;
+
 async function distributeRewards() {
+  if (_distributing) {
+    logger.warn("[RewardEngine] Distribution already in progress — skipping this tick.");
+    return;
+  }
+  _distributing = true;
   logger.info("[RewardEngine] Starting epoch distribution...");
 
   try {
@@ -146,6 +154,8 @@ async function distributeRewards() {
   } catch (err) {
     logger.error("[RewardEngine] Distribution failed:", err);
     await alertAdmin(`CRITICAL: Reward distribution failed\n\`${err.message}\``);
+  } finally {
+    _distributing = false;
   }
 }
 
@@ -155,4 +165,4 @@ function startRewardEngine() {
   cron.schedule(schedule, distributeRewards);
 }
 
-module.exports = { startRewardEngine, distributeRewards };
+module.exports = { startRewardEngine, distributeRewards, isDistributing: () => _distributing };

@@ -51,12 +51,25 @@ export function useNodePurchase() {
       setStep("waiting");
       toast("Minting your license…", { icon: "⏳" });
 
-      const { data } = await axios.post(`${API}/api/nodes/purchase`, {
-        txHash:  payTx.hash,
-        tierId,
-        quantity,
-        buyer,
-      });
+      // Idempotent POST — txHash is the unique key. If the request times out and
+      // the user retries, the backend returns alreadyProcessed:true and we skip
+      // re-minting. We retry up to 3 times with 5s gaps before giving up.
+      let data;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          const res = await axios.post(`${API}/api/nodes/purchase`, {
+            txHash:  payTx.hash,
+            tierId,
+            quantity,
+            buyer,
+          }, { timeout: 60_000 });
+          data = res.data;
+          break;
+        } catch (axiosErr) {
+          if (attempt === 3) throw axiosErr;
+          await new Promise(r => setTimeout(r, 5_000));
+        }
+      }
 
       setReceipt({ transactionHash: payTx.hash, ...data });
       setStep("done");

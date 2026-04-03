@@ -43,7 +43,7 @@ services:
       - key: TREASURY
         sync: false
       - key: ALLOWED_ORIGIN
-        value: "*"
+        value: "https://nodesales-hub.onrender.com"
       - key: CRON_SECRET
         sync: false
     # Build-time ARGs baked into the Vite bundle — must be set before first deploy

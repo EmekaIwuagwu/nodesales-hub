@@ -25,7 +25,7 @@ const FAQ           = require("../models/FAQ");
 const Announcement  = require("../models/Announcement");
 const { requireAuth } = require("../middleware/auth");
 const { adminOnly }   = require("../middleware/adminOnly");
-const { distributeRewards } = require("../services/rewardEngine");
+const { distributeRewards, isDistributing } = require("../services/rewardEngine");
 const logger = require("../utils/logger");
 
 const router = express.Router();
@@ -71,6 +71,9 @@ router.get("/dashboard", async (req, res) => {
 // ─── POST /distribute (manual trigger) ───────────────────────────────────────
 
 router.post("/distribute", async (req, res) => {
+  if (isDistributing()) {
+    return res.status(409).json({ error: "Distribution already in progress — try again shortly." });
+  }
   try {
     // Run async — don't block the HTTP response for a long distribution
     distributeRewards().catch(err => logger.error("[Admin] manual distribute error:", err));
@@ -168,8 +171,16 @@ router.post("/faq", async (req, res) => {
 });
 
 router.put("/faq/:id", async (req, res) => {
+  const schema = z.object({
+    question:    z.string().min(1).optional(),
+    answer:      z.string().min(1).optional(),
+    order:       z.number().optional(),
+    isPublished: z.boolean().optional(),
+  });
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error });
   try {
-    const faq = await FAQ.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const faq = await FAQ.findByIdAndUpdate(req.params.id, { $set: parsed.data }, { new: true });
     if (!faq) return res.status(404).json({ error: "FAQ not found" });
     res.json(faq);
   } catch (err) {
@@ -209,9 +220,18 @@ router.post("/announce", async (req, res) => {
 });
 
 router.put("/announce/:id", async (req, res) => {
+  const schema = z.object({
+    title:       z.string().min(1).optional(),
+    body:        z.string().min(1).optional(),
+    isPublished: z.boolean().optional(),
+    pinned:      z.boolean().optional(),
+    expiresAt:   z.string().datetime().optional().nullable(),
+  });
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error });
   try {
     const announcement = await Announcement.findByIdAndUpdate(
-      req.params.id, req.body, { new: true }
+      req.params.id, { $set: parsed.data }, { new: true }
     );
     if (!announcement) return res.status(404).json({ error: "Announcement not found" });
     res.json(announcement);
