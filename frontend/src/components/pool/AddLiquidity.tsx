@@ -225,11 +225,9 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
     if (step === "approve") {
       toast.success(`${amountsRef.current.token1Address === MDUSD_ADDRESS ? "mdUSD" : "Token"} approved!`);
       refetchAllowance();
-      // Immediately open the supply wallet popup — no extra click needed
-      const { amount0: a0, amount1: a1 } = amountsRef.current;
-      setTxHash(undefined); // reset so receipt watcher doesn't fire again
+      setTxHash(undefined);
       setStep(null);
-      doSupply(a0, a1);
+      // Removed auto-calling doSupply to prevent wallet loops
     } else if (step === "supply") {
       toast.success("Liquidity Provided!", { description: "Your LP position has been created." });
       setAmount0("");
