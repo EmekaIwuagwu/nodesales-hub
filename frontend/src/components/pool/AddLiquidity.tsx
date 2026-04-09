@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Plus, AlertTriangle, Droplets } from "lucide-react";
 import { motion } from "framer-motion";
 import { TokenInput } from "../swap/TokenInput";
@@ -33,7 +33,6 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
 
-  // token0 is always the DNR side; token1 is the ERC20 side
   const [token0, setToken0] = useState({ symbol: "DNR", address: WDNR_ADDRESS });
   const [token1, setToken1] = useState({ symbol: "mdUSD", address: MDUSD_ADDRESS });
   const [amount0, setAmount0] = useState("");
@@ -41,51 +40,35 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
 
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
   const [selectingTarget, setSelectingTarget] = useState<0 | 1>(0);
-  const [pendingTx, setPendingTx] = useState<"approve" | "supply" | null>(null);
+
+  // "approve" | "supply" | null — which tx is currently in flight
+  const [step, setStep] = useState<"approve" | "supply" | null>(null);
+  const [isSending, setIsSending] = useState(false);
   const [isFauceting, setIsFauceting] = useState(false);
-  // Track tx hash manually (replaces useWriteContract's hash state)
+
+  // txHash for useWaitForTransactionReceipt
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
-  const [isPending, setIsPending] = useState(false);
+
+  // Ref captures the latest amounts so the approval-success effect never reads stale values
+  const amountsRef = useRef({ amount0, amount1, token1Address: token1.address });
+  useEffect(() => {
+    amountsRef.current = { amount0, amount1, token1Address: token1.address };
+  }, [amount0, amount1, token1.address]);
 
   const isWrongNetwork = isConnected && chain?.id !== 72511;
 
+  // ── Balances ────────────────────────────────────────────────────────────────
   const { data: balance0 } = useBalance({
     address,
-    token: token0.address === WDNR_ADDRESS ? undefined : token0.address as `0x${string}`
+    token: token0.address === WDNR_ADDRESS ? undefined : token0.address as `0x${string}`,
   });
   const { data: balance1, refetch: refetchBalance1 } = useBalance({
     address,
     token: token1.address as `0x${string}`,
   });
-
   const token1BalanceZero = !balance1 || parseFloat(balance1.formatted) === 0;
 
-  const handleFaucet = async () => {
-    if (!address) return;
-    setIsFauceting(true);
-    try {
-      const res = await fetch("/api/faucet", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Faucet failed");
-      toast.success("10,000 mdUSD sent!", {
-        description: `Tx: ${(data.hash as string).slice(0, 18)}…`,
-      });
-      // Poll for balance update
-      setTimeout(() => refetchBalance1(), 4000);
-      setTimeout(() => refetchBalance1(), 8000);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Faucet request failed";
-      toast.error("Faucet failed", { description: msg });
-    } finally {
-      setIsFauceting(false);
-    }
-  };
-
-  // Check if pair exists on-chain
+  // ── Pair state ──────────────────────────────────────────────────────────────
   const { data: pairAddress } = useReadContract({
     address: FACTORY_ADDRESS as `0x${string}`,
     abi: FACTORY_ABI,
@@ -93,27 +76,21 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
     args: [token0.address as `0x${string}`, token1.address as `0x${string}`],
   });
 
-  const pairExists =
-    !!pairAddress && pairAddress !== "0x0000000000000000000000000000000000000000";
-  const isNewPair = pairAddress !== undefined && !pairExists;
+  const pairExists = !!pairAddress && pairAddress !== "0x0000000000000000000000000000000000000000";
+  const isNewPair  = pairAddress !== undefined && !pairExists;
 
-  // Fetch reserves for existing pools
   const { data: reserves } = useReadContract({
     address: pairAddress as `0x${string}`,
     abi: PAIR_ABI,
     functionName: "getReserves",
     query: { enabled: pairExists, refetchInterval: 10000 },
   });
-
-  // Fetch token0 of pair contract to determine reserve ordering
   const { data: pairToken0Addr } = useReadContract({
     address: pairAddress as `0x${string}`,
     abi: PAIR_ABI,
     functionName: "token0",
     query: { enabled: pairExists },
   });
-
-  // Fetch totalSupply to calculate realistic pool share estimate
   const { data: totalSupply } = useReadContract({
     address: pairAddress as `0x${string}`,
     abi: PAIR_ABI,
@@ -121,8 +98,12 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
     query: { enabled: pairExists, refetchInterval: 10000 },
   });
 
-  // Check ERC20 allowance for token1 (never needed for DNR/WDNR side)
-  const { data: allowance, refetch: refetchAllowance } = useReadContract({
+  // ── Allowance ────────────────────────────────────────────────────────────────
+  const {
+    data: allowanceData,
+    isLoading: isAllowanceLoading,
+    refetch: refetchAllowance,
+  } = useReadContract({
     address: token1.address as `0x${string}`,
     abi: ERC20_ABI,
     functionName: "allowance",
@@ -130,7 +111,7 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
     query: { enabled: !!address && token1.address !== WDNR_ADDRESS },
   });
 
-  // Determine reserves in the user's token order (pair sorts by address)
+  // ── Reserve ordering ────────────────────────────────────────────────────────
   const pairToken0Lower = (pairToken0Addr as string | undefined)?.toLowerCase();
   const token0Lower = token0.address.toLowerCase();
   const reserve0 =
@@ -146,19 +127,15 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
         : (reserves as [bigint, bigint, number])[0]
       : null;
 
-  // When user types amount0, auto-fill amount1 from reserves
+  // ── Amount handlers ─────────────────────────────────────────────────────────
   const handleAmount0Change = (val: string) => {
     setAmount0(val);
     if (pairExists && reserve0 && reserve1 && val && parseFloat(val) > 0) {
       const r0 = parseFloat(formatEther(reserve0));
       const r1 = parseFloat(formatEther(reserve1));
       if (r0 > 0) setAmount1((parseFloat(val) * (r1 / r0)).toFixed(6));
-    } else if (!pairExists) {
-      // new pool — amounts are free-form, do not auto-fill
     }
   };
-
-  // When user types amount1, auto-fill amount0 from reserves
   const handleAmount1Change = (val: string) => {
     setAmount1(val);
     if (pairExists && reserve0 && reserve1 && val && parseFloat(val) > 0) {
@@ -168,38 +145,84 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
     }
   };
 
-  // Price ratio display
+  // ── Display ─────────────────────────────────────────────────────────────────
   const priceRatio = (() => {
     if (pairExists && reserve0 && reserve1) {
       const r0 = parseFloat(formatEther(reserve0));
       const r1 = parseFloat(formatEther(reserve1));
       return r0 > 0 ? (r1 / r0).toFixed(6) : "—";
     }
-    // new pool: derive from what user typed
-    if (isNewPair && amount0 && amount1 && parseFloat(amount0) > 0 && parseFloat(amount1) > 0) {
+    if (isNewPair && amount0 && amount1 && parseFloat(amount0) > 0 && parseFloat(amount1) > 0)
       return (parseFloat(amount1) / parseFloat(amount0)).toFixed(6);
-    }
     return "—";
   })();
 
-  // Estimated pool share after deposit
   const poolShareDisplay = (() => {
     if (isNewPair) return "100.00%";
-    if (!pairExists || !totalSupply || !reserve0 || !amount0 || parseFloat(amount0) <= 0)
-      return "<0.01%";
+    if (!pairExists || !totalSupply || !reserve0 || !amount0 || parseFloat(amount0) <= 0) return "<0.01%";
     const ts = parseFloat(formatEther(totalSupply as bigint));
     const r0 = parseFloat(formatEther(reserve0));
     if (ts === 0 || r0 === 0) return "100.00%";
-    // estimated LP minted = amount0 / reserve0 * totalSupply (Uniswap v2 formula)
     const lpEst = (parseFloat(amount0) / r0) * ts;
     const share = (lpEst / (ts + lpEst)) * 100;
     return share < 0.01 ? "<0.01%" : share.toFixed(2) + "%";
   })();
 
-  // useWaitForTransactionReceipt tracks whichever hash is set
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
+  // ── Approval state ──────────────────────────────────────────────────────────
+  // While loading → assume needs approval (safe default — prevents skipping approve)
+  const needsApproval =
+    isAllowanceLoading ||
+    allowanceData === undefined ||
+    (amount1 !== "" && parseFloat(amount1) > 0 && (allowanceData as bigint) < parseEther(amount1));
 
-  // Raw send — bypasses wagmi's internal eth_estimateGas completely
+  const canSupply =
+    isConnected &&
+    !isWrongNetwork &&
+    amount0 !== "" &&
+    amount1 !== "" &&
+    parseFloat(amount0) > 0 &&
+    parseFloat(amount1) > 0;
+
+  // ── Transaction receipt watcher ─────────────────────────────────────────────
+  const { isLoading: isConfirming, isSuccess, isError: isReceiptError } =
+    useWaitForTransactionReceipt({ hash: txHash });
+
+  // Surface on-chain failure (tx mined but reverted)
+  useEffect(() => {
+    if (!isReceiptError || !txHash) return;
+    toast.error(step === "approve" ? "Approval reverted on-chain" : "Supply reverted on-chain", {
+      description: "Check that you have enough balance and the amounts are valid.",
+    });
+    setStep(null);
+    setTxHash(undefined);
+  }, [isReceiptError]);
+
+  // After each tx confirms, move to the next step
+  useEffect(() => {
+    if (!isSuccess || !txHash) return;
+
+    if (step === "approve") {
+      toast.success(`${amountsRef.current.token1Address === MDUSD_ADDRESS ? "mdUSD" : "Token"} approved!`);
+      refetchAllowance();
+      // Immediately open the supply wallet popup — no extra click needed
+      const { amount0: a0, amount1: a1 } = amountsRef.current;
+      setTxHash(undefined); // reset so receipt watcher doesn't fire again
+      setStep(null);
+      doSupply(a0, a1);
+    } else if (step === "supply") {
+      toast.success("Liquidity Provided!", { description: "Your LP position has been created." });
+      setAmount0("");
+      setAmount1("");
+      setTxHash(undefined);
+      setStep(null);
+      onSuccess?.();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSuccess, txHash]);
+
+  // ── Raw send — skips wagmi/viem gas estimation entirely ──────────────────────
+  // No simulation: just build calldata + send. Kortana's eth_call / eth_estimateGas
+  // are both unreliable; we hardcode gas and let the mined receipt tell us if it failed.
   const sendRaw = async (
     to: `0x${string}`,
     data: `0x${string}`,
@@ -207,22 +230,44 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
     gas: bigint,
   ): Promise<`0x${string}`> => {
     if (!walletClient) throw new Error("Wallet not connected");
-    // Simulate first so we get a real revert reason if it would fail
-    try {
-      await publicClient?.call({ to, data, value, account: address, gas });
-    } catch (simErr: any) {
-      const msg = simErr?.shortMessage ?? simErr?.message ?? "Simulation failed";
-      throw new Error(`Simulate: ${msg}`);
-    }
     return walletClient.sendTransaction({ to, data, value, gas, chain });
   };
 
+  // ── Core actions ─────────────────────────────────────────────────────────────
+  const doApprove = async (a1: string, t1Address: string) => {
+    setStep("approve");
+    setIsSending(true);
+    try {
+      const hash = await sendRaw(
+        t1Address as `0x${string}`,
+        encodeFunctionData({
+          abi: ERC20_ABI,
+          functionName: "approve",
+          args: [KORTANA_ROUTER_ADDRESS as `0x${string}`, parseEther(a1)],
+        }),
+        0n,
+        200000n,
+      );
+      setTxHash(hash);
+      toast.success("Approval submitted", { description: "Waiting for confirmation…" });
+    } catch (e: any) {
+      const msg: string = e?.message ?? "Approval rejected";
+      // User rejection is not an error worth toasting loudly
+      if (!msg.toLowerCase().includes("user rejected") && !msg.toLowerCase().includes("denied")) {
+        toast.error("Approval failed", { description: msg.slice(0, 150) });
+      }
+      setStep(null);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   const doSupply = async (a0: string, a1: string) => {
-    setPendingTx("supply");
-    setIsPending(true);
+    setStep("supply");
+    setIsSending(true);
     const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 20);
-    const amountTokenMin = (parseEther(a1) * BigInt(995)) / BigInt(1000);
-    const amountDNRMin   = (parseEther(a0) * BigInt(995)) / BigInt(1000);
+    const amountTokenMin = (parseEther(a1) * 995n) / 1000n;
+    const amountDNRMin   = (parseEther(a0) * 995n) / 1000n;
     try {
       const hash = await sendRaw(
         KORTANA_ROUTER_ADDRESS as `0x${string}`,
@@ -230,7 +275,7 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
           abi: ROUTER_ABI,
           functionName: "addLiquidityDNR",
           args: [
-            token1.address as `0x${string}`,
+            amountsRef.current.token1Address as `0x${string}`,
             parseEther(a1),
             amountTokenMin,
             amountDNRMin,
@@ -242,45 +287,17 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
         500000n,
       );
       setTxHash(hash);
+      toast.success("Supply submitted", { description: "Waiting for confirmation…" });
     } catch (e: any) {
-      toast.error("Supply failed", { description: e?.message?.slice(0, 150) });
-      setPendingTx(null);
+      const msg: string = e?.message ?? "Supply rejected";
+      if (!msg.toLowerCase().includes("user rejected") && !msg.toLowerCase().includes("denied")) {
+        toast.error("Supply failed", { description: msg.slice(0, 150) });
+      }
+      setStep(null);
     } finally {
-      setIsPending(false);
+      setIsSending(false);
     }
   };
-
-  useEffect(() => {
-    if (!isSuccess) return;
-
-    if (pendingTx === "approve") {
-      toast.success(`${token1.symbol} approved! Proceeding to supply…`);
-      refetchAllowance();
-      doSupply(amount0, amount1);
-    } else if (pendingTx === "supply") {
-      toast.success("Liquidity Provided!", { description: "Pool updated successfully." });
-      setAmount0("");
-      setAmount1("");
-      setTxHash(undefined);
-      setPendingTx(null);
-      onSuccess?.();
-    }
-  }, [isSuccess]);
-
-  const needsApproval =
-    allowance !== undefined &&
-    allowance !== null &&
-    amount1 !== "" &&
-    parseFloat(amount1) > 0 &&
-    (allowance as bigint) < parseEther(amount1);
-
-  const canSupply =
-    isConnected &&
-    !isWrongNetwork &&
-    amount0 !== "" &&
-    amount1 !== "" &&
-    parseFloat(amount0) > 0 &&
-    parseFloat(amount1) > 0;
 
   const handleSupply = async () => {
     if (!isConnected) { openConnectModal?.(); return; }
@@ -288,37 +305,36 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
     if (!canSupply) return;
 
     if (needsApproval) {
-      setPendingTx("approve");
-      setIsPending(true);
-      try {
-        const hash = await sendRaw(
-          token1.address as `0x${string}`,
-          encodeFunctionData({
-            abi: ERC20_ABI,
-            functionName: "approve",
-            args: [KORTANA_ROUTER_ADDRESS as `0x${string}`, parseEther(amount1)],
-          }),
-          0n,
-          200000n,
-        );
-        setTxHash(hash);
-      } catch (e: any) {
-        toast.error("Approval failed", { description: e?.message?.slice(0, 150) });
-        setPendingTx(null);
-      } finally {
-        setIsPending(false);
-      }
-      return;
+      await doApprove(amount1, token1.address);
+    } else {
+      await doSupply(amount0, amount1);
     }
-
-    doSupply(amount0, amount1);
   };
 
-  const openTokenSelect = (idx: 0 | 1) => {
-    setSelectingTarget(idx);
-    setIsTokenSelectOpen(true);
+  // ── Faucet ───────────────────────────────────────────────────────────────────
+  const handleFaucet = async () => {
+    if (!address) return;
+    setIsFauceting(true);
+    try {
+      const res = await fetch("/api/faucet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Faucet failed");
+      toast.success("10,000 mdUSD sent!", { description: `Tx: ${(data.hash as string).slice(0, 18)}…` });
+      setTimeout(() => refetchBalance1(), 4000);
+      setTimeout(() => refetchBalance1(), 8000);
+    } catch (err: unknown) {
+      toast.error("Faucet failed", { description: err instanceof Error ? err.message : "Unknown error" });
+    } finally {
+      setIsFauceting(false);
+    }
   };
 
+  // ── Token select ─────────────────────────────────────────────────────────────
+  const openTokenSelect = (idx: 0 | 1) => { setSelectingTarget(idx); setIsTokenSelectOpen(true); };
   const handleTokenSelect = (token: any) => {
     const safeToken = {
       symbol: token.symbol,
@@ -326,11 +342,24 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
     };
     if (selectingTarget === 0) setToken0(safeToken);
     else setToken1(safeToken);
-    // reset amounts — ratio changes with new pair
     setAmount0("");
     setAmount1("");
     setIsTokenSelectOpen(false);
   };
+
+  // ── Button label ─────────────────────────────────────────────────────────────
+  const isBusy = isSending || isConfirming;
+  const buttonLabel = (() => {
+    if (!isConnected) return "Connect Wallet";
+    if (isWrongNetwork) return "Switch to Kortana";
+    if (isSending && step === "approve") return `Confirm approval in wallet…`;
+    if (isConfirming && step === "approve") return "Confirming approval… (1/2)";
+    if (isSending && step === "supply") return "Confirm supply in wallet…";
+    if (isConfirming && step === "supply") return "Supplying liquidity… (2/2)";
+    if (isAllowanceLoading) return "Loading…";
+    if (needsApproval) return `Approve ${token1.symbol}`;
+    return "Supply Liquidity";
+  })();
 
   return (
     <>
@@ -361,7 +390,7 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
           />
         </div>
 
-        {/* Faucet banner — testnet only, shown when the ERC20 side has zero balance */}
+        {/* Faucet banner */}
         {isConnected && token1BalanceZero && IS_FAUCET_ENABLED && (
           <div className="flex items-center justify-between bg-accent-mdusd/10 border border-accent-mdusd/20 rounded-2xl px-4 py-3">
             <div className="flex items-center gap-2 text-sm text-accent-mdusd font-medium">
@@ -378,6 +407,7 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
           </div>
         )}
 
+        {/* Pool Details */}
         <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col gap-4 text-sm mt-2">
           <div className="flex justify-between items-center">
             <h4 className="font-bold text-white uppercase tracking-widest text-xs opacity-60">Pool Details</h4>
@@ -415,28 +445,14 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleSupply}
-          disabled={isPending || isConfirming || (isConnected && !isWrongNetwork && !canSupply)}
+          disabled={isBusy || (isConnected && !isWrongNetwork && !canSupply) || isAllowanceLoading}
           className={`w-full mt-2 py-5 rounded-[28px] font-bold text-xl transition-all shadow-2xl ${
             isWrongNetwork
               ? "bg-danger text-white"
               : "bg-accent-dnr text-black shadow-[0_0_20px_rgba(245,200,66,0.3)]"
           } disabled:opacity-50`}
         >
-          {!isConnected
-            ? "Connect Wallet"
-            : isWrongNetwork
-            ? "Switch to Kortana"
-            : isPending && pendingTx === "approve"
-            ? `Approving ${token1.symbol}…`
-            : isConfirming && pendingTx === "approve"
-            ? "Confirming approval… (1/2)"
-            : isPending && pendingTx === "supply"
-            ? "Confirm in wallet…"
-            : isConfirming && pendingTx === "supply"
-            ? "Supplying liquidity… (2/2)"
-            : needsApproval
-            ? `Approve ${token1.symbol}`
-            : "Supply Liquidity"}
+          {buttonLabel}
         </motion.button>
       </div>
 
