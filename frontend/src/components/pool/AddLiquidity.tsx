@@ -190,12 +190,32 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
   // Surface on-chain failure (tx mined but reverted)
   useEffect(() => {
     if (!isReceiptError || !txHash) return;
-    toast.error(step === "approve" ? "Approval reverted on-chain" : "Supply reverted on-chain", {
-      description: "Check that you have enough balance and the amounts are valid.",
-    });
+    
+    const fetchReason = async () => {
+      try {
+        const tx = await publicClient.getTransaction({ hash: txHash });
+        // Simulate the call to find the revert reason
+        await publicClient.call({
+          data: tx.input,
+          from: tx.from,
+          to: tx.to,
+          value: tx.value,
+          blockNumber: tx.blockNumber
+        });
+      } catch (e: any) {
+        console.error("REVERT REASON:", e);
+        const msg = e?.shortMessage || e?.message || "Unknown revert";
+        toast.error(step === "approve" ? "Approval reverted" : "Supply reverted", {
+          description: `Reason: ${msg.slice(0, 100)}`,
+          action: { label: "Log", onClick: () => console.log(e) }
+        });
+      }
+    };
+
+    fetchReason();
     setStep(null);
     setTxHash(undefined);
-  }, [isReceiptError]);
+  }, [isReceiptError, txHash, publicClient, step]);
 
   // After each tx confirms, move to the next step
   useEffect(() => {
