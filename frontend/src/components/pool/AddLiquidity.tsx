@@ -194,6 +194,29 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
   const { writeContract, data: hash, isPending, error: writeError } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
 
+  // Extracted so it can be called both from button click and after approval
+  const doSupply = (a0: string, a1: string) => {
+    setPendingTx("supply");
+    const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 20);
+    const amountTokenMin = (parseEther(a1) * BigInt(995)) / BigInt(1000);
+    const amountDNRMin   = (parseEther(a0) * BigInt(995)) / BigInt(1000);
+    writeContract({
+      address: KORTANA_ROUTER_ADDRESS as `0x${string}`,
+      abi: ROUTER_ABI,
+      functionName: "addLiquidityDNR",
+      args: [
+        token1.address as `0x${string}`,
+        parseEther(a1),
+        amountTokenMin,
+        amountDNRMin,
+        address as `0x${string}`,
+        deadline,
+      ],
+      value: parseEther(a0),
+      gas: 500000n,
+    });
+  };
+
   // Surface write errors to the user (e.g. gas estimation failures, wallet rejections)
   useEffect(() => {
     if (!writeError) return;
@@ -205,12 +228,12 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
     if (!isSuccess) return;
 
     if (pendingTx === "approve") {
-      // Approval confirmed — refetch allowance so button flips to "Supply Liquidity"
-      toast.success(`${token1.symbol} approved!`, { description: "Now click Supply Liquidity." });
+      // Approval confirmed — auto-proceed to supply (no second click needed)
+      toast.success(`${token1.symbol} approved! Proceeding to supply…`);
       refetchAllowance();
-      setPendingTx(null);
+      // Use captured amounts directly to avoid stale closure
+      doSupply(amount0, amount1);
     } else if (pendingTx === "supply") {
-      // Liquidity supply confirmed — close modal and refresh parent
       toast.success("Liquidity Provided!", { description: "Pool updated successfully." });
       setAmount0("");
       setAmount1("");
@@ -246,34 +269,12 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
         abi: ERC20_ABI,
         functionName: "approve",
         args: [KORTANA_ROUTER_ADDRESS as `0x${string}`, parseEther(amount1)],
-        // Kortana's eth_estimateGas returns too-low values (22088); override
         gas: 200000n,
       });
       return;
     }
 
-    setPendingTx("supply");
-    const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 20);
-    // 0.5 % slippage tolerance on both sides
-    const amountTokenMin = (parseEther(amount1) * BigInt(995)) / BigInt(1000);
-    const amountDNRMin   = (parseEther(amount0) * BigInt(995)) / BigInt(1000);
-
-    writeContract({
-      address: KORTANA_ROUTER_ADDRESS as `0x${string}`,
-      abi: ROUTER_ABI,
-      functionName: "addLiquidityDNR",
-      args: [
-        token1.address as `0x${string}`,
-        parseEther(amount1),
-        amountTokenMin,
-        amountDNRMin,
-        address as `0x${string}`,
-        deadline,
-      ],
-      value: parseEther(amount0),
-      // Kortana's eth_estimateGas returns too-low values; override
-      gas: 500000n,
-    });
+    doSupply(amount0, amount1);
   };
 
   const openTokenSelect = (idx: 0 | 1) => {
@@ -388,8 +389,14 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
             ? "Connect Wallet"
             : isWrongNetwork
             ? "Switch to Kortana"
-            : isPending || isConfirming
-            ? "Confirming..."
+            : isPending && pendingTx === "approve"
+            ? `Approving ${token1.symbol}…`
+            : isConfirming && pendingTx === "approve"
+            ? "Confirming approval… (1/2)"
+            : isPending && pendingTx === "supply"
+            ? "Confirm in wallet…"
+            : isConfirming && pendingTx === "supply"
+            ? "Supplying liquidity… (2/2)"
             : needsApproval
             ? `Approve ${token1.symbol}`
             : "Supply Liquidity"}
