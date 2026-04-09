@@ -1,7 +1,33 @@
-export const KORTANA_ROUTER_ADDRESS = "0x27ff10847E58030407D203409B5a0e3d167C38a1";
-export const MDUSD_ADDRESS = "0x56D2AcEBD3B1b310A1f0B5c927421c4f26710E91";
-export const WDNR_ADDRESS = "0x21Cf43Acc06Ef07B90B64e4eff68FE96Bc07eD87";
-export const FACTORY_ADDRESS = "0x480bEEb78c3E6Bd6346bE36545f74C8AAC117206";
+// ─── Contract addresses ───────────────────────────────────────────────────────
+// Active addresses are selected by NEXT_PUBLIC_CHAIN_ID at build time.
+// After mainnet deployment run `npx hardhat run scripts/deploy.ts --network kortanaMainnet`
+// and fill in the MAINNET block below, then redeploy the frontend with
+// NEXT_PUBLIC_CHAIN_ID=9002.
+
+const TESTNET = {
+  ROUTER:  "0x27ff10847E58030407D203409B5a0e3d167C38a1",
+  MDUSD:   "0x56D2AcEBD3B1b310A1f0B5c927421c4f26710E91",
+  WDNR:    "0x21Cf43Acc06Ef07B90B64e4eff68FE96Bc07eD87",
+  FACTORY: "0x480bEEb78c3E6Bd6346bE36545f74C8AAC117206",
+};
+
+// TODO: populate after mainnet deployment
+const MAINNET = {
+  ROUTER:  "" as string,
+  MDUSD:   "" as string,
+  WDNR:    "" as string,
+  FACTORY: "" as string,
+};
+
+const ADDR =
+  parseInt(process.env.NEXT_PUBLIC_CHAIN_ID ?? "72511", 10) === 9002
+    ? MAINNET
+    : TESTNET;
+
+export const KORTANA_ROUTER_ADDRESS = ADDR.ROUTER;
+export const MDUSD_ADDRESS          = ADDR.MDUSD;
+export const WDNR_ADDRESS           = ADDR.WDNR;
+export const FACTORY_ADDRESS        = ADDR.FACTORY;
 
 export const ROUTER_ABI = [
   {

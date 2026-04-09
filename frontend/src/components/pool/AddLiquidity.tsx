@@ -16,6 +16,7 @@ import {
   FACTORY_ADDRESS, FACTORY_ABI,
   WDNR_ADDRESS, PAIR_ABI
 } from "@/lib/contracts";
+import { IS_FAUCET_ENABLED } from "@/lib/config";
 import { toast } from "sonner";
 import { Modal } from "../ui/Modal";
 import { TokenSelectModal } from "../modals/TokenSelectModal";
@@ -311,8 +312,8 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
           />
         </div>
 
-        {/* Faucet banner — only shown when the ERC20 side has zero balance */}
-        {isConnected && token1BalanceZero && (
+        {/* Faucet banner — testnet only, shown when the ERC20 side has zero balance */}
+        {isConnected && token1BalanceZero && IS_FAUCET_ENABLED && (
           <div className="flex items-center justify-between bg-accent-mdusd/10 border border-accent-mdusd/20 rounded-2xl px-4 py-3">
             <div className="flex items-center gap-2 text-sm text-accent-mdusd font-medium">
               <Droplets size={16} />

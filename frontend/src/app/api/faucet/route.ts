@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { createWalletClient, createPublicClient, http, parseEther, formatEther } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
+// Faucet is testnet-only. On mainnet users acquire mdUSD by swapping DNR.
+const ACTIVE_CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID ?? "72511", 10);
+const IS_TESTNET = ACTIVE_CHAIN_ID === 72511;
+
 const KORTANA_TESTNET = {
   id: 72511,
   name: "Kortana Testnet",
@@ -9,6 +13,7 @@ const KORTANA_TESTNET = {
   rpcUrls: { default: { http: ["https://poseidon-rpc.testnet.kortana.xyz/"] } },
 } as const;
 
+// Always use the testnet mdUSD address — this endpoint never runs on mainnet
 const MDUSD_ADDRESS = "0x56D2AcEBD3B1b310A1f0B5c927421c4f26710E91" as const;
 const FAUCET_AMOUNT = parseEther("10000"); // 10,000 mdUSD per request
 
@@ -44,6 +49,14 @@ const cooldowns = new Map<string, number>();
 const COOLDOWN_MS = 60_000;
 
 export async function POST(req: NextRequest) {
+  // Hard block on mainnet — never mint free tokens in production
+  if (!IS_TESTNET) {
+    return NextResponse.json(
+      { error: "Faucet is only available on Kortana Testnet. On mainnet, swap DNR → mdUSD to acquire tokens." },
+      { status: 403 }
+    );
+  }
+
   try {
     const body = await req.json();
     const address: string = body.address ?? "";
