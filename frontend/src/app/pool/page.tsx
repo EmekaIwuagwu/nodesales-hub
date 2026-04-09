@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
@@ -16,7 +16,7 @@ export default function PoolPage() {
   const [isRemoveLiquidityModalOpen, setIsRemoveLiquidityModalOpen] = useState(false);
 
   // Find Pair Address
-  const { data: pairAddress } = useReadContract({
+  const { data: pairAddress, refetch: refetchPair } = useReadContract({
     address: FACTORY_ADDRESS as `0x${string}`,
     abi: FACTORY_ABI,
     functionName: "getPair",
@@ -24,7 +24,7 @@ export default function PoolPage() {
   });
 
   // Check LP Balance
-  const { data: lpBalance } = useReadContract({
+  const { data: lpBalance, refetch: refetchLpBalance } = useReadContract({
     address: pairAddress as `0x${string}`,
     abi: PAIR_ABI,
     functionName: "balanceOf",
@@ -32,7 +32,16 @@ export default function PoolPage() {
     query: { enabled: !!pairAddress && !!address }
   });
 
-  const hasLiquidity = lpBalance && (lpBalance as any) > BigInt(0);
+  const hasLiquidity = lpBalance && (lpBalance as bigint) > BigInt(0);
+
+  // Called by AddLiquidity after a successful on-chain transaction so the
+  // pool page immediately reflects the new position without waiting for a
+  // page refresh.
+  const handleLiquiditySuccess = useCallback(async () => {
+    await refetchPair();
+    await refetchLpBalance();
+    setIsAddLiquidityModalOpen(false);
+  }, [refetchPair, refetchLpBalance]);
 
   return (
     <>
@@ -42,7 +51,7 @@ export default function PoolPage() {
             <h1 className="text-4xl font-space font-bold bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">Liquidity</h1>
             <p className="text-text-secondary mt-1 font-medium">Provide liquidity to the Kortana engine to earn trading fees</p>
           </div>
-          <motion.button 
+          <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsAddLiquidityModalOpen(true)}
@@ -71,7 +80,7 @@ export default function PoolPage() {
                 <p className="text-text-secondary max-w-xs mb-8 font-medium">
                   Connect your wallet to see your active liquidity positions and earnings.
                 </p>
-                <button 
+                <button
                   onClick={() => setIsAddLiquidityModalOpen(true)}
                   className="bg-white/10 hover:bg-white/20 px-8 py-4 rounded-2xl font-bold transition-all border border-white/5 active:scale-95"
                 >
@@ -85,19 +94,19 @@ export default function PoolPage() {
 
       <AnimatePresence>
         {isAddLiquidityModalOpen && (
-          <Modal 
-            isOpen={isAddLiquidityModalOpen} 
-            onClose={() => setIsAddLiquidityModalOpen(false)} 
+          <Modal
+            isOpen={isAddLiquidityModalOpen}
+            onClose={() => setIsAddLiquidityModalOpen(false)}
             title="Add Liquidity"
           >
-            <AddLiquidity />
+            <AddLiquidity onSuccess={handleLiquiditySuccess} />
           </Modal>
         )}
 
         {isRemoveLiquidityModalOpen && (
-          <Modal 
-            isOpen={isRemoveLiquidityModalOpen} 
-            onClose={() => setIsRemoveLiquidityModalOpen(false)} 
+          <Modal
+            isOpen={isRemoveLiquidityModalOpen}
+            onClose={() => setIsRemoveLiquidityModalOpen(false)}
             title="Remove Liquidity"
           >
             <RemoveLiquidity />

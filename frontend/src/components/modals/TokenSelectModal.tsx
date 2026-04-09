@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Search, X, Plus, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useReadContract } from "wagmi";
-import { ERC20_ABI } from "@/lib/contracts";
+import { ERC20_ABI, MDUSD_ADDRESS } from "@/lib/contracts";
 
 interface Token {
   symbol: string;
@@ -15,7 +15,7 @@ interface Token {
 
 const DEFAULT_TOKENS: Token[] = [
   { symbol: "DNR", name: "Kortana Native", address: "native" },
-  { symbol: "mdUSD", name: "Meta-Dollar", address: "0x0ABF9D12057BE0c53eF140AA6fB7889C3B13ae11" },
+  { symbol: "mdUSD", name: "Meta-Dollar", address: MDUSD_ADDRESS },
 ];
 
 interface TokenSelectModalProps {

@@ -1,10 +1,9 @@
 "use client";
 
-import { useAccount, useReadContract, useBalance } from "wagmi";
+import { useAccount, useReadContract } from "wagmi";
 import { FACTORY_ADDRESS, FACTORY_ABI, WDNR_ADDRESS, MDUSD_ADDRESS, PAIR_ABI } from "@/lib/contracts";
 import { formatEther } from "viem";
 import { motion } from "framer-motion";
-import { MoreHorizontal } from "lucide-react";
 
 interface LiquidityPositionProps {
   onRemove: () => void;
@@ -13,7 +12,6 @@ interface LiquidityPositionProps {
 export function LiquidityPosition({ onRemove }: LiquidityPositionProps) {
   const { address } = useAccount();
 
-  // Find Pair Address
   const { data: pairAddress } = useReadContract({
     address: FACTORY_ADDRESS as `0x${string}`,
     abi: FACTORY_ABI,
@@ -21,16 +19,31 @@ export function LiquidityPosition({ onRemove }: LiquidityPositionProps) {
     args: [WDNR_ADDRESS as `0x${string}`, MDUSD_ADDRESS as `0x${string}`],
   });
 
-  // Check LP Balance
-  const { data: lpBalance, refetch } = useReadContract({
+  const { data: lpBalance } = useReadContract({
     address: pairAddress as `0x${string}`,
     abi: PAIR_ABI,
     functionName: "balanceOf",
     args: [address as `0x${string}`],
-    query: { enabled: !!pairAddress && !!address }
+    query: { enabled: !!pairAddress && !!address, refetchInterval: 15000 },
   });
 
-  if (!lpBalance || (lpBalance as any) === BigInt(0)) return null;
+  const { data: totalSupply } = useReadContract({
+    address: pairAddress as `0x${string}`,
+    abi: PAIR_ABI,
+    functionName: "totalSupply",
+    query: { enabled: !!pairAddress, refetchInterval: 15000 },
+  });
+
+  if (!lpBalance || (lpBalance as bigint) === BigInt(0)) return null;
+
+  const lpFormatted = parseFloat(formatEther(lpBalance as bigint));
+
+  const poolShare = (() => {
+    if (!totalSupply || (totalSupply as bigint) === BigInt(0)) return "—";
+    const ts = parseFloat(formatEther(totalSupply as bigint));
+    const share = (lpFormatted / ts) * 100;
+    return share < 0.0001 ? "<0.0001%" : share.toFixed(4) + "%";
+  })();
 
   return (
     <motion.div
@@ -49,7 +62,7 @@ export function LiquidityPosition({ onRemove }: LiquidityPositionProps) {
             <span className="text-text-secondary text-xs uppercase tracking-wider font-medium">Standard Pool</span>
           </div>
         </div>
-        <button 
+        <button
           onClick={onRemove}
           className="text-accent-dnr hover:bg-accent-dnr/10 px-4 py-2 rounded-xl transition-all font-semibold"
         >
@@ -60,11 +73,15 @@ export function LiquidityPosition({ onRemove }: LiquidityPositionProps) {
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-black/20 rounded-2xl p-4 border border-white/5 group hover:border-white/10 transition-colors">
           <p className="text-text-secondary text-xs mb-1 font-medium">Your Pool Share</p>
-          <p className="text-xl font-space font-bold text-white group-hover:text-accent-dnr transition-colors">~ {(parseFloat(formatEther(lpBalance as bigint)) * 100).toFixed(4)}%</p>
+          <p className="text-xl font-space font-bold text-white group-hover:text-accent-dnr transition-colors">
+            ~ {poolShare}
+          </p>
         </div>
         <div className="bg-black/20 rounded-2xl p-4 border border-white/5 group hover:border-white/10 transition-colors">
           <p className="text-text-secondary text-xs mb-1 font-medium">LP Tokens</p>
-          <p className="text-xl font-space font-bold text-white group-hover:text-accent-dnr transition-colors">{parseFloat(formatEther(lpBalance as bigint)).toFixed(6)}</p>
+          <p className="text-xl font-space font-bold text-white group-hover:text-accent-dnr transition-colors">
+            {lpFormatted.toFixed(6)}
+          </p>
         </div>
       </div>
     </motion.div>

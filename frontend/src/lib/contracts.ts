@@ -142,6 +142,23 @@ export const PAIR_ABI = [
     "name": "approve",
     "outputs": [{ "name": "", "type": "bool" }],
     "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      { "name": "_owner", "type": "address" },
+      { "name": "_spender", "type": "address" }
+    ],
+    "name": "allowance",
+    "outputs": [{ "name": "remaining", "type": "uint256" }],
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "totalSupply",
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "type": "function"
   }
 ];
 
@@ -171,6 +188,20 @@ export const ERC20_ABI = [
     ],
     "name": "allowance",
     "outputs": [{ "name": "remaining", "type": "uint256" }],
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "name",
+    "outputs": [{ "name": "", "type": "string" }],
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "symbol",
+    "outputs": [{ "name": "", "type": "string" }],
     "type": "function"
   }
 ];
