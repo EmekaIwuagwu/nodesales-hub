@@ -13,20 +13,21 @@ const KORTANA_TESTNET = {
   rpcUrls: { default: { http: ["https://poseidon-rpc.testnet.kortana.xyz/"] } },
 } as const;
 
-// Always use the testnet mdUSD address — this endpoint never runs on mainnet
 const MDUSD_ADDRESS = "0x56D2AcEBD3B1b310A1f0B5c927421c4f26710E91" as const;
 const FAUCET_AMOUNT = parseEther("10000"); // 10,000 mdUSD per request
 
+// Simple transfer — no minting, no operator check needed.
+// The faucet wallet just needs to hold mdUSD (pre-funded via fund_faucet.ts).
 const MDUSD_ABI = [
   {
-    name: "mint",
+    name: "transfer",
     type: "function" as const,
     stateMutability: "nonpayable" as const,
     inputs: [
-      { name: "to", type: "address" as const },
+      { name: "to",     type: "address" as const },
       { name: "amount", type: "uint256" as const },
     ],
-    outputs: [],
+    outputs: [{ name: "", type: "bool" as const }],
   },
   {
     name: "balanceOf",
@@ -35,30 +36,6 @@ const MDUSD_ABI = [
     inputs: [{ name: "account", type: "address" as const }],
     outputs: [{ name: "", type: "uint256" as const }],
   },
-  {
-    name: "isOperator",
-    type: "function" as const,
-    stateMutability: "view" as const,
-    inputs: [{ name: "account", type: "address" as const }],
-    outputs: [{ name: "", type: "bool" as const }],
-  },
-  {
-    name: "owner",
-    type: "function" as const,
-    stateMutability: "view" as const,
-    inputs: [],
-    outputs: [{ name: "", type: "address" as const }],
-  },
-  {
-    name: "setOperator",
-    type: "function" as const,
-    stateMutability: "nonpayable" as const,
-    inputs: [
-      { name: "operator", type: "address" as const },
-      { name: "status", type: "bool" as const },
-    ],
-    outputs: [],
-  },
 ];
 
 // Simple in-memory cooldown: one request per address per 60 seconds
@@ -66,10 +43,10 @@ const cooldowns = new Map<string, number>();
 const COOLDOWN_MS = 60_000;
 
 export async function POST(req: NextRequest) {
-  // Hard block on mainnet — never mint free tokens in production
+  // Hard block on mainnet — never send free tokens in production
   if (!IS_TESTNET) {
     return NextResponse.json(
-      { error: "Faucet is only available on Kortana Testnet. On mainnet, swap DNR → mdUSD to acquire tokens." },
+      { error: "Faucet is only available on Kortana Testnet. On mainnet, swap DNR → mdUSD." },
       { status: 403 }
     );
   }
@@ -94,13 +71,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Deployer private key — set DEPLOYER_PRIVATE_KEY in Render environment variables
+    // Load deployer key
     const rawKey = process.env.DEPLOYER_PRIVATE_KEY ?? process.env.PRIVATE_KEY ?? "";
     if (!rawKey) {
-      return NextResponse.json({ error: "Faucet not configured (missing deployer key)" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Faucet not configured — PRIVATE_KEY missing from environment." },
+        { status: 500 }
+      );
     }
     const privateKey = (rawKey.startsWith("0x") ? rawKey : `0x${rawKey}`) as `0x${string}`;
-
     const account = privateKeyToAccount(privateKey);
 
     const publicClient = createPublicClient({
@@ -108,65 +87,48 @@ export async function POST(req: NextRequest) {
       transport: http(),
     });
 
+    // Check faucet wallet has enough mdUSD to transfer
+    const faucetBalance = await publicClient.readContract({
+      address: MDUSD_ADDRESS,
+      abi: MDUSD_ABI,
+      functionName: "balanceOf",
+      args: [account.address],
+    }) as bigint;
+
+    if (faucetBalance < FAUCET_AMOUNT) {
+      return NextResponse.json(
+        {
+          error:
+            `Faucet wallet (${account.address}) has insufficient mdUSD. ` +
+            `Balance: ${formatEther(faucetBalance)}. ` +
+            `Run scripts/fund_faucet.ts to restock.`,
+        },
+        { status: 503 }
+      );
+    }
+
     const walletClient = createWalletClient({
       account,
       chain: KORTANA_TESTNET,
       transport: http(),
     });
 
-    // Check operator status — if not set, try to self-register (only works if
-    // this account is the contract owner, which it should be on testnet).
-    const [isOp, owner] = await Promise.all([
-      publicClient.readContract({
-        address: MDUSD_ADDRESS,
-        abi: MDUSD_ABI,
-        functionName: "isOperator",
-        args: [account.address],
-      }),
-      publicClient.readContract({
-        address: MDUSD_ADDRESS,
-        abi: MDUSD_ABI,
-        functionName: "owner",
-      }),
-    ]);
-
-    if (!isOp) {
-      const isOwner =
-        (owner as string).toLowerCase() === account.address.toLowerCase();
-
-      if (!isOwner) {
-        return NextResponse.json(
-          {
-            error:
-              `Faucet wallet (${account.address}) is neither an operator nor the mdUSD owner. ` +
-              `Contract owner is ${owner}. Ensure PRIVATE_KEY in Render matches the deployer.`,
-          },
-          { status: 500 }
-        );
-      }
-
-      // We are the owner — register ourselves as operator now
-      const opHash = await walletClient.writeContract({
-        address: MDUSD_ADDRESS,
-        abi: MDUSD_ABI,
-        functionName: "setOperator",
-        args: [account.address, true],
-      });
-      // Wait for the operator tx to be mined before minting
-      await publicClient.waitForTransactionReceipt({ hash: opHash });
-    }
-
+    // Simple ERC20 transfer — no operator/owner needed
     const hash = await walletClient.writeContract({
       address: MDUSD_ADDRESS,
       abi: MDUSD_ABI,
-      functionName: "mint",
+      functionName: "transfer",
       args: [address as `0x${string}`, FAUCET_AMOUNT],
     });
 
-    // Mark cooldown after successful submission
     cooldowns.set(addrKey, now);
 
-    return NextResponse.json({ success: true, hash, amount: formatEther(FAUCET_AMOUNT) });
+    return NextResponse.json({
+      success: true,
+      hash,
+      amount: formatEther(FAUCET_AMOUNT),
+    });
+
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Faucet request failed";
     return NextResponse.json({ error: message }, { status: 500 });
