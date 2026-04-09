@@ -97,7 +97,7 @@ export function SwapCard() {
         functionName: "swapExactDNRForTokens",
         args: [amountOutMin, path, address as `0x${string}`, deadline],
         value: parseEther(sellAmount),
-        gas: 500000n,
+        gas: 1000000n,
       });
     } else {
       writeContract({
@@ -105,7 +105,7 @@ export function SwapCard() {
         abi: ROUTER_ABI,
         functionName: "swapExactTokensForDNR",
         args: [parseEther(sellAmount), amountOutMin, path, address as `0x${string}`, deadline],
-        gas: 500000n,
+        gas: 1000000n,
       });
     }
   };
