@@ -35,8 +35,8 @@ export default function AnalyticsPage() {
     query: { enabled: !!pairAddress && pairAddress !== "0x0000000000000000000000000000000000000000", refetchInterval: 15000 }
   });
 
-  const reserve0 = reserves?.[0] ? parseFloat(formatEther(reserves[0])) : 0;
-  const reserve1 = reserves?.[1] ? parseFloat(formatEther(reserves[1])) : 0;
+  const reserve0 = reserves ? parseFloat(formatEther((reserves as unknown as bigint[])[0])) : 0;
+  const reserve1 = reserves ? parseFloat(formatEther((reserves as unknown as bigint[])[1])) : 0;
   const tvl = (reserve0 + reserve1);
 
   return (

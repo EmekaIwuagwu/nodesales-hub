@@ -1,4 +1,5 @@
-import { Wallet, CreateConnectorFn } from '@rainbow-me/rainbowkit';
+import { Wallet } from '@rainbow-me/rainbowkit';
+import { CreateConnectorFn } from 'wagmi';
 import { injected } from 'wagmi/connectors';
 
 export const kortanaWallet = (): Wallet => ({

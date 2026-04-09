@@ -40,8 +40,8 @@ export function RemoveLiquidity() {
   const { writeContract, data: hash, isPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
 
-  const amountToRemove = lpBalance ? (lpBalance * BigInt(percent)) / 100n : 0n;
-  const needsApproval = allowance !== undefined && amountToRemove > allowance;
+  const amountToRemove = lpBalance ? ((lpBalance as any) * BigInt(percent)) / BigInt(100) : BigInt(0);
+  const needsApproval = allowance !== undefined && allowance !== null && (amountToRemove as any) > (allowance as any);
 
   useEffect(() => {
     if (hash) {
@@ -70,8 +70,8 @@ export function RemoveLiquidity() {
       args: [
         MDUSD_ADDRESS as `0x${string}`,
         amountToRemove,
-        0n, // amountTokenMin
-        0n, // amountDNRMin
+        BigInt(0), // amountTokenMin
+        BigInt(0), // amountDNRMin
         address as `0x${string}`,
         deadline
       ],

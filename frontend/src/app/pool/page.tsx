@@ -32,7 +32,7 @@ export default function PoolPage() {
     query: { enabled: !!pairAddress && !!address }
   });
 
-  const hasLiquidity = lpBalance && lpBalance > 0n;
+  const hasLiquidity = lpBalance && (lpBalance as any) > BigInt(0);
 
   return (
     <>

@@ -4,7 +4,7 @@ import { useAccount, useReadContract, useBalance } from "wagmi";
 import { FACTORY_ADDRESS, FACTORY_ABI, WDNR_ADDRESS, MDUSD_ADDRESS, PAIR_ABI } from "@/lib/contracts";
 import { formatEther } from "viem";
 import { motion } from "framer-motion";
-import { Dropdown } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 
 interface LiquidityPositionProps {
   onRemove: () => void;
@@ -30,7 +30,7 @@ export function LiquidityPosition({ onRemove }: LiquidityPositionProps) {
     query: { enabled: !!pairAddress && !!address }
   });
 
-  if (!lpBalance || lpBalance === 0n) return null;
+  if (!lpBalance || (lpBalance as any) === BigInt(0)) return null;
 
   return (
     <motion.div

@@ -60,7 +60,7 @@ export function AddLiquidity() {
     }
   }, [isSuccess]);
 
-  const needsApproval = allowance !== undefined && amount1 !== "" && allowance < parseEther(amount1);
+  const needsApproval = allowance !== undefined && allowance !== null && amount1 !== "" && (allowance as bigint) < parseEther(amount1);
 
   const handleSupply = () => {
     if (!isConnected) { openConnectModal?.(); return; }
@@ -84,8 +84,8 @@ export function AddLiquidity() {
       args: [
         token1.address as `0x${string}`,
         parseEther(amount1),
-        0n,
-        0n,
+        BigInt(0),
+        BigInt(0),
         address as `0x${string}`,
         deadline
       ],
