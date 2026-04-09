@@ -1,7 +1,7 @@
 "use client";
 
 import { useAccount, useReadContract } from "wagmi";
-import { FACTORY_ADDRESS, FACTORY_ABI, WDNR_ADDRESS, MDUSD_ADDRESS, PAIR_ABI } from "@/lib/contracts";
+import { DEX_ADDRESS, DEX_ABI } from "@/lib/contracts";
 import { formatEther } from "viem";
 import { motion } from "framer-motion";
 
@@ -12,37 +12,56 @@ interface LiquidityPositionProps {
 export function LiquidityPosition({ onRemove }: LiquidityPositionProps) {
   const { address } = useAccount();
 
-  const { data: pairAddress } = useReadContract({
-    address: FACTORY_ADDRESS as `0x${string}`,
-    abi: FACTORY_ABI,
-    functionName: "getPair",
-    args: [WDNR_ADDRESS as `0x${string}`, MDUSD_ADDRESS as `0x${string}`],
-  });
-
   const { data: lpBalance } = useReadContract({
-    address: pairAddress as `0x${string}`,
-    abi: PAIR_ABI,
-    functionName: "balanceOf",
+    address: DEX_ADDRESS as `0x${string}`,
+    abi: DEX_ABI,
+    functionName: "lpBalanceOf",
     args: [address as `0x${string}`],
-    query: { enabled: !!pairAddress && !!address, refetchInterval: 15000 },
+    query: { enabled: !!address, refetchInterval: 15000 },
   });
 
-  const { data: totalSupply } = useReadContract({
-    address: pairAddress as `0x${string}`,
-    abi: PAIR_ABI,
-    functionName: "totalSupply",
-    query: { enabled: !!pairAddress, refetchInterval: 15000 },
+  const { data: lpTotalSupply } = useReadContract({
+    address: DEX_ADDRESS as `0x${string}`,
+    abi: DEX_ABI,
+    functionName: "lpTotalSupply",
+    query: { refetchInterval: 15000 },
   });
 
-  if (!lpBalance || (lpBalance as bigint) === BigInt(0)) return null;
+  const { data: reservesData } = useReadContract({
+    address: DEX_ADDRESS as `0x${string}`,
+    abi: DEX_ABI,
+    functionName: "getReserves",
+    query: { refetchInterval: 15000 },
+  });
+
+  if (!lpBalance || (lpBalance as bigint) === 0n) return null;
 
   const lpFormatted = parseFloat(formatEther(lpBalance as bigint));
 
   const poolShare = (() => {
-    if (!totalSupply || (totalSupply as bigint) === BigInt(0)) return "—";
-    const ts = parseFloat(formatEther(totalSupply as bigint));
+    if (!lpTotalSupply || (lpTotalSupply as bigint) === 0n) return "—";
+    const ts = parseFloat(formatEther(lpTotalSupply as bigint));
     const share = (lpFormatted / ts) * 100;
     return share < 0.0001 ? "<0.0001%" : share.toFixed(4) + "%";
+  })();
+
+  const [rMDUSD, rDNR] = reservesData
+    ? [
+        parseFloat(formatEther((reservesData as [bigint, bigint])[0])),
+        parseFloat(formatEther((reservesData as [bigint, bigint])[1])),
+      ]
+    : [0, 0];
+
+  const userMDUSD = (() => {
+    if (!lpTotalSupply || (lpTotalSupply as bigint) === 0n || rMDUSD === 0) return "0.00";
+    const ts = parseFloat(formatEther(lpTotalSupply as bigint));
+    return ((lpFormatted / ts) * rMDUSD).toFixed(4);
+  })();
+
+  const userDNR = (() => {
+    if (!lpTotalSupply || (lpTotalSupply as bigint) === 0n || rDNR === 0) return "0.00";
+    const ts = parseFloat(formatEther(lpTotalSupply as bigint));
+    return ((lpFormatted / ts) * rDNR).toFixed(6);
   })();
 
   return (
@@ -81,6 +100,18 @@ export function LiquidityPosition({ onRemove }: LiquidityPositionProps) {
           <p className="text-text-secondary text-xs mb-1 font-medium">LP Tokens</p>
           <p className="text-xl font-space font-bold text-white group-hover:text-accent-dnr transition-colors">
             {lpFormatted.toFixed(6)}
+          </p>
+        </div>
+        <div className="bg-black/20 rounded-2xl p-4 border border-white/5 group hover:border-white/10 transition-colors">
+          <p className="text-text-secondary text-xs mb-1 font-medium">Pooled mdUSD</p>
+          <p className="text-xl font-space font-bold text-white group-hover:text-accent-mdusd transition-colors">
+            {userMDUSD}
+          </p>
+        </div>
+        <div className="bg-black/20 rounded-2xl p-4 border border-white/5 group hover:border-white/10 transition-colors">
+          <p className="text-text-secondary text-xs mb-1 font-medium">Pooled DNR</p>
+          <p className="text-xl font-space font-bold text-white group-hover:text-accent-dnr transition-colors">
+            {userDNR}
           </p>
         </div>
       </div>
