@@ -32,11 +32,7 @@ RUN adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/public ./public
 
-# Next.js standalone output preserves the folder structure of the build environment
-# Since we build in /app, the output is in .next/standalone/app/
-# We copy from that nested 'app' folder to the root of our runner container
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone/app/ ./
-# We also need the base standalone libs (node_modules, etc)
+# Standalone output lands directly at /app/.next/standalone/ (no nested subfolder)
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone/ ./
 
 # Then we copy static files to the correct expected locations
