@@ -15,8 +15,9 @@ export const IS_TESTNET = ACTIVE_CHAIN_ID === 72511;
 export const IS_MAINNET = ACTIVE_CHAIN_ID === 9002;
 
 /**
- * Faucet is only meaningful on testnet. On mainnet users acquire mdUSD by
- * swapping their DNR through the pool the team seeds at launch.
+ * Faucet is enabled whenever we're on testnet.
+ * The API route already hard-blocks requests when ACTIVE_CHAIN_ID !== 72511,
+ * so there is no risk of free minting slipping through on mainnet.
  */
 export const IS_FAUCET_ENABLED = IS_TESTNET;
 
