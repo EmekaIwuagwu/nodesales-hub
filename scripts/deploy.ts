@@ -3,97 +3,68 @@ const { ethers } = pkg;
 
 async function main() {
   const [deployer] = await ethers.getSigners();
-  console.log("Deploying contracts with account:", deployer.address);
-
-  // 1. Deploy mdUSD
-  console.log("Deploying mdUSD...");
-  const mdUSD = await ethers.deployContract("mdUSD", [
-    "mdUSD",
-    "mdUSD",
-    ethers.parseEther("0"),
-    ethers.parseEther("1000000000"),
-    deployer.address,
-  ]);
-  await mdUSD.waitForDeployment();
-  console.log("mdUSD deployed to:", mdUSD.target);
-
-  // 2. Deploy WDNR
-  console.log("Deploying WDNR...");
-  const WDNR = await ethers.deployContract("WDNR");
-  await WDNR.waitForDeployment();
-  console.log("WDNR deployed to:", WDNR.target);
-
-  // 3. Deploy KortanaFactory
-  console.log("Deploying KortanaFactory...");
-  const KortanaFactory = await ethers.deployContract("KortanaFactory", [deployer.address]);
-  await KortanaFactory.waitForDeployment();
-  console.log("KortanaFactory deployed to:", KortanaFactory.target);
-
-  // 4. Deploy KortanaRouter
-  console.log("Deploying KortanaRouter...");
-  const KortanaRouter = await ethers.deployContract("KortanaRouter", [
-    KortanaFactory.target,
-    WDNR.target,
-  ]);
-  await KortanaRouter.waitForDeployment();
-  console.log("KortanaRouter deployed to:", KortanaRouter.target);
-
-  // 5. Mint initial mdUSD to deployer
-  console.log("Minting initial mdUSD...");
-  const mintAmount = ethers.parseEther("1000000"); // 1M mdUSD
-  // Add deployer as operator for mdUSD
-  await mdUSD.setOperator(deployer.address, true);
-  await mdUSD.mint(deployer.address, mintAmount);
-
-  // 6. Create DNR/mdUSD pair
-  console.log("Creating DNR/mdUSD pair...");
-  await KortanaFactory.createPair(WDNR.target, mdUSD.target);
-
-  // 7. Seed initial liquidity (1:1 price)
-  console.log("Seeding initial liquidity...");
-  const router = await ethers.getContractAt("KortanaRouter", KortanaRouter.target);
-  const amountDNR = ethers.parseEther("10000");   // 10K DNR
-  const amountmdUSD = ethers.parseEther("10000"); // 10K mdUSD
-
-  // Approve router for mdUSD
-  await mdUSD.approve(router.target, amountmdUSD);
-
-  const deadline = Math.floor(Date.now() / 1000) + 60 * 10; // 10 mins
-
-  // Add liquidity
-  await router.addLiquidityDNR(
-    mdUSD.target,
-    amountmdUSD,
-    0, // min token
-    0, // min DNR
-    deployer.address,
-    deadline,
-    { value: amountDNR }
-  );
-
-  console.log("Initial liquidity added!");
-
-  // 8. Execute first swap (to activate DEXScreener indexing)
-  console.log("Executing first swap...");
-  const swapAmountDNRIn = ethers.parseEther("1"); // Swap 1 DNR
+  console.log("Deployer:", deployer.address);
   
-  await router.swapExactDNRForTokens(
-    0, // amountOutMin
-    [WDNR.target, mdUSD.target],
-    deployer.address,
-    deadline,
-    { value: swapAmountDNRIn }
-  );
+  const nonce = await ethers.provider.getTransactionCount(deployer.address, "latest");
+  const balance = await ethers.provider.getBalance(deployer.address);
+  console.log("Current nonce:", nonce);
+  console.log("Balance:", ethers.formatEther(balance), "DNR");
 
-  console.log("First swap executed successfully!");
-  console.log("------------------- DEPLOYMENT COMPLETE -------------------");
-  console.log(`mdUSD: ${mdUSD.target}`);
-  console.log(`WDNR: ${WDNR.target}`);
-  console.log(`Factory: ${KortanaFactory.target}`);
-  console.log(`Router: ${KortanaRouter.target}`);
+  // Deploy mdUSD
+  console.log("\n1. Deploying mdUSD...");
+  const mdUSDFactory = await ethers.getContractFactory("mdUSD");
+  const mdUSD = await mdUSDFactory.deploy(
+    "mdUSD",
+    "mdUSD",
+    ethers.parseEther("0"),       // no initial supply
+    ethers.parseEther("1000000000"), // 1B cap
+    deployer.address
+  );
+  await mdUSD.waitForDeployment();
+  const mdUSDAddr = await mdUSD.getAddress();
+  console.log("mdUSD:", mdUSDAddr);
+
+  // Deploy WDNR
+  console.log("\n2. Deploying WDNR...");
+  const WDNRFactory = await ethers.getContractFactory("WDNR");
+  const WDNR = await WDNRFactory.deploy();
+  await WDNR.waitForDeployment();
+  const wdnrAddr = await WDNR.getAddress();
+  console.log("WDNR:", wdnrAddr);
+
+  // Deploy Factory
+  console.log("\n3. Deploying KortanaFactory...");
+  const FactoryFactory = await ethers.getContractFactory("KortanaFactory");
+  const factory = await FactoryFactory.deploy(deployer.address);
+  await factory.waitForDeployment();
+  const factoryAddr = await factory.getAddress();
+  console.log("Factory:", factoryAddr);
+
+  // Deploy Router
+  console.log("\n4. Deploying KortanaRouter...");
+  const RouterFactory = await ethers.getContractFactory("KortanaRouter");
+  const router = await RouterFactory.deploy(factoryAddr, wdnrAddr);
+  await router.waitForDeployment();
+  const routerAddr = await router.getAddress();
+  console.log("Router:", routerAddr);
+
+  // Mint mdUSD to deployer
+  console.log("\n5. Minting 1,000,000 mdUSD to deployer...");
+  const setOpTx = await mdUSD.setOperator(deployer.address, true);
+  await setOpTx.wait();
+  const mintTx = await mdUSD.mint(deployer.address, ethers.parseEther("1000000"));
+  await mintTx.wait();
+  
+  const balance2 = await mdUSD.balanceOf(deployer.address);
+  console.log("mdUSD balance:", ethers.formatEther(balance2));
+
+  console.log("\n========== DEPLOYMENT COMPLETE ==========");
+  console.log("KORTANA_ROUTER_ADDRESS =", routerAddr);
+  console.log("MDUSD_ADDRESS          =", mdUSDAddr);
+  console.log("WDNR_ADDRESS           =", wdnrAddr);
+  console.log("FACTORY_ADDRESS        =", factoryAddr);
+  console.log("=========================================");
+  console.log("\nUpdate frontend/src/lib/contracts.ts with these addresses!");
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+main().catch(console.error);

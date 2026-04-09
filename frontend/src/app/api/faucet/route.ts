@@ -13,7 +13,7 @@ const KORTANA_TESTNET = {
   rpcUrls: { default: { http: ["https://poseidon-rpc.testnet.kortana.xyz/"] } },
 } as const;
 
-const MDUSD_ADDRESS = "0x56D2AcEBD3B1b310A1f0B5c927421c4f26710E91" as const;
+const MDUSD_ADDRESS = "0x371DeB6F2Bce2c9b3de001F4273b22A0abE03025" as const;
 const FAUCET_AMOUNT = parseEther("10000"); // 10,000 mdUSD per request
 
 // Simple transfer — no minting, no operator check needed.

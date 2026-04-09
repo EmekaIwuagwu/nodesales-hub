@@ -14,7 +14,7 @@ module.exports = {
             enabled: true,
             runs: 10
           },
-          evmVersion: "cancun"
+          evmVersion: "london"
         }
       }
     ]
@@ -23,7 +23,8 @@ module.exports = {
     kortanaTestnet: {
       url: process.env.TESTNET_RPC || "https://poseidon-rpc.testnet.kortana.xyz/",
       chainId: 72511,
-      accounts: privateKey ? [privateKey] : []
+      accounts: privateKey ? [privateKey] : [],
+      gas: 500000, // eth_estimateGas on Kortana returns too-low values; override
     },
     kortanaMainnet: {
       url: process.env.MAINNET_RPC || "https://zeus-rpc.mainnet.kortana.xyz",
