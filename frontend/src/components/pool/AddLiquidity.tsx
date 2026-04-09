@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, AlertTriangle } from "lucide-react";
+import { Plus, AlertTriangle, Droplets } from "lucide-react";
 import { motion } from "framer-motion";
 import { TokenInput } from "../swap/TokenInput";
 import {
@@ -39,6 +39,7 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
   const [selectingTarget, setSelectingTarget] = useState<0 | 1>(0);
   // Track which tx is in-flight so isSuccess is handled correctly for each
   const [pendingTx, setPendingTx] = useState<"approve" | "supply" | null>(null);
+  const [isFauceting, setIsFauceting] = useState(false);
 
   const isWrongNetwork = isConnected && chain?.id !== 72511;
 
@@ -46,7 +47,37 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
     address,
     token: token0.address === WDNR_ADDRESS ? undefined : token0.address as `0x${string}`
   });
-  const { data: balance1 } = useBalance({ address, token: token1.address as `0x${string}` });
+  const { data: balance1, refetch: refetchBalance1 } = useBalance({
+    address,
+    token: token1.address as `0x${string}`,
+  });
+
+  const token1BalanceZero = !balance1 || parseFloat(balance1.formatted) === 0;
+
+  const handleFaucet = async () => {
+    if (!address) return;
+    setIsFauceting(true);
+    try {
+      const res = await fetch("/api/faucet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Faucet failed");
+      toast.success("10,000 mdUSD sent!", {
+        description: `Tx: ${(data.hash as string).slice(0, 18)}…`,
+      });
+      // Poll for balance update
+      setTimeout(() => refetchBalance1(), 4000);
+      setTimeout(() => refetchBalance1(), 8000);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Faucet request failed";
+      toast.error("Faucet failed", { description: msg });
+    } finally {
+      setIsFauceting(false);
+    }
+  };
 
   // Check if pair exists on-chain
   const { data: pairAddress } = useReadContract({
@@ -279,6 +310,23 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
             balance={balance1?.formatted ? parseFloat(balance1.formatted).toFixed(4) : "0.00"}
           />
         </div>
+
+        {/* Faucet banner — only shown when the ERC20 side has zero balance */}
+        {isConnected && token1BalanceZero && (
+          <div className="flex items-center justify-between bg-accent-mdusd/10 border border-accent-mdusd/20 rounded-2xl px-4 py-3">
+            <div className="flex items-center gap-2 text-sm text-accent-mdusd font-medium">
+              <Droplets size={16} />
+              <span>You have 0 {token1.symbol} — get test tokens</span>
+            </div>
+            <button
+              onClick={handleFaucet}
+              disabled={isFauceting}
+              className="bg-accent-mdusd text-black text-xs font-bold px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {isFauceting ? "Sending…" : "Get 10k mdUSD"}
+            </button>
+          </div>
+        )}
 
         <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col gap-4 text-sm mt-2">
           <div className="flex justify-between items-center">
