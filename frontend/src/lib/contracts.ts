@@ -1,22 +1,31 @@
 // ─── Contract addresses ───────────────────────────────────────────────────────
-// Active addresses are selected by NEXT_PUBLIC_CHAIN_ID at build time.
-// After mainnet deployment run `npx hardhat run scripts/deploy.ts --network kortanaMainnet`
-// and fill in the MAINNET block below, then redeploy the frontend with
-// NEXT_PUBLIC_CHAIN_ID=9002.
+//
+// KortanaMonoDEX is a single contract that combines:
+//   - mdUSD ERC-20 token
+//   - KLP LP token
+//   - mdUSD/DNR AMM pool
+//
+// Kortana EVM limitations that drove this design:
+//   1. No contract-to-contract CALL (any outgoing call from within a tx uses all gas)
+//   2. Prohibitive gas for 256-bit MUL (>128-bit products)  →  internal 1e9 scaling
+
+const TESTNET_DEX = "0xA7b11655DeE84cF8BEE727fFf7539d6D300212e3";
 
 const TESTNET = {
-  ROUTER:  "0xe636dd1dcC9f8Dc73b87B1A52d50E182446413b4",
-  MDUSD:   "0x24751084393DD93E1fa86d7A0a5Dbb3dba9f80aE",
-  WDNR:    "0x352cE5ff75723216AABa5E153112c5A66A3F2392",
-  FACTORY: "0x306Ff98Caa25Fee776dDF7a0D00EB2514B1Da2c6",
+  DEX:    TESTNET_DEX,
+  // Legacy aliases (kept so faucet route and swap page don't break immediately)
+  ROUTER:  TESTNET_DEX,
+  MDUSD:   TESTNET_DEX,
+  FACTORY: TESTNET_DEX,
+  WDNR:    "0x352cE5ff75723216AABa5E153112c5A66A3F2392", // WDNR still exists but no longer needed for pool
 };
 
-// TODO: populate after mainnet deployment
 const MAINNET = {
+  DEX:    "" as string,
   ROUTER:  "" as string,
   MDUSD:   "" as string,
-  WDNR:    "" as string,
   FACTORY: "" as string,
+  WDNR:    "" as string,
 };
 
 const ADDR =
@@ -24,210 +33,151 @@ const ADDR =
     ? MAINNET
     : TESTNET;
 
-export const KORTANA_ROUTER_ADDRESS = ADDR.ROUTER;
-export const MDUSD_ADDRESS          = ADDR.MDUSD;
-export const WDNR_ADDRESS           = ADDR.WDNR;
-export const FACTORY_ADDRESS        = ADDR.FACTORY;
+export const DEX_ADDRESS             = ADDR.DEX;
+export const KORTANA_ROUTER_ADDRESS  = ADDR.ROUTER;  // same as DEX
+export const MDUSD_ADDRESS           = ADDR.MDUSD;   // same as DEX
+export const FACTORY_ADDRESS         = ADDR.FACTORY; // same as DEX
+export const WDNR_ADDRESS            = ADDR.WDNR;
 
-export const ROUTER_ABI = [
+// ─── KortanaMonoDEX ABI ───────────────────────────────────────────────────────
+
+export const DEX_ABI = [
+  // ── mdUSD ERC-20 ──
   {
-    inputs: [
-      { internalType: "uint256", name: "amountOutMin", type: "uint256" },
-      { internalType: "address[]", name: "path", type: "address[]" },
-      { internalType: "address", name: "to", type: "address" },
-      { internalType: "uint256", name: "deadline", type: "uint256" }
-    ],
-    name: "swapExactDNRForTokens",
-    outputs: [{ internalType: "uint256[]", name: "amounts", type: "uint256[]" }],
-    stateMutability: "payable",
-    type: "function"
+    name: "balanceOf",
+    type: "function", stateMutability: "view",
+    inputs:  [{ name: "a",       type: "address" }],
+    outputs: [{ name: "",        type: "uint256" }],
   },
   {
-    inputs: [
-      { internalType: "uint256", name: "amountIn", type: "uint256" },
-      { internalType: "uint256", name: "amountOutMin", type: "uint256" },
-      { internalType: "address[]", name: "path", type: "address[]" },
-      { internalType: "address", name: "to", type: "address" },
-      { internalType: "uint256", name: "deadline", type: "uint256" }
-    ],
-    name: "swapExactTokensForDNR",
-    outputs: [{ internalType: "uint256[]", name: "amounts", type: "uint256[]" }],
-    stateMutability: "nonpayable",
-    type: "function"
+    name: "totalSupply",
+    type: "function", stateMutability: "view",
+    inputs:  [],
+    outputs: [{ name: "", type: "uint256" }],
   },
   {
-    inputs: [
-      { internalType: "address", name: "token", type: "address" },
-      { internalType: "uint256", name: "amountTokenDesired", type: "uint256" },
-      { internalType: "uint256", name: "amountTokenMin", type: "uint256" },
-      { internalType: "uint256", name: "amountDNRMin", type: "uint256" },
-      { internalType: "address", name: "to", type: "address" },
-      { internalType: "uint256", name: "deadline", type: "uint256" }
-    ],
-    name: "addLiquidityDNR",
-    outputs: [
-      { internalType: "uint256", name: "amountToken", type: "uint256" },
-      { internalType: "uint256", name: "amountDNR", type: "uint256" },
-      { internalType: "uint256", name: "liquidity", type: "uint256" }
-    ],
-    stateMutability: "payable",
-    type: "function"
+    name: "allowance",
+    type: "function", stateMutability: "view",
+    inputs:  [{ name: "owner", type: "address" }, { name: "spender", type: "address" }],
+    outputs: [{ name: "",      type: "uint256" }],
   },
   {
-      inputs: [
-          { internalType: "address", name: "token", type: "address" },
-          { internalType: "uint256", name: "liquidity", type: "uint256" },
-          { internalType: "uint256", name: "amountTokenMin", type: "uint256" },
-          { internalType: "uint256", name: "amountDNRMin", type: "uint256" },
-          { internalType: "address", name: "to", type: "address" },
-          { internalType: "uint256", name: "deadline", type: "uint256" }
-      ],
-      name: "removeLiquidityDNR",
-      outputs: [
-          { internalType: "uint256", name: "amountToken", type: "uint256" },
-          { internalType: "uint256", name: "amountDNR", type: "uint256" }
-      ],
-      stateMutability: "nonpayable",
-      type: "function"
+    name: "approve",
+    type: "function", stateMutability: "nonpayable",
+    inputs:  [{ name: "spender", type: "address" }, { name: "amount", type: "uint256" }],
+    outputs: [{ name: "", type: "bool" }],
   },
   {
-    inputs: [
-      { internalType: "uint256", name: "amountIn", type: "uint256" },
-      { internalType: "address[]", name: "path", type: "address[]" }
-    ],
-    name: "getAmountsOut",
-    outputs: [{ internalType: "uint256[]", name: "amounts", type: "uint256[]" }],
-    stateMutability: "view",
-    type: "function"
+    name: "transfer",
+    type: "function", stateMutability: "nonpayable",
+    inputs:  [{ name: "to", type: "address" }, { name: "amount", type: "uint256" }],
+    outputs: [{ name: "", type: "bool" }],
   },
   {
-    inputs: [
-      { internalType: "uint256", name: "amountIn", type: "uint256" },
-      { internalType: "uint256", name: "reserveIn", type: "uint256" },
-      { internalType: "uint256", name: "reserveOut", type: "uint256" }
-    ],
+    name: "transferFrom",
+    type: "function", stateMutability: "nonpayable",
+    inputs:  [{ name: "from", type: "address" }, { name: "to", type: "address" }, { name: "amount", type: "uint256" }],
+    outputs: [{ name: "", type: "bool" }],
+  },
+  {
+    name: "mint",
+    type: "function", stateMutability: "nonpayable",
+    inputs:  [{ name: "to", type: "address" }, { name: "amount", type: "uint256" }],
+    outputs: [],
+  },
+  {
+    name: "name",
+    type: "function", stateMutability: "view",
+    inputs: [], outputs: [{ name: "", type: "string" }],
+  },
+  {
+    name: "symbol",
+    type: "function", stateMutability: "view",
+    inputs: [], outputs: [{ name: "", type: "string" }],
+  },
+  {
+    name: "decimals",
+    type: "function", stateMutability: "view",
+    inputs: [], outputs: [{ name: "", type: "uint8" }],
+  },
+  // ── LP token ──
+  {
+    name: "lpBalanceOf",
+    type: "function", stateMutability: "view",
+    inputs:  [{ name: "a", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    name: "lpTotalSupply",
+    type: "function", stateMutability: "view",
+    inputs:  [],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    name: "lpTransfer",
+    type: "function", stateMutability: "nonpayable",
+    inputs:  [{ name: "to", type: "address" }, { name: "amount", type: "uint256" }],
+    outputs: [{ name: "", type: "bool" }],
+  },
+  // ── AMM ──
+  {
+    name: "getReserves",
+    type: "function", stateMutability: "view",
+    inputs:  [],
+    outputs: [{ name: "rMDUSD", type: "uint256" }, { name: "rDNR", type: "uint256" }],
+  },
+  {
     name: "getAmountOut",
-    outputs: [{ internalType: "uint256", name: "amountOut", type: "uint256" }],
-    stateMutability: "pure",
-    type: "function"
-  }
-];
+    type: "function", stateMutability: "view",
+    inputs:  [{ name: "amountIn", type: "uint256" }, { name: "dnrIn", type: "bool" }],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    name: "addLiquidity",
+    type: "function", stateMutability: "payable",
+    inputs: [
+      { name: "amountMDUSD", type: "uint256" },
+      { name: "minMDUSD",    type: "uint256" },
+      { name: "minDNR",      type: "uint256" },
+      { name: "to",          type: "address" },
+    ],
+    outputs: [
+      { name: "usedMDUSD18", type: "uint256" },
+      { name: "usedDNR18",   type: "uint256" },
+      { name: "lp18",        type: "uint256" },
+    ],
+  },
+  {
+    name: "removeLiquidity",
+    type: "function", stateMutability: "nonpayable",
+    inputs: [
+      { name: "lpAmount", type: "uint256" },
+      { name: "minMDUSD", type: "uint256" },
+      { name: "minDNR",   type: "uint256" },
+      { name: "to",       type: "address" },
+    ],
+    outputs: [
+      { name: "outMDUSD18", type: "uint256" },
+      { name: "outDNR18",   type: "uint256" },
+    ],
+  },
+  {
+    name: "swapExactDNRForMDUSD",
+    type: "function", stateMutability: "payable",
+    inputs:  [{ name: "minOut", type: "uint256" }, { name: "to", type: "address" }],
+    outputs: [{ name: "amountOut18", type: "uint256" }],
+  },
+  {
+    name: "swapExactMDUSDForDNR",
+    type: "function", stateMutability: "nonpayable",
+    inputs:  [{ name: "amountIn", type: "uint256" }, { name: "minOut", type: "uint256" }, { name: "to", type: "address" }],
+    outputs: [{ name: "amountOut18", type: "uint256" }],
+  },
+] as const;
 
-export const FACTORY_ABI = [
-  {
-      inputs: [
-          { internalType: "address", name: "tokenA", type: "address" },
-          { internalType: "address", name: "tokenB", type: "address" }
-      ],
-      name: "getPair",
-      outputs: [{ internalType: "address", name: "pair", type: "address" }],
-      stateMutability: "view",
-      type: "function"
-  }
-];
+// ─── Legacy ABIs (kept for Swap page compatibility) ───────────────────────────
 
-export const PAIR_ABI = [
-  {
-      inputs: [],
-      name: "getReserves",
-      outputs: [
-          { internalType: "uint112", name: "reserve0", type: "uint112" },
-          { internalType: "uint112", name: "reserve1", type: "uint112" },
-          { internalType: "uint32", name: "blockTimestampLast", type: "uint32" }
-      ],
-      stateMutability: "view",
-      type: "function"
-  },
-  {
-      inputs: [],
-      name: "token0",
-      outputs: [{ internalType: "address", name: "", type: "address" }],
-      stateMutability: "view",
-      type: "function"
-  },
-  {
-      inputs: [],
-      name: "token1",
-      outputs: [{ internalType: "address", name: "", type: "address" }],
-      stateMutability: "view",
-      type: "function"
-  },
-  {
-    "constant": true,
-    "inputs": [{ "name": "_owner", "type": "address" }],
-    "name": "balanceOf",
-    "outputs": [{ "name": "balance", "type": "uint256" }],
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      { "name": "_spender", "type": "address" },
-      { "name": "_value", "type": "uint256" }
-    ],
-    "name": "approve",
-    "outputs": [{ "name": "", "type": "bool" }],
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      { "name": "_owner", "type": "address" },
-      { "name": "_spender", "type": "address" }
-    ],
-    "name": "allowance",
-    "outputs": [{ "name": "remaining", "type": "uint256" }],
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "totalSupply",
-    "outputs": [{ "name": "", "type": "uint256" }],
-    "type": "function"
-  }
-];
-
-export const ERC20_ABI = [
-  {
-    "constant": true,
-    "inputs": [{ "name": "_owner", "type": "address" }],
-    "name": "balanceOf",
-    "outputs": [{ "name": "balance", "type": "uint256" }],
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      { "name": "_spender", "type": "address" },
-      { "name": "_value", "type": "uint256" }
-    ],
-    "name": "approve",
-    "outputs": [{ "name": "", "type": "bool" }],
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      { "name": "_owner", "type": "address" },
-      { "name": "_spender", "type": "address" }
-    ],
-    "name": "allowance",
-    "outputs": [{ "name": "remaining", "type": "uint256" }],
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "name",
-    "outputs": [{ "name": "", "type": "string" }],
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "symbol",
-    "outputs": [{ "name": "", "type": "string" }],
-    "type": "function"
-  }
-];
+export const ROUTER_ABI = DEX_ABI;
+export const FACTORY_ABI = DEX_ABI;
+export const PAIR_ABI = DEX_ABI;
+export const ERC20_ABI = DEX_ABI;

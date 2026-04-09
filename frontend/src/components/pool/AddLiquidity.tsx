@@ -1,22 +1,16 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Plus, AlertTriangle, Droplets } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plus, Droplets } from "lucide-react";
 import { motion } from "framer-motion";
 import { TokenInput } from "../swap/TokenInput";
 import {
   useAccount, useBalance, useReadContract,
-  useWalletClient, usePublicClient,
-  useWaitForTransactionReceipt, useSwitchChain
+  useWalletClient, useWaitForTransactionReceipt, useSwitchChain
 } from "wagmi";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { parseEther, formatEther, encodeFunctionData } from "viem";
-import {
-  KORTANA_ROUTER_ADDRESS, ROUTER_ABI,
-  MDUSD_ADDRESS, ERC20_ABI,
-  FACTORY_ADDRESS, FACTORY_ABI,
-  WDNR_ADDRESS, PAIR_ABI
-} from "@/lib/contracts";
+import { DEX_ADDRESS, DEX_ABI } from "@/lib/contracts";
 import { IS_FAUCET_ENABLED } from "@/lib/config";
 import { toast } from "sonner";
 import { Modal } from "../ui/Modal";
@@ -31,390 +25,219 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
   const { openConnectModal } = useConnectModal();
   const { switchChain } = useSwitchChain();
   const { data: walletClient } = useWalletClient();
-  const publicClient = usePublicClient();
 
-  const [token0, setToken0] = useState({ symbol: "DNR", address: WDNR_ADDRESS });
-  const [token1, setToken1] = useState({ symbol: "mdUSD", address: MDUSD_ADDRESS });
-  const [amount0, setAmount0] = useState("");
-  const [amount1, setAmount1] = useState("");
+  const [amountDNR,  setAmountDNR]  = useState("");
+  const [amountMDUSD, setAmountMDUSD] = useState("");
 
-  const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
-  const [selectingTarget, setSelectingTarget] = useState<0 | 1>(0);
-
-  // "approve" | "supply" | null — which tx is currently in flight
-  const [step, setStep] = useState<"approve" | "supply" | null>(null);
-  const [isSending, setIsSending] = useState(false);
+  const [isSending,   setIsSending]   = useState(false);
   const [isFauceting, setIsFauceting] = useState(false);
-
-  // txHash for useWaitForTransactionReceipt
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
 
-  // Ref captures the latest amounts so the approval-success effect never reads stale values
-  const amountsRef = useRef({ amount0, amount1, token1Address: token1.address });
-  useEffect(() => {
-    amountsRef.current = { amount0, amount1, token1Address: token1.address };
-  }, [amount0, amount1, token1.address]);
+  const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
 
   const isWrongNetwork = isConnected && chain?.id !== 72511;
 
-  // ── Balances ────────────────────────────────────────────────────────────────
-  const { data: balance0 } = useBalance({
-    address,
-    token: token0.address === WDNR_ADDRESS ? undefined : token0.address as `0x${string}`,
-  });
-  const { data: balance1, refetch: refetchBalance1 } = useBalance({
-    address,
-    token: token1.address as `0x${string}`,
-  });
-  const token1BalanceZero = !balance1 || parseFloat(balance1.formatted) === 0;
+  // ── Balances ─────────────────────────────────────────────────────────────────
+  const { data: dnrBalance } = useBalance({ address });
 
-  // ── Pair state ──────────────────────────────────────────────────────────────
-  const { data: pairAddress } = useReadContract({
-    address: FACTORY_ADDRESS as `0x${string}`,
-    abi: FACTORY_ABI,
-    functionName: "getPair",
-    args: [token0.address as `0x${string}`, token1.address as `0x${string}`],
+  const { data: mdUSDBalance, refetch: refetchMDUSD } = useReadContract({
+    address: DEX_ADDRESS as `0x${string}`,
+    abi: DEX_ABI,
+    functionName: "balanceOf",
+    args: [address as `0x${string}`],
+    query: { enabled: !!address, refetchInterval: 10000 },
   });
 
-  const pairExists = !!pairAddress && pairAddress !== "0x0000000000000000000000000000000000000000";
-  const isNewPair  = pairAddress !== undefined && !pairExists;
+  const mdUSDBalanceFmt = mdUSDBalance
+    ? parseFloat(formatEther(mdUSDBalance as bigint)).toFixed(4)
+    : "0.0000";
+  const mdUSDBalanceZero = !mdUSDBalance || (mdUSDBalance as bigint) === 0n;
 
-  const { data: reserves } = useReadContract({
-    address: pairAddress as `0x${string}`,
-    abi: PAIR_ABI,
+  // ── Pool state ────────────────────────────────────────────────────────────────
+  const { data: reservesData, refetch: refetchReserves } = useReadContract({
+    address: DEX_ADDRESS as `0x${string}`,
+    abi: DEX_ABI,
     functionName: "getReserves",
-    query: { enabled: pairExists, refetchInterval: 10000 },
-  });
-  const { data: pairToken0Addr } = useReadContract({
-    address: pairAddress as `0x${string}`,
-    abi: PAIR_ABI,
-    functionName: "token0",
-    query: { enabled: pairExists },
-  });
-  const { data: totalSupply } = useReadContract({
-    address: pairAddress as `0x${string}`,
-    abi: PAIR_ABI,
-    functionName: "totalSupply",
-    query: { enabled: pairExists, refetchInterval: 10000 },
+    query: { refetchInterval: 10000 },
   });
 
-  // ── Allowance ────────────────────────────────────────────────────────────────
-  const {
-    data: allowanceData,
-    isLoading: isAllowanceLoading,
-    refetch: refetchAllowance,
-  } = useReadContract({
-    address: token1.address as `0x${string}`,
-    abi: ERC20_ABI,
-    functionName: "allowance",
-    args: [address as `0x${string}`, KORTANA_ROUTER_ADDRESS as `0x${string}`],
-    query: { enabled: !!address && token1.address !== WDNR_ADDRESS },
+  const [rMDUSD, rDNR] = reservesData
+    ? [
+        parseFloat(formatEther((reservesData as [bigint, bigint])[0])),
+        parseFloat(formatEther((reservesData as [bigint, bigint])[1])),
+      ]
+    : [0, 0];
+
+  const hasReserves = rMDUSD > 0 && rDNR > 0;
+  const priceRatio  = hasReserves ? (rMDUSD / rDNR).toFixed(6) : "—";
+
+  const { data: lpSupplyData } = useReadContract({
+    address: DEX_ADDRESS as `0x${string}`,
+    abi: DEX_ABI,
+    functionName: "lpTotalSupply",
+    query: { refetchInterval: 10000 },
   });
+  const lpSupply = lpSupplyData ? parseFloat(formatEther(lpSupplyData as bigint)) : 0;
 
-  // ── Reserve ordering ────────────────────────────────────────────────────────
-  const pairToken0Lower = (pairToken0Addr as string | undefined)?.toLowerCase();
-  const token0Lower = token0.address.toLowerCase();
-  const reserve0 =
-    reserves && pairToken0Lower !== undefined
-      ? pairToken0Lower === token0Lower
-        ? (reserves as [bigint, bigint, number])[0]
-        : (reserves as [bigint, bigint, number])[1]
-      : null;
-  const reserve1 =
-    reserves && pairToken0Lower !== undefined
-      ? pairToken0Lower === token0Lower
-        ? (reserves as [bigint, bigint, number])[1]
-        : (reserves as [bigint, bigint, number])[0]
-      : null;
-
-  // ── Amount handlers ─────────────────────────────────────────────────────────
-  const handleAmount0Change = (val: string) => {
-    setAmount0(val);
-    if (pairExists && reserve0 !== null && reserve1 !== null && val && parseFloat(val) > 0) {
-      const r0 = parseFloat(formatEther(reserve0 as bigint));
-      const r1 = parseFloat(formatEther(reserve1 as bigint));
-      if (r0 > 0) setAmount1((parseFloat(val) * (r1 / r0)).toFixed(6));
+  // ── Amount handlers ───────────────────────────────────────────────────────────
+  const handleDNRChange = (val: string) => {
+    setAmountDNR(val);
+    if (hasReserves && val && parseFloat(val) > 0) {
+      setAmountMDUSD((parseFloat(val) * (rMDUSD / rDNR)).toFixed(6));
     }
   };
-  const handleAmount1Change = (val: string) => {
-    setAmount1(val);
-    if (pairExists && reserve0 !== null && reserve1 !== null && val && parseFloat(val) > 0) {
-      const r0 = parseFloat(formatEther(reserve0 as bigint));
-      const r1 = parseFloat(formatEther(reserve1 as bigint));
-      if (r1 > 0) setAmount0((parseFloat(val) * (r0 / r1)).toFixed(6));
+  const handleMDUSDChange = (val: string) => {
+    setAmountMDUSD(val);
+    if (hasReserves && val && parseFloat(val) > 0) {
+      setAmountDNR((parseFloat(val) * (rDNR / rMDUSD)).toFixed(6));
     }
   };
 
-  // ── Display ─────────────────────────────────────────────────────────────────
-  const priceRatio = (() => {
-    if (pairExists && reserve0 !== null && reserve1 !== null) {
-      const r0 = parseFloat(formatEther(reserve0 as bigint));
-      const r1 = parseFloat(formatEther(reserve1 as bigint));
-      if (r0 > 0) return (r1 / r0).toFixed(6);
-    }
-    if ((isNewPair || (reserve0 === 0n && reserve1 === 0n)) && amount0 && amount1 && parseFloat(amount0) > 0 && parseFloat(amount1) > 0)
-      return (parseFloat(amount1) / parseFloat(amount0)).toFixed(6);
-    return "—";
-  })();
-
+  // ── Pool share estimate ───────────────────────────────────────────────────────
   const poolShareDisplay = (() => {
-    if (isNewPair || (totalSupply === 0n)) return "100.00%";
-    if (!pairExists || !totalSupply || reserve0 === null || !amount0 || parseFloat(amount0) <= 0) return "<0.01%";
-    const ts = parseFloat(formatEther(totalSupply as bigint));
-    const r0 = parseFloat(formatEther(reserve0 as bigint));
-    if (ts === 0 || r0 === 0) return "100.00%";
-    const lpEst = (parseFloat(amount0) / r0) * ts;
-    const share = (lpEst / (ts + lpEst)) * 100;
+    const dnr = parseFloat(amountDNR  || "0");
+    const md  = parseFloat(amountMDUSD || "0");
+    if (!dnr || !md) return "—";
+    if (!hasReserves) return "100.00%";
+    // Estimate new LP tokens: proportional to DNR contribution
+    const lpEstimate = (dnr / rDNR) * lpSupply;
+    const share = (lpEstimate / (lpSupply + lpEstimate)) * 100;
     return share < 0.01 ? "<0.01%" : share.toFixed(2) + "%";
   })();
 
-  // ── Approval state ──────────────────────────────────────────────────────────
-  // While loading → assume needs approval (safe default — prevents skipping approve)
-  const needsApproval =
-    isAllowanceLoading ||
-    allowanceData === undefined ||
-    (amount1 !== "" && parseFloat(amount1) > 0 && (allowanceData as bigint) < parseEther(amount1) + 1n);
-
-  const canSupply =
-    isConnected &&
-    !isWrongNetwork &&
-    amount0 !== "" &&
-    amount1 !== "" &&
-    parseFloat(amount0) > 0 &&
-    parseFloat(amount1) > 0;
-
-  // ── Transaction receipt watcher ─────────────────────────────────────────────
-  const { isLoading: isConfirming, isSuccess, isError: isReceiptError } =
+  // ── Transaction receipt watcher ───────────────────────────────────────────────
+  const { isLoading: isConfirming, isSuccess, isError: isTxError } =
     useWaitForTransactionReceipt({ hash: txHash });
 
-  // Surface on-chain failure (tx mined but reverted)
-  useEffect(() => {
-    if (!isReceiptError || !txHash) return;
-    
-    const fetchReason = async () => {
-      if (!publicClient || !txHash) return;
-      try {
-        const tx = await (publicClient as any).getTransaction({ hash: txHash });
-        // Simulate the call to find the revert reason
-        await (publicClient as any).call({
-          data: tx.input,
-          from: tx.from,
-          to: tx.to,
-          value: tx.value,
-          blockNumber: tx.blockNumber
-        });
-      } catch (e: any) {
-        console.error("REVERT REASON:", e);
-        const msg = e?.shortMessage || e?.message || "Unknown revert";
-        toast.error(step === "approve" ? "Approval reverted" : "Supply reverted", {
-          description: `Reason: ${msg.slice(0, 100)}`,
-          action: { label: "Log", onClick: () => console.log(e) }
-        });
-      }
-    };
-
-    fetchReason();
-    setStep(null);
-    setTxHash(undefined);
-  }, [isReceiptError, txHash, publicClient, step]);
-
-  // After each tx confirms, move to the next step
   useEffect(() => {
     if (!isSuccess || !txHash) return;
-
-    if (step === "approve") {
-      toast.success(`${amountsRef.current.token1Address === MDUSD_ADDRESS ? "mdUSD" : "Token"} approved!`);
-      refetchAllowance();
-      setTxHash(undefined);
-      setStep(null);
-      // Removed auto-calling doSupply to prevent wallet loops
-    } else if (step === "supply") {
-      toast.success("Liquidity Provided!", { description: "Your LP position has been created." });
-      setAmount0("");
-      setAmount1("");
-      setTxHash(undefined);
-      setStep(null);
-      onSuccess?.();
-    }
+    toast.success("Liquidity Added!", {
+      description: "Your LP position has been created.",
+    });
+    setAmountDNR("");
+    setAmountMDUSD("");
+    setTxHash(undefined);
+    refetchReserves();
+    setTimeout(() => refetchMDUSD(), 3000);
+    onSuccess?.();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess, txHash]);
 
-  // ── Raw send — skips wagmi/viem gas estimation entirely ──────────────────────
-  // No simulation: just build calldata + send. Kortana's eth_call / eth_estimateGas
-  // are both unreliable; we hardcode gas and let the mined receipt tell us if it failed.
-  const sendRaw = async (
-    to: `0x${string}`,
-    data: `0x${string}`,
-    value: bigint,
-    gas: bigint,
-  ): Promise<`0x${string}`> => {
-    if (!walletClient) throw new Error("Wallet not connected");
-    console.log("--- SENDING RAW TRANSACTION ---");
-    console.log("To:", to);
-    console.log("Value:", value.toString());
-    console.log("Gas:", gas.toString());
-    console.log("Chain ID:", chain?.id);
-    console.log("Type: legacy");
-    
-    return walletClient.sendTransaction({ 
-      to, 
-      data, 
-      value, 
-      gas, 
-      chain,
-      type: 'legacy'
+  useEffect(() => {
+    if (!isTxError || !txHash) return;
+    console.error("Supply tx reverted, hash:", txHash);
+    toast.error("Supply reverted", {
+      description: "Transaction was mined but reverted. Check console for details.",
     });
-  };
+    setTxHash(undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isTxError, txHash]);
 
-  // ── Core actions ─────────────────────────────────────────────────────────────
-  const doApprove = async (a1: string, t1Address: string) => {
-    setStep("approve");
-    setIsSending(true);
-    try {
-      const hash = await sendRaw(
-        t1Address as `0x${string}`,
-        encodeFunctionData({
-          abi: ERC20_ABI,
-          functionName: "approve",
-          args: [KORTANA_ROUTER_ADDRESS as `0x${string}`, parseEther(a1)],
-        }),
-        0n,
-        200000n,
-      );
-      setTxHash(hash);
-      toast.success("Approval submitted", { description: "Waiting for confirmation…" });
-    } catch (e: any) {
-      const msg: string = e?.message ?? "Approval rejected";
-      // User rejection is not an error worth toasting loudly
-      if (!msg.toLowerCase().includes("user rejected") && !msg.toLowerCase().includes("denied")) {
-        toast.error("Approval failed", { description: msg.slice(0, 150) });
-      }
-      setStep(null);
-    } finally {
-      setIsSending(false);
-    }
-  };
-
-  const doSupply = async (a0: string, a1: string) => {
-    setStep("supply");
-    setIsSending(true);
-    const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600 * 24 * 365 * 10); // 10 years deadline
-    const amountTokenMin = (parseEther(a1) * 995n) / 1000n;
-    const amountDNRMin   = (parseEther(a0) * 995n) / 1000n;
-    try {
-      const hash = await sendRaw(
-        KORTANA_ROUTER_ADDRESS as `0x${string}`,
-        encodeFunctionData({
-          abi: ROUTER_ABI,
-          functionName: "addLiquidityDNR",
-          args: [
-            amountsRef.current.token1Address as `0x${string}`,
-            parseEther(a1),
-            amountTokenMin,
-            amountDNRMin,
-            address as `0x${string}`,
-            deadline,
-          ],
-        }),
-        parseEther(a0),
-        3000000n,
-      );
-      setTxHash(hash);
-      toast.success("Supply submitted", { description: "Waiting for confirmation…" });
-    } catch (e: any) {
-      console.error(e);
-      let msg = "Supply failed";
-      if (e?.shortMessage) msg = e.shortMessage;
-      else if (e?.message) msg = e.message;
-
-      if (!msg.toLowerCase().includes("user rejected") && !msg.toLowerCase().includes("denied")) {
-        toast.error("Supply reverted on-chain", { 
-          description: msg.slice(0, 150),
-          action: {
-            label: "Explain",
-            onClick: () => alert(msg) 
-          }
-        });
-      }
-      setStep(null);
-    } finally {
-      setIsSending(false);
-    }
-  };
-
+  // ── Supply Liquidity ──────────────────────────────────────────────────────────
   const handleSupply = async () => {
     if (!isConnected) { openConnectModal?.(); return; }
     if (isWrongNetwork) { switchChain?.({ chainId: 72511 }); return; }
-    if (!canSupply) return;
+    if (!walletClient || !address) return;
 
-    if (needsApproval) {
-      await doApprove(amount1, token1.address);
-    } else {
-      await doSupply(amount0, amount1);
+    const dnr   = parseFloat(amountDNR   || "0");
+    const mdusd = parseFloat(amountMDUSD || "0");
+    if (dnr <= 0 || mdusd <= 0) return;
+
+    setIsSending(true);
+    try {
+      const amountMDUSDWei = parseEther(amountMDUSD);
+      const amountDNRWei   = parseEther(amountDNR);
+      const minMDUSD       = (amountMDUSDWei * 990n) / 1000n; // 1% slippage
+      const minDNR         = (amountDNRWei   * 990n) / 1000n;
+
+      const data = encodeFunctionData({
+        abi: DEX_ABI,
+        functionName: "addLiquidity",
+        args: [amountMDUSDWei, minMDUSD, minDNR, address as `0x${string}`],
+      });
+
+      console.log("--- addLiquidity ---");
+      console.log("DEX:", DEX_ADDRESS);
+      console.log("amountMDUSD:", formatEther(amountMDUSDWei));
+      console.log("amountDNR (value):", formatEther(amountDNRWei));
+
+      const hash = await walletClient.sendTransaction({
+        to: DEX_ADDRESS as `0x${string}`,
+        data,
+        value: amountDNRWei,
+        gas: 500000n,
+        chain,
+        type: "legacy",
+      });
+
+      console.log("tx hash:", hash);
+      setTxHash(hash);
+      toast.success("Transaction submitted", { description: "Waiting for confirmation…" });
+    } catch (e: any) {
+      const msg: string = e?.message ?? "Unknown error";
+      console.error("addLiquidity error:", e);
+      if (!msg.toLowerCase().includes("user rejected") && !msg.toLowerCase().includes("denied")) {
+        toast.error("Supply failed", { description: msg.slice(0, 200) });
+      }
+    } finally {
+      setIsSending(false);
     }
   };
 
-  // ── Faucet ───────────────────────────────────────────────────────────────────
+  // ── Faucet ────────────────────────────────────────────────────────────────────
   const handleFaucet = async () => {
     if (!address) return;
     setIsFauceting(true);
     try {
-      const res = await fetch("/api/faucet", {
+      const res  = await fetch("/api/faucet", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ address }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Faucet failed");
-      toast.success("10,000 mdUSD sent!", { description: `Tx: ${(data.hash as string).slice(0, 18)}…` });
-      setTimeout(() => refetchBalance1(), 4000);
-      setTimeout(() => refetchBalance1(), 8000);
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "Faucet failed");
+      toast.success("10,000 mdUSD sent!", {
+        description: `Tx: ${(json.hash as string).slice(0, 18)}…`,
+      });
+      setTimeout(() => refetchMDUSD(), 4000);
+      setTimeout(() => refetchMDUSD(), 9000);
     } catch (err: unknown) {
-      toast.error("Faucet failed", { description: err instanceof Error ? err.message : "Unknown error" });
+      toast.error("Faucet failed", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      });
     } finally {
       setIsFauceting(false);
     }
   };
 
-  // ── Token select ─────────────────────────────────────────────────────────────
-  const openTokenSelect = (idx: 0 | 1) => { setSelectingTarget(idx); setIsTokenSelectOpen(true); };
-  const handleTokenSelect = (token: any) => {
-    const safeToken = {
-      symbol: token.symbol,
-      address: token.address === "native" ? WDNR_ADDRESS : token.address,
-    };
-    if (selectingTarget === 0) setToken0(safeToken);
-    else setToken1(safeToken);
-    setAmount0("");
-    setAmount1("");
-    setIsTokenSelectOpen(false);
-  };
+  // ── Derived state ─────────────────────────────────────────────────────────────
+  const isBusy       = isSending || isConfirming;
+  const canSupply    = isConnected && !isWrongNetwork &&
+                       parseFloat(amountDNR || "0") > 0 &&
+                       parseFloat(amountMDUSD || "0") > 0;
 
-  // ── Button label ─────────────────────────────────────────────────────────────
-  const isBusy = isSending || isConfirming;
   const buttonLabel = (() => {
-    if (!isConnected) return "Connect Wallet";
-    if (isWrongNetwork) return "Switch to Kortana";
-    if (isSending && step === "approve") return `Confirm approval in wallet…`;
-    if (isConfirming && step === "approve") return "Confirming approval… (1/2)";
-    if (isSending && step === "supply") return "Confirm supply in wallet…";
-    if (isConfirming && step === "supply") return "Supplying liquidity… (2/2)";
-    if (isAllowanceLoading) return "Loading…";
-    if (needsApproval) return `Approve ${token1.symbol}`;
+    if (!isConnected)           return "Connect Wallet";
+    if (isWrongNetwork)         return "Switch to Kortana";
+    if (isSending)              return "Confirm in wallet…";
+    if (isConfirming)           return "Confirming…";
     return "Supply Liquidity";
   })();
 
   return (
     <>
       <div className="flex flex-col gap-4">
+        {/* Inputs */}
         <div className="flex flex-col gap-1 relative">
           <TokenInput
             label="Deposit"
-            token={token0}
-            amount={amount0}
-            onAmountChange={handleAmount0Change}
-            onSelectToken={() => openTokenSelect(0)}
-            balance={balance0?.formatted ? parseFloat(balance0.formatted).toFixed(4) : "0.00"}
+            token={{ symbol: "DNR", address: "native" }}
+            amount={amountDNR}
+            onAmountChange={handleDNRChange}
+            onSelectToken={() => {}}
+            balance={dnrBalance?.formatted
+              ? parseFloat(dnrBalance.formatted).toFixed(4)
+              : "0.0000"}
           />
 
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center justify-center pointer-events-none">
@@ -425,20 +248,20 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
 
           <TokenInput
             label="Deposit"
-            token={token1}
-            amount={amount1}
-            onAmountChange={handleAmount1Change}
-            onSelectToken={() => openTokenSelect(1)}
-            balance={balance1?.formatted ? parseFloat(balance1.formatted).toFixed(4) : "0.00"}
+            token={{ symbol: "mdUSD", address: DEX_ADDRESS }}
+            amount={amountMDUSD}
+            onAmountChange={handleMDUSDChange}
+            onSelectToken={() => setIsTokenSelectOpen(true)}
+            balance={mdUSDBalanceFmt}
           />
         </div>
 
         {/* Faucet banner */}
-        {isConnected && token1BalanceZero && IS_FAUCET_ENABLED && (
+        {isConnected && mdUSDBalanceZero && IS_FAUCET_ENABLED && (
           <div className="flex items-center justify-between bg-accent-mdusd/10 border border-accent-mdusd/20 rounded-2xl px-4 py-3">
             <div className="flex items-center gap-2 text-sm text-accent-mdusd font-medium">
               <Droplets size={16} />
-              <span>You have 0 {token1.symbol} — get test tokens</span>
+              <span>You have 0 mdUSD — get test tokens</span>
             </div>
             <button
               onClick={handleFaucet}
@@ -452,43 +275,32 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
 
         {/* Pool Details */}
         <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col gap-4 text-sm mt-2">
-          <div className="flex justify-between items-center">
-            <h4 className="font-bold text-white uppercase tracking-widest text-xs opacity-60">Pool Details</h4>
-            {isNewPair && (
-              <div className="bg-accent-mdusd/20 text-accent-mdusd text-[10px] font-bold px-2 py-1 rounded-md border border-accent-mdusd/30">
-                NEW POOL
-              </div>
-            )}
-          </div>
+          <h4 className="font-bold text-white uppercase tracking-widest text-xs opacity-60">
+            Pool Details
+          </h4>
 
           <div className="flex justify-between items-center bg-black/40 p-5 rounded-2xl border border-white/5 shadow-inner">
             <div className="flex flex-col items-center flex-1 border-r border-white/10">
               <span className="font-space font-bold text-xl text-white">{priceRatio}</span>
               <span className="text-text-tertiary text-[10px] font-bold uppercase tracking-tighter">
-                {token1.symbol} per {token0.symbol}
+                mdUSD per DNR
               </span>
             </div>
             <div className="flex flex-col items-center flex-1">
               <span className="font-space font-bold text-xl text-white">{poolShareDisplay}</span>
-              <span className="text-text-tertiary text-[10px] font-bold uppercase tracking-tighter">Share of Pool</span>
+              <span className="text-text-tertiary text-[10px] font-bold uppercase tracking-tighter">
+                Share of Pool
+              </span>
             </div>
           </div>
-
-          {isNewPair && (
-            <div className="flex items-start gap-3 p-3 bg-accent-dnr/10 border border-accent-dnr/20 rounded-xl">
-              <AlertTriangle size={16} className="text-accent-dnr mt-0.5 shrink-0" />
-              <p className="text-xs text-text-secondary leading-tight">
-                You are the first liquidity provider for this pool. The ratio you set here becomes the initial market price.
-              </p>
-            </div>
-          )}
         </div>
 
+        {/* Supply button */}
         <motion.button
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleSupply}
-          disabled={isBusy || (isConnected && !isWrongNetwork && !canSupply) || isAllowanceLoading}
+          disabled={isBusy || (isConnected && !isWrongNetwork && !canSupply)}
           className={`w-full mt-2 py-5 rounded-[28px] font-bold text-xl transition-all shadow-2xl ${
             isWrongNetwork
               ? "bg-danger text-white"
@@ -497,13 +309,14 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
         >
           {buttonLabel}
         </motion.button>
+
         <div className="text-[10px] text-center opacity-30 font-mono mt-2">
-          v1.1-DEBUG | Router: {KORTANA_ROUTER_ADDRESS.slice(0,6)}...
+          v2.0 | DEX: {DEX_ADDRESS.slice(0, 6)}…
         </div>
       </div>
 
       <Modal isOpen={isTokenSelectOpen} onClose={() => setIsTokenSelectOpen(false)} title="Select Token">
-        <TokenSelectModal onSelect={handleTokenSelect} onClose={() => setIsTokenSelectOpen(false)} />
+        <TokenSelectModal onSelect={() => setIsTokenSelectOpen(false)} onClose={() => setIsTokenSelectOpen(false)} />
       </Modal>
     </>
   );
