@@ -230,13 +230,20 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
     gas: bigint,
   ): Promise<`0x${string}`> => {
     if (!walletClient) throw new Error("Wallet not connected");
+    console.log("--- SENDING RAW TRANSACTION ---");
+    console.log("To:", to);
+    console.log("Value:", value.toString());
+    console.log("Gas:", gas.toString());
+    console.log("Chain ID:", chain?.id);
+    console.log("Type: legacy");
+    
     return walletClient.sendTransaction({ 
       to, 
       data, 
       value, 
       gas, 
       chain,
-      type: 'legacy' // Kortana requires legacy transactions (no EIP-1559)
+      type: 'legacy'
     });
   };
 
@@ -471,6 +478,9 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
         >
           {buttonLabel}
         </motion.button>
+        <div className="text-[10px] text-center opacity-30 font-mono mt-2">
+          v1.1-DEBUG | Router: {KORTANA_ROUTER_ADDRESS.slice(0,6)}...
+        </div>
       </div>
 
       <Modal isOpen={isTokenSelectOpen} onClose={() => setIsTokenSelectOpen(false)} title="Select Token">
