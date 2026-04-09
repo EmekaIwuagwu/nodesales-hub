@@ -44,7 +44,8 @@ library Math {
         if (y > 3) {
             z = y;
             uint x = y / 2 + 1;
-            while (x < z) {
+            for (uint i = 0; i < 128; i++) { // Fixed iterations to prevent infinite loops
+                if (x >= z) break;
                 z = x;
                 x = (y / x + x) / 2;
             }
@@ -62,29 +63,10 @@ contract KortanaERC20 {
     mapping(address => uint) public balanceOf;
     mapping(address => mapping(address => uint)) public allowance;
 
-    bytes32 public DOMAIN_SEPARATOR;
-    // keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
-    bytes32 public constant PERMIT_TYPEHASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
-    mapping(address => uint) public nonces;
-
     event Approval(address indexed owner, address indexed spender, uint value);
     event Transfer(address indexed from, address indexed to, uint value);
 
-    constructor() {
-        uint chainId;
-        assembly {
-            chainId := chainid()
-        }
-        DOMAIN_SEPARATOR = keccak256(
-            abi.encode(
-                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-                keccak256(bytes(name)),
-                keccak256(bytes("1")),
-                chainId,
-                address(this)
-            )
-        );
-    }
+    constructor() {}
 
     function _mint(address to, uint value) internal {
         totalSupply += value;
@@ -128,17 +110,7 @@ contract KortanaERC20 {
     }
 
     function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external {
-        require(deadline >= block.timestamp, "Kortana: EXPIRED");
-        bytes32 digest = keccak256(
-            abi.encodePacked(
-                "\x19\x01",
-                DOMAIN_SEPARATOR,
-                keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, value, nonces[owner]++, deadline))
-            )
-        );
-        address recoveredAddress = ecrecover(digest, v, r, s);
-        require(recoveredAddress != address(0) && recoveredAddress == owner, "Kortana: INVALID_SIGNATURE");
-        _approve(owner, spender, value);
+        revert("Kortana: PERMIT_NOT_SUPPORTED");
     }
 }
 
