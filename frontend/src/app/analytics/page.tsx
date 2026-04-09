@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useReadContract } from "wagmi";
-import { FACTORY_ADDRESS, FACTORY_ABI, WDNR_ADDRESS, MDUSD_ADDRESS, PAIR_ABI } from "@/lib/contracts";
+import { DEX_ADDRESS, DEX_ABI } from "@/lib/contracts";
 import { formatEther } from "viem";
 
 const MOCK_DATA = [
@@ -19,25 +19,20 @@ const MOCK_DATA = [
 ];
 
 export default function AnalyticsPage() {
-  // Find Pair Address
-  const { data: pairAddress } = useReadContract({
-    address: FACTORY_ADDRESS as `0x${string}`,
-    abi: FACTORY_ABI,
-    functionName: "getPair",
-    args: [WDNR_ADDRESS as `0x${string}`, MDUSD_ADDRESS as `0x${string}`],
-  });
-
-  // Get Reserves
+  // Get Reserves directly from KortanaMonoDEX
   const { data: reserves } = useReadContract({
-    address: pairAddress as `0x${string}`,
-    abi: PAIR_ABI,
+    address: DEX_ADDRESS as `0x${string}`,
+    abi: DEX_ABI,
     functionName: "getReserves",
-    query: { enabled: !!pairAddress && pairAddress !== "0x0000000000000000000000000000000000000000", refetchInterval: 15000 }
+    query: { refetchInterval: 15000 },
   });
 
-  const reserve0 = reserves ? parseFloat(formatEther((reserves as unknown as bigint[])[0])) : 0;
-  const reserve1 = reserves ? parseFloat(formatEther((reserves as unknown as bigint[])[1])) : 0;
-  const tvl = (reserve0 + reserve1);
+  // reserves: [rMDUSD, rDNR]
+  const rMDUSD = reserves ? parseFloat(formatEther((reserves as [bigint, bigint])[0])) : 0;
+  const rDNR   = reserves ? parseFloat(formatEther((reserves as [bigint, bigint])[1])) : 0;
+  const reserve0 = rDNR;   // DNR
+  const reserve1 = rMDUSD; // mdUSD
+  const tvl = reserve0 + reserve1;
 
   return (
     <div className="flex flex-col gap-6 w-full mx-auto min-h-[calc(100vh-8rem)]">

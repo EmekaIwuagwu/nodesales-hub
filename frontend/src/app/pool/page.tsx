@@ -8,40 +8,28 @@ import { AddLiquidity } from "@/components/pool/AddLiquidity";
 import { LiquidityPosition } from "@/components/pool/LiquidityPosition";
 import { RemoveLiquidity } from "@/components/pool/RemoveLiquidity";
 import { useAccount, useReadContract } from "wagmi";
-import { FACTORY_ADDRESS, FACTORY_ABI, WDNR_ADDRESS, MDUSD_ADDRESS, PAIR_ABI } from "@/lib/contracts";
+import { DEX_ADDRESS, DEX_ABI } from "@/lib/contracts";
 
 export default function PoolPage() {
   const { address } = useAccount();
   const [isAddLiquidityModalOpen, setIsAddLiquidityModalOpen] = useState(false);
   const [isRemoveLiquidityModalOpen, setIsRemoveLiquidityModalOpen] = useState(false);
 
-  // Find Pair Address
-  const { data: pairAddress, refetch: refetchPair } = useReadContract({
-    address: FACTORY_ADDRESS as `0x${string}`,
-    abi: FACTORY_ABI,
-    functionName: "getPair",
-    args: [WDNR_ADDRESS as `0x${string}`, MDUSD_ADDRESS as `0x${string}`],
-  });
-
-  // Check LP Balance
+  // Check LP Balance directly from KortanaMonoDEX
   const { data: lpBalance, refetch: refetchLpBalance } = useReadContract({
-    address: pairAddress as `0x${string}`,
-    abi: PAIR_ABI,
-    functionName: "balanceOf",
+    address: DEX_ADDRESS as `0x${string}`,
+    abi: DEX_ABI,
+    functionName: "lpBalanceOf",
     args: [address as `0x${string}`],
-    query: { enabled: !!pairAddress && !!address }
+    query: { enabled: !!address, refetchInterval: 10000 },
   });
 
-  const hasLiquidity = lpBalance && (lpBalance as bigint) > BigInt(0);
+  const hasLiquidity = lpBalance && (lpBalance as bigint) > 0n;
 
-  // Called by AddLiquidity after a successful on-chain transaction so the
-  // pool page immediately reflects the new position without waiting for a
-  // page refresh.
   const handleLiquiditySuccess = useCallback(async () => {
-    await refetchPair();
     await refetchLpBalance();
     setIsAddLiquidityModalOpen(false);
-  }, [refetchPair, refetchLpBalance]);
+  }, [refetchLpBalance]);
 
   return (
     <>
