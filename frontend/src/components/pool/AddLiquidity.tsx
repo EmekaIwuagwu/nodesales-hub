@@ -37,6 +37,8 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
 
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
   const [selectingTarget, setSelectingTarget] = useState<0 | 1>(0);
+  // Track which tx is in-flight so isSuccess is handled correctly for each
+  const [pendingTx, setPendingTx] = useState<"approve" | "supply" | null>(null);
 
   const isWrongNetwork = isConnected && chain?.id !== 72511;
 
@@ -161,11 +163,19 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
 
   useEffect(() => {
-    if (isSuccess) {
+    if (!isSuccess) return;
+
+    if (pendingTx === "approve") {
+      // Approval confirmed — refetch allowance so button flips to "Supply Liquidity"
+      toast.success(`${token1.symbol} approved!`, { description: "Now click Supply Liquidity." });
+      refetchAllowance();
+      setPendingTx(null);
+    } else if (pendingTx === "supply") {
+      // Liquidity supply confirmed — close modal and refresh parent
       toast.success("Liquidity Provided!", { description: "Pool updated successfully." });
       setAmount0("");
       setAmount1("");
-      refetchAllowance();
+      setPendingTx(null);
       onSuccess?.();
     }
   }, [isSuccess]);
@@ -191,6 +201,7 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
     if (!canSupply) return;
 
     if (needsApproval) {
+      setPendingTx("approve");
       writeContract({
         address: token1.address as `0x${string}`,
         abi: ERC20_ABI,
@@ -200,6 +211,7 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
       return;
     }
 
+    setPendingTx("supply");
     const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 20);
     // 0.5 % slippage tolerance on both sides
     const amountTokenMin = (parseEther(amount1) * BigInt(995)) / BigInt(1000);
