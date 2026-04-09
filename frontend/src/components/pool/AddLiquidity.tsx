@@ -130,38 +130,38 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
   // ── Amount handlers ─────────────────────────────────────────────────────────
   const handleAmount0Change = (val: string) => {
     setAmount0(val);
-    if (pairExists && reserve0 && reserve1 && val && parseFloat(val) > 0) {
-      const r0 = parseFloat(formatEther(reserve0));
-      const r1 = parseFloat(formatEther(reserve1));
+    if (pairExists && reserve0 !== null && reserve1 !== null && val && parseFloat(val) > 0) {
+      const r0 = parseFloat(formatEther(reserve0 as bigint));
+      const r1 = parseFloat(formatEther(reserve1 as bigint));
       if (r0 > 0) setAmount1((parseFloat(val) * (r1 / r0)).toFixed(6));
     }
   };
   const handleAmount1Change = (val: string) => {
     setAmount1(val);
-    if (pairExists && reserve0 && reserve1 && val && parseFloat(val) > 0) {
-      const r0 = parseFloat(formatEther(reserve0));
-      const r1 = parseFloat(formatEther(reserve1));
+    if (pairExists && reserve0 !== null && reserve1 !== null && val && parseFloat(val) > 0) {
+      const r0 = parseFloat(formatEther(reserve0 as bigint));
+      const r1 = parseFloat(formatEther(reserve1 as bigint));
       if (r1 > 0) setAmount0((parseFloat(val) * (r0 / r1)).toFixed(6));
     }
   };
 
   // ── Display ─────────────────────────────────────────────────────────────────
   const priceRatio = (() => {
-    if (pairExists && reserve0 && reserve1) {
-      const r0 = parseFloat(formatEther(reserve0));
-      const r1 = parseFloat(formatEther(reserve1));
-      return r0 > 0 ? (r1 / r0).toFixed(6) : "—";
+    if (pairExists && reserve0 !== null && reserve1 !== null) {
+      const r0 = parseFloat(formatEther(reserve0 as bigint));
+      const r1 = parseFloat(formatEther(reserve1 as bigint));
+      if (r0 > 0) return (r1 / r0).toFixed(6);
     }
-    if (isNewPair && amount0 && amount1 && parseFloat(amount0) > 0 && parseFloat(amount1) > 0)
+    if ((isNewPair || (reserve0 === 0n && reserve1 === 0n)) && amount0 && amount1 && parseFloat(amount0) > 0 && parseFloat(amount1) > 0)
       return (parseFloat(amount1) / parseFloat(amount0)).toFixed(6);
     return "—";
   })();
 
   const poolShareDisplay = (() => {
-    if (isNewPair) return "100.00%";
-    if (!pairExists || !totalSupply || !reserve0 || !amount0 || parseFloat(amount0) <= 0) return "<0.01%";
+    if (isNewPair || (totalSupply === 0n)) return "100.00%";
+    if (!pairExists || !totalSupply || reserve0 === null || !amount0 || parseFloat(amount0) <= 0) return "<0.01%";
     const ts = parseFloat(formatEther(totalSupply as bigint));
-    const r0 = parseFloat(formatEther(reserve0));
+    const r0 = parseFloat(formatEther(reserve0 as bigint));
     if (ts === 0 || r0 === 0) return "100.00%";
     const lpEst = (parseFloat(amount0) / r0) * ts;
     const share = (lpEst / (ts + lpEst)) * 100;
