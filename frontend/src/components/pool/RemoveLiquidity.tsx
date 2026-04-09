@@ -58,6 +58,7 @@ export function RemoveLiquidity() {
         abi: PAIR_ABI,
         functionName: "approve",
         args: [KORTANA_ROUTER_ADDRESS as `0x${string}`, amountToRemove],
+        gas: 200000n,
       });
       return;
     }
@@ -75,6 +76,7 @@ export function RemoveLiquidity() {
         address as `0x${string}`,
         deadline
       ],
+      gas: 500000n,
     });
   };
 

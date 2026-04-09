@@ -191,8 +191,15 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
     return share < 0.01 ? "<0.01%" : share.toFixed(2) + "%";
   })();
 
-  const { writeContract, data: hash, isPending } = useWriteContract();
+  const { writeContract, data: hash, isPending, error: writeError } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
+
+  // Surface write errors to the user (e.g. gas estimation failures, wallet rejections)
+  useEffect(() => {
+    if (!writeError) return;
+    toast.error("Transaction failed", { description: writeError.message?.slice(0, 120) });
+    setPendingTx(null);
+  }, [writeError]);
 
   useEffect(() => {
     if (!isSuccess) return;
@@ -239,6 +246,8 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
         abi: ERC20_ABI,
         functionName: "approve",
         args: [KORTANA_ROUTER_ADDRESS as `0x${string}`, parseEther(amount1)],
+        // Kortana's eth_estimateGas returns too-low values (22088); override
+        gas: 200000n,
       });
       return;
     }
@@ -262,6 +271,8 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
         deadline,
       ],
       value: parseEther(amount0),
+      // Kortana's eth_estimateGas returns too-low values; override
+      gas: 500000n,
     });
   };
 

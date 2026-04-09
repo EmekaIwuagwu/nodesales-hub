@@ -59,8 +59,14 @@ export function SwapCard() {
     }
   }, [amountsOut]);
 
-  const { writeContract, data: hash, isPending } = useWriteContract();
+  const { writeContract, data: hash, isPending, error: writeError } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
+
+  useEffect(() => {
+    if (writeError) {
+      toast.error("Swap failed", { description: writeError.message?.slice(0, 120) });
+    }
+  }, [writeError]);
 
   useEffect(() => {
     if (hash) {
@@ -91,6 +97,7 @@ export function SwapCard() {
         functionName: "swapExactDNRForTokens",
         args: [amountOutMin, path, address as `0x${string}`, deadline],
         value: parseEther(sellAmount),
+        gas: 500000n,
       });
     } else {
       writeContract({
@@ -98,6 +105,7 @@ export function SwapCard() {
         abi: ROUTER_ABI,
         functionName: "swapExactTokensForDNR",
         args: [parseEther(sellAmount), amountOutMin, path, address as `0x${string}`, deadline],
+        gas: 500000n,
       });
     }
   };
