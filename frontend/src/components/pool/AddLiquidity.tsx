@@ -317,7 +317,7 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
           ],
         }),
         parseEther(a0),
-        1000000n,
+        3000000n,
       );
       setTxHash(hash);
       toast.success("Supply submitted", { description: "Waiting for confirmation…" });
