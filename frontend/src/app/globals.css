@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+  --color-border-default: var(--border-default);
+  --color-border-accent: var(--border-accent);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+
+  --color-accent-dnr: var(--accent-dnr);
+  --color-accent-dnr-muted: var(--accent-dnr-muted);
+  --color-accent-mdusd: var(--accent-mdusd);
+  --color-accent-mdusd-muted: var(--accent-mdusd-muted);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  
+  --font-inter: 'Inter', sans-serif;
+  --font-space: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+@layer base {
+  :root {
+    --bg-primary: #F8F9FC;
+    --bg-secondary: #FFFFFF;
+    --bg-tertiary: #F0F2F8;
+    --border-default: #E2E5F0;
+    --border-accent: #D4D8E8;
+    
+    --text-primary: #0A0B12;
+    --text-secondary: #4B5068;
+    --text-tertiary: #8B90A7;
+    
+    --accent-dnr: #D4A017;
+    --accent-dnr-muted: #D4A01720;
+    --accent-mdusd: #008B72;
+    --accent-mdusd-muted: #008B7215;
+
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+  }
+  
+  .dark {
+    --bg-primary: #08090E;
+    --bg-secondary: #10121A;
+    --bg-tertiary: #1A1D2E;
+    --border-default: #2A2D3E;
+    --border-accent: #3A3F5C;
+    
+    --text-primary: #F0F1F5;
+    --text-secondary: #8B90A7;
+    --text-tertiary: #5C6180;
+    
+    --accent-dnr: #F5C842;
+    --accent-dnr-muted: #F5C84220;
+    --accent-mdusd: #00D4AA;
+    --accent-mdusd-muted: #00D4AA15;
+
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+  }
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-inter);
+}
+
+.dark body {
+  background: 
+    radial-gradient(ellipse 800px 600px at 20% 10%, var(--accent-dnr-muted), transparent),
+    radial-gradient(ellipse 600px 500px at 80% 90%, var(--accent-mdusd-muted), transparent),
+    var(--bg-primary);
+  background-attachment: fixed;
+}
