@@ -1,48 +1,57 @@
-# Base image
-FROM node:20-alpine AS base
-
-# 1. Install dependencies only when needed
-FROM base AS deps
+# ──────────────────────────────────────────────────────────────────────────────
+# Stage 1 – install deps
+# ──────────────────────────────────────────────────────────────────────────────
+FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-
-# Copy the frontend folder contents to the root of the /app directory
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm install --legacy-peer-deps
 
-# 2. Rebuild the source code only when necessary
-FROM base AS builder
+# ──────────────────────────────────────────────────────────────────────────────
+# Stage 2 – build
+# ──────────────────────────────────────────────────────────────────────────────
+FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY frontend/ .
 
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN npm run build
 
-# 3. Production image, copy all the files and run next
-FROM base AS runner
+# Verify the standalone output exists before the runner stage tries to copy it.
+# If server.js is missing the build will fail here with a clear message instead
+# of a cryptic "not found" error in the COPY step.
+RUN test -f /app/.next/standalone/server.js \
+    || (echo "ERROR: /app/.next/standalone/server.js not found. Check next.config output:'standalone'" && exit 1)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Stage 3 – production runner
+# ──────────────────────────────────────────────────────────────────────────────
+FROM node:20-alpine AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN addgroup --system --gid 1001 nodejs \
+ && adduser  --system --uid 1001 nextjs
 
+# public/ assets
 COPY --from=builder /app/public ./public
 
-# Standalone output lands directly at /app/.next/standalone/ (no nested subfolder)
+# Standalone bundle — server.js + minimal node_modules + .next/server
+# The standalone dir contents land directly at /app (no nested subfolder).
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone/ ./
 
-# Then we copy static files to the correct expected locations
+# Static assets must be alongside the .next directory that server.js expects
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]
