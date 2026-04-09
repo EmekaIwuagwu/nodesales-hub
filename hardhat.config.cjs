@@ -24,7 +24,8 @@ module.exports = {
       url: process.env.TESTNET_RPC || "https://poseidon-rpc.testnet.kortana.xyz/",
       chainId: 72511,
       accounts: privateKey ? [privateKey] : [],
-      gas: 500000, // eth_estimateGas on Kortana returns too-low values; override
+      gas: 500000,     // eth_estimateGas on Kortana returns too-low values; override
+      gasPrice: 1,     // force legacy (type-0) tx — Kortana does not support EIP-1559
     },
     kortanaMainnet: {
       url: process.env.MAINNET_RPC || "https://zeus-rpc.mainnet.kortana.xyz",

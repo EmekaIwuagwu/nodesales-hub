@@ -202,6 +202,16 @@ contract KortanaPair is KortanaERC20 {
         token1 = _token1;
     }
 
+    // allows the deployer (who is set as factory in constructor) to point factory
+    // at the real factory contract after registering the pair.
+    // can only be called by the current factory value, and only once (tokens must be set).
+    function setFactory(address _factory) external {
+        require(msg.sender == factory, "Kortana: FORBIDDEN");
+        require(token0 != address(0), "Kortana: NOT_INITIALIZED");
+        require(_factory != address(0), "Kortana: ZERO_ADDRESS");
+        factory = _factory;
+    }
+
     // update reserves and, on the first call per block, price accumulators
     function _update(uint balance0, uint balance1, uint112 _reserve0, uint112 _reserve1) private {
         require(balance0 <= type(uint112).max && balance1 <= type(uint112).max, "Kortana: OVERFLOW");

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "../../core/interfaces/IKortanaPair.sol";
-import "../../core/KortanaPair.sol";
+import "../../core/interfaces/IKortanaFactory.sol";
 
 library KortanaLibrary {
     // returns sorted token addresses, used to handle return values from pairs remotely
@@ -12,15 +12,13 @@ library KortanaLibrary {
         require(token0 != address(0), "KortanaLibrary: ZERO_ADDRESS");
     }
 
-    // calculates the CREATE2 address for a pair without making any external calls
-    function pairFor(address factory, address tokenA, address tokenB) internal pure returns (address pair) {
+    // Looks up the pair address from the factory mapping.
+    // We use CREATE (not CREATE2) on Kortana because CREATE2 is not supported.
+    // This means we cannot compute pair addresses off-chain, so we must call the factory.
+    function pairFor(address factory, address tokenA, address tokenB) internal view returns (address pair) {
         (address token0, address token1) = sortTokens(tokenA, tokenB);
-        pair = address(uint160(uint(keccak256(abi.encodePacked(
-                hex'ff',
-                factory,
-                keccak256(abi.encodePacked(token0, token1)),
-                keccak256(type(KortanaPair).creationCode)
-            )))));
+        pair = IKortanaFactory(factory).getPair(token0, token1);
+        require(pair != address(0), "KortanaLibrary: PAIR_NOT_FOUND");
     }
 
     // fetches and sorts the reserves for a pair

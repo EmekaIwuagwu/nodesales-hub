@@ -5,6 +5,12 @@ import "./libraries/KortanaLibrary.sol";
 import "../core/interfaces/IKortanaFactory.sol";
 import "../core/interfaces/IKortanaPair.sol";
 
+interface IERC20 {
+    function balanceOf(address owner) external view returns (uint);
+    function transfer(address to, uint value) external returns (bool);
+    function transferFrom(address from, address to, uint value) external returns (bool);
+}
+
 interface IWDNR {
     function deposit() external payable;
     function transfer(address to, uint value) external returns (bool);
@@ -38,10 +44,12 @@ contract KortanaRouter {
         uint amountAMin,
         uint amountBMin
     ) internal virtual returns (uint amountA, uint amountB) {
-        // create the pair if it doesn't exist yet
-        if (IKortanaFactory(factory).getPair(tokenA, tokenB) == address(0)) {
-            IKortanaFactory(factory).createPair(tokenA, tokenB);
-        }
+        // On Kortana, pairs must be pre-deployed and registered via factory.registerPair().
+        // Internal contract creation (CREATE/CREATE2) is not supported by the Kortana EVM.
+        require(
+            IKortanaFactory(factory).getPair(tokenA, tokenB) != address(0),
+            "KortanaRouter: PAIR_NOT_REGISTERED"
+        );
         (uint reserveA, uint reserveB) = KortanaLibrary.getReserves(factory, tokenA, tokenB);
         if (reserveA == 0 && reserveB == 0) {
             (amountA, amountB) = (amountADesired, amountBDesired);

@@ -17,7 +17,7 @@
 import pkg from "hardhat";
 const { ethers } = pkg;
 
-const MDUSD_ADDRESS = "0x371DeB6F2Bce2c9b3de001F4273b22A0abE03025";
+const MDUSD_ADDRESS = "0xEA492aA6e52E9202d2f377C2FD16395cb4A2D7B8";
 const MINT_AMOUNT   = ethers.parseEther("1000000"); // 1 million mdUSD stockpile
 
 const ABI = [
