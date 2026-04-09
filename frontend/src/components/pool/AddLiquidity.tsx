@@ -192,6 +192,7 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
     if (!isReceiptError || !txHash) return;
     
     const fetchReason = async () => {
+      if (!publicClient || !txHash) return;
       try {
         const tx = await publicClient.getTransaction({ hash: txHash });
         // Simulate the call to find the revert reason
