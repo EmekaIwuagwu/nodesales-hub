@@ -6,10 +6,11 @@ import { motion } from "framer-motion";
 import { TokenInput } from "../swap/TokenInput";
 import {
   useAccount, useBalance, useReadContract,
-  useWriteContract, useWaitForTransactionReceipt, useSwitchChain
+  useWalletClient, usePublicClient,
+  useWaitForTransactionReceipt, useSwitchChain
 } from "wagmi";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import { parseEther, formatEther } from "viem";
+import { parseEther, formatEther, encodeFunctionData } from "viem";
 import {
   KORTANA_ROUTER_ADDRESS, ROUTER_ABI,
   MDUSD_ADDRESS, ERC20_ABI,
@@ -29,6 +30,8 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
   const { isConnected, address, chain } = useAccount();
   const { openConnectModal } = useConnectModal();
   const { switchChain } = useSwitchChain();
+  const { data: walletClient } = useWalletClient();
+  const publicClient = usePublicClient();
 
   // token0 is always the DNR side; token1 is the ERC20 side
   const [token0, setToken0] = useState({ symbol: "DNR", address: WDNR_ADDRESS });
@@ -38,9 +41,11 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
 
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
   const [selectingTarget, setSelectingTarget] = useState<0 | 1>(0);
-  // Track which tx is in-flight so isSuccess is handled correctly for each
   const [pendingTx, setPendingTx] = useState<"approve" | "supply" | null>(null);
   const [isFauceting, setIsFauceting] = useState(false);
+  // Track tx hash manually (replaces useWriteContract's hash state)
+  const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
+  const [isPending, setIsPending] = useState(false);
 
   const isWrongNetwork = isConnected && chain?.id !== 72511;
 
@@ -191,52 +196,72 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
     return share < 0.01 ? "<0.01%" : share.toFixed(2) + "%";
   })();
 
-  const { writeContract, data: hash, isPending, error: writeError } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
+  // useWaitForTransactionReceipt tracks whichever hash is set
+  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
-  // Extracted so it can be called both from button click and after approval
-  const doSupply = (a0: string, a1: string) => {
+  // Raw send — bypasses wagmi's internal eth_estimateGas completely
+  const sendRaw = async (
+    to: `0x${string}`,
+    data: `0x${string}`,
+    value: bigint,
+    gas: bigint,
+  ): Promise<`0x${string}`> => {
+    if (!walletClient) throw new Error("Wallet not connected");
+    // Simulate first so we get a real revert reason if it would fail
+    try {
+      await publicClient?.call({ to, data, value, account: address, gas });
+    } catch (simErr: any) {
+      const msg = simErr?.shortMessage ?? simErr?.message ?? "Simulation failed";
+      throw new Error(`Simulate: ${msg}`);
+    }
+    return walletClient.sendTransaction({ to, data, value, gas, chain });
+  };
+
+  const doSupply = async (a0: string, a1: string) => {
     setPendingTx("supply");
+    setIsPending(true);
     const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 20);
     const amountTokenMin = (parseEther(a1) * BigInt(995)) / BigInt(1000);
     const amountDNRMin   = (parseEther(a0) * BigInt(995)) / BigInt(1000);
-    writeContract({
-      address: KORTANA_ROUTER_ADDRESS as `0x${string}`,
-      abi: ROUTER_ABI,
-      functionName: "addLiquidityDNR",
-      args: [
-        token1.address as `0x${string}`,
-        parseEther(a1),
-        amountTokenMin,
-        amountDNRMin,
-        address as `0x${string}`,
-        deadline,
-      ],
-      value: parseEther(a0),
-      gas: 500000n,
-    });
+    try {
+      const hash = await sendRaw(
+        KORTANA_ROUTER_ADDRESS as `0x${string}`,
+        encodeFunctionData({
+          abi: ROUTER_ABI,
+          functionName: "addLiquidityDNR",
+          args: [
+            token1.address as `0x${string}`,
+            parseEther(a1),
+            amountTokenMin,
+            amountDNRMin,
+            address as `0x${string}`,
+            deadline,
+          ],
+        }),
+        parseEther(a0),
+        500000n,
+      );
+      setTxHash(hash);
+    } catch (e: any) {
+      toast.error("Supply failed", { description: e?.message?.slice(0, 150) });
+      setPendingTx(null);
+    } finally {
+      setIsPending(false);
+    }
   };
-
-  // Surface write errors to the user (e.g. gas estimation failures, wallet rejections)
-  useEffect(() => {
-    if (!writeError) return;
-    toast.error("Transaction failed", { description: writeError.message?.slice(0, 120) });
-    setPendingTx(null);
-  }, [writeError]);
 
   useEffect(() => {
     if (!isSuccess) return;
 
     if (pendingTx === "approve") {
-      // Approval confirmed — auto-proceed to supply (no second click needed)
       toast.success(`${token1.symbol} approved! Proceeding to supply…`);
       refetchAllowance();
-      // Use captured amounts directly to avoid stale closure
       doSupply(amount0, amount1);
     } else if (pendingTx === "supply") {
       toast.success("Liquidity Provided!", { description: "Pool updated successfully." });
       setAmount0("");
       setAmount1("");
+      setTxHash(undefined);
       setPendingTx(null);
       onSuccess?.();
     }
@@ -257,20 +282,32 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
     parseFloat(amount0) > 0 &&
     parseFloat(amount1) > 0;
 
-  const handleSupply = () => {
+  const handleSupply = async () => {
     if (!isConnected) { openConnectModal?.(); return; }
     if (isWrongNetwork) { switchChain?.({ chainId: 72511 }); return; }
     if (!canSupply) return;
 
     if (needsApproval) {
       setPendingTx("approve");
-      writeContract({
-        address: token1.address as `0x${string}`,
-        abi: ERC20_ABI,
-        functionName: "approve",
-        args: [KORTANA_ROUTER_ADDRESS as `0x${string}`, parseEther(amount1)],
-        gas: 200000n,
-      });
+      setIsPending(true);
+      try {
+        const hash = await sendRaw(
+          token1.address as `0x${string}`,
+          encodeFunctionData({
+            abi: ERC20_ABI,
+            functionName: "approve",
+            args: [KORTANA_ROUTER_ADDRESS as `0x${string}`, parseEther(amount1)],
+          }),
+          0n,
+          200000n,
+        );
+        setTxHash(hash);
+      } catch (e: any) {
+        toast.error("Approval failed", { description: e?.message?.slice(0, 150) });
+        setPendingTx(null);
+      } finally {
+        setIsPending(false);
+      }
       return;
     }
 
