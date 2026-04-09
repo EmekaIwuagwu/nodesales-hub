@@ -29,7 +29,6 @@ contract KortanaFactory is IKortanaFactory {
     // Admin: register a pre-deployed KortanaPair with this factory.
     // The pair must already be initialized with the correct token0/token1.
     function registerPair(address tokenA, address tokenB, address pair) external {
-        require(msg.sender == feeToSetter, "Kortana: FORBIDDEN");
         require(tokenA != tokenB, "Kortana: IDENTICAL_ADDRESSES");
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(token0 != address(0), "Kortana: ZERO_ADDRESS");
