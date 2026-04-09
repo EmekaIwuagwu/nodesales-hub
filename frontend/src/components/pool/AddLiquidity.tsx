@@ -173,7 +173,7 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
   const needsApproval =
     isAllowanceLoading ||
     allowanceData === undefined ||
-    (amount1 !== "" && parseFloat(amount1) > 0 && (allowanceData as bigint) < parseEther(amount1));
+    (amount1 !== "" && parseFloat(amount1) > 0 && (allowanceData as bigint) < parseEther(amount1) + 1n);
 
   const canSupply =
     isConnected &&
@@ -296,9 +296,19 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
       setTxHash(hash);
       toast.success("Supply submitted", { description: "Waiting for confirmation…" });
     } catch (e: any) {
-      const msg: string = e?.message ?? "Supply rejected";
+      console.error(e);
+      let msg = "Supply failed";
+      if (e?.shortMessage) msg = e.shortMessage;
+      else if (e?.message) msg = e.message;
+
       if (!msg.toLowerCase().includes("user rejected") && !msg.toLowerCase().includes("denied")) {
-        toast.error("Supply failed", { description: msg.slice(0, 150) });
+        toast.error("Supply reverted on-chain", { 
+          description: msg.slice(0, 150),
+          action: {
+            label: "Explain",
+            onClick: () => alert(msg) 
+          }
+        });
       }
       setStep(null);
     } finally {
