@@ -42,6 +42,23 @@ const MDUSD_ABI = [
     inputs: [{ name: "account", type: "address" as const }],
     outputs: [{ name: "", type: "bool" as const }],
   },
+  {
+    name: "owner",
+    type: "function" as const,
+    stateMutability: "view" as const,
+    inputs: [],
+    outputs: [{ name: "", type: "address" as const }],
+  },
+  {
+    name: "setOperator",
+    type: "function" as const,
+    stateMutability: "nonpayable" as const,
+    inputs: [
+      { name: "operator", type: "address" as const },
+      { name: "status", type: "bool" as const },
+    ],
+    outputs: [],
+  },
 ];
 
 // Simple in-memory cooldown: one request per address per 60 seconds
@@ -97,19 +114,46 @@ export async function POST(req: NextRequest) {
       transport: http(),
     });
 
-    // Verify the deployer is an operator before attempting mint
-    const isOp = await publicClient.readContract({
-      address: MDUSD_ADDRESS,
-      abi: MDUSD_ABI,
-      functionName: "isOperator",
-      args: [account.address],
-    });
+    // Check operator status — if not set, try to self-register (only works if
+    // this account is the contract owner, which it should be on testnet).
+    const [isOp, owner] = await Promise.all([
+      publicClient.readContract({
+        address: MDUSD_ADDRESS,
+        abi: MDUSD_ABI,
+        functionName: "isOperator",
+        args: [account.address],
+      }),
+      publicClient.readContract({
+        address: MDUSD_ADDRESS,
+        abi: MDUSD_ABI,
+        functionName: "owner",
+      }),
+    ]);
 
     if (!isOp) {
-      return NextResponse.json(
-        { error: "Faucet account is not an mdUSD operator. Re-run deploy script." },
-        { status: 500 }
-      );
+      const isOwner =
+        (owner as string).toLowerCase() === account.address.toLowerCase();
+
+      if (!isOwner) {
+        return NextResponse.json(
+          {
+            error:
+              `Faucet wallet (${account.address}) is neither an operator nor the mdUSD owner. ` +
+              `Contract owner is ${owner}. Ensure PRIVATE_KEY in Render matches the deployer.`,
+          },
+          { status: 500 }
+        );
+      }
+
+      // We are the owner — register ourselves as operator now
+      const opHash = await walletClient.writeContract({
+        address: MDUSD_ADDRESS,
+        abi: MDUSD_ABI,
+        functionName: "setOperator",
+        args: [account.address, true],
+      });
+      // Wait for the operator tx to be mined before minting
+      await publicClient.waitForTransactionReceipt({ hash: opHash });
     }
 
     const hash = await walletClient.writeContract({
