@@ -98,6 +98,7 @@ export function SwapCard() {
         args: [amountOutMin, path, address as `0x${string}`, deadline],
         value: parseEther(sellAmount),
         gas: 1000000n,
+        type: 'legacy',
       });
     } else {
       writeContract({
@@ -106,6 +107,7 @@ export function SwapCard() {
         functionName: "swapExactTokensForDNR",
         args: [parseEther(sellAmount), amountOutMin, path, address as `0x${string}`, deadline],
         gas: 1000000n,
+        type: 'legacy',
       });
     }
   };

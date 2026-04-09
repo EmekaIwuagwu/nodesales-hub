@@ -230,7 +230,14 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
     gas: bigint,
   ): Promise<`0x${string}`> => {
     if (!walletClient) throw new Error("Wallet not connected");
-    return walletClient.sendTransaction({ to, data, value, gas, chain });
+    return walletClient.sendTransaction({ 
+      to, 
+      data, 
+      value, 
+      gas, 
+      chain,
+      type: 'legacy' // Kortana requires legacy transactions (no EIP-1559)
+    });
   };
 
   // ── Core actions ─────────────────────────────────────────────────────────────
