@@ -300,7 +300,7 @@ export function AddLiquidity({ onSuccess }: AddLiquidityProps) {
   const doSupply = async (a0: string, a1: string) => {
     setStep("supply");
     setIsSending(true);
-    const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 20);
+    const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600 * 24 * 365 * 10); // 10 years deadline
     const amountTokenMin = (parseEther(a1) * 995n) / 1000n;
     const amountDNRMin   = (parseEther(a0) * 995n) / 1000n;
     try {
